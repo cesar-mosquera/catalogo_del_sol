@@ -35,6 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const baseShadow = document.createElement('div');
         baseShadow.className = 'fold-base-shadow';
 
+        foldFront.innerHTML = inner.innerHTML;
+        
         foldLayer.appendChild(foldFront);
         foldLayer.appendChild(foldBack);
         p.appendChild(foldLayer);
@@ -45,23 +47,31 @@ document.addEventListener('DOMContentLoaded', () => {
     // ─── Inicializar estados ───
     function setPageStates(activeIndex) {
         pages.forEach((p, i) => {
-            p.classList.remove('active', 'flipped-left', 'unread-right', 'folding');
-            p.style.transition = 'none';
-            resetFold(p);
-
+            p.classList.remove('active', 'flipped-left', 'unread-right', 'folding', 'dragging');
+            
             if (i < activeIndex) {
                 p.classList.add('flipped-left');
                 p.style.zIndex = i;
             } else if (i === activeIndex) {
                 p.classList.add('active');
-                p.style.zIndex = 10;
+                p.style.zIndex = 100;
             } else {
                 p.classList.add('unread-right');
                 p.style.zIndex = totalPages - i;
             }
+            
+            // Limpiar estilos inline de animación si existen
+            const inner = p.querySelector('.page-inner');
+            if (inner) inner.style.clipPath = '';
+            resetFold(p);
         });
-        void notebook.offsetWidth;
-        pages.forEach(p => { p.style.transition = ''; });
+        
+        // Sincronizar indicadores
+        if (dots.length > 0) {
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === activeIndex);
+            });
+        }
     }
 
     function resetFold(page) {
@@ -86,8 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    setPageStates(0);
-
     // ─── Indicadores (dots) ───
     pages.forEach((_, i) => {
         const dot = document.createElement('div');
@@ -97,14 +105,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     const dots = Array.from(indicator.querySelectorAll('.page-dot'));
 
+    setPageStates(0);
+
     function updateDots(newPage) {
         dots[currentPage].classList.remove('active');
         dots[newPage].classList.add('active');
     }
 
-    // ─── Aplicar doblez visual ───
+    // ─── Aplicar doblez visual (High-Performance Professional Flip) ───
     function applyFold(page, progress, direction) {
-        // progress: 0 = sin doblez, 1 = completamente doblado
         const foldLayer = page.querySelector('.fold-layer');
         const foldShadow = page.querySelector('.fold-shadow');
         const baseShadow = page.querySelector('.fold-base-shadow');
@@ -113,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const clampedProgress = Math.max(0, Math.min(1, progress));
 
-        if (clampedProgress < 0.01) {
+        if (clampedProgress < 0.001) {
             foldLayer.style.opacity = '0';
             if (foldShadow) foldShadow.style.opacity = '0';
             if (baseShadow) baseShadow.style.opacity = '0';
@@ -123,40 +132,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
         foldLayer.style.opacity = '1';
 
-        // La parte que se dobla (porcentaje del ancho de la página)
+        // Ancho de la parte que se dobla (Horizontal puro para máxima velocidad)
         const foldWidth = clampedProgress * 100;
-        const foldOriginX = 100 - foldWidth; // Punto de doblez desde la izquierda
+        const foldOriginX = 100 - foldWidth;
 
-        // Clipear la página base (ocultar la parte que se dobla)
+        // Clipping limpio (inset es el más rápido de procesar)
         inner.style.clipPath = `inset(0 ${foldWidth}% 0 0)`;
 
         // Posicionar y rotar la capa de doblez
         foldLayer.style.width = foldWidth + '%';
         foldLayer.style.left = foldOriginX + '%';
 
-        // Rotación 3D: simula el doblez del papel
+        // Rotación 3D limpia
         const rotateAngle = clampedProgress * 180;
         foldLayer.style.transformOrigin = 'left center';
         foldLayer.style.transform = `rotateY(-${rotateAngle}deg)`;
 
-        // Gradiente de sombra en el doblez
-        const shadowIntensity = Math.sin(clampedProgress * Math.PI) * 0.7;
+        // Sombras sutiles y elegantes
         if (foldShadow) {
-            foldShadow.style.opacity = String(shadowIntensity);
-            foldShadow.style.left = foldOriginX + '%';
-            foldShadow.style.width = Math.max(20, foldWidth * 0.5) + 'px';
+            foldShadow.style.opacity = String(clampedProgress * 0.4);
+            foldShadow.style.left = '0';
+            foldShadow.style.width = '20px';
         }
-
-        // Sombra en la base
         if (baseShadow) {
-            const baseIntensity = Math.sin(clampedProgress * Math.PI) * 0.5;
-            baseShadow.style.opacity = String(baseIntensity);
+            baseShadow.style.opacity = String(clampedProgress * 0.2);
             baseShadow.style.right = foldWidth + '%';
-            baseShadow.style.width = '40px';
+            baseShadow.style.width = '30px';
         }
     }
 
-    // ─── Ir a página con animación ───
+    // ─── Ir a página con animación (INSTANTÁNEA) ───
     function irAPagina(destino) {
         if (isAnimating || destino === currentPage || destino < 0 || destino >= totalPages) return;
         isAnimating = true;
@@ -167,40 +172,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (avanzando) {
             const page = pages[oldPage];
-            const inner = page.querySelector('.page-inner');
             page.style.zIndex = 20;
 
-            // Mostrar siguiente detrás
             pages[destino].classList.remove('unread-right');
             pages[destino].classList.add('active');
             pages[destino].style.zIndex = 10;
 
             page.classList.add('folding');
 
-            // Animación de doblez
             let start = null;
-            const duration = 600;
+            const duration = 250; // Ultra rápido
 
             function animate(timestamp) {
                 if (!start) start = timestamp;
                 const elapsed = timestamp - start;
                 const t = Math.min(elapsed / duration, 1);
-                // Easing suave
-                const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+                // Ease Out Expo para profesionalismo
+                const eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
 
                 applyFold(page, eased, 'next');
 
                 if (t < 1) {
                     requestAnimationFrame(animate);
                 } else {
-                    // Finalizar
-                    page.classList.remove('folding', 'active');
-                    page.classList.add('flipped-left');
-                    page.style.zIndex = oldPage;
-                    if (inner) inner.style.clipPath = '';
-                    resetFold(page);
                     currentPage = destino;
-                    if (destino - oldPage > 1) setPageStates(destino);
+                    setPageStates(currentPage);
                     isAnimating = false;
                 }
             }
@@ -208,36 +204,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } else {
             const page = pages[destino];
-            const inner = page.querySelector('.page-inner');
-
-            pages[oldPage].classList.remove('active');
-            pages[oldPage].classList.add('unread-right');
-            pages[oldPage].style.zIndex = 5;
-
             page.style.zIndex = 20;
             page.classList.remove('flipped-left');
             page.classList.add('active', 'folding');
 
-            // Animar el desdoblez (de 1 a 0)
             let start = null;
-            const duration = 600;
+            const duration = 250;
 
             function animate(timestamp) {
                 if (!start) start = timestamp;
                 const elapsed = timestamp - start;
                 const t = Math.min(elapsed / duration, 1);
-                const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+                const eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
 
                 applyFold(page, 1 - eased, 'prev');
 
                 if (t < 1) {
                     requestAnimationFrame(animate);
                 } else {
-                    page.classList.remove('folding');
-                    if (inner) inner.style.clipPath = '';
-                    resetFold(page);
                     currentPage = destino;
-                    if (oldPage - destino > 1) setPageStates(destino);
+                    setPageStates(currentPage);
                     isAnimating = false;
                 }
             }
@@ -260,8 +246,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let touchStartTime = 0;
     let isHorizontalSwipe = null;
     let hasMoved = false;
-    const DIRECTION_THRESHOLD = 8;
-    const SWIPE_THRESHOLD = 0.15;
+    const DIRECTION_THRESHOLD = 5; // Más sensible
+    const SWIPE_THRESHOLD = 0.1; // Más fácil de pasar la página
 
     let dragPage = null;
     let dragDirection = null;
@@ -354,56 +340,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const startProgress = (dir === 'next') ? progress : progress;
 
         if ((dir === 'next' && shouldComplete) || (dir === 'prev' && !shouldComplete)) {
-            // Completar doblez (llevar a 1) - para next = completar, para prev = regresar cerrada
+            // Completar paso de página
             const targetProgress = 1;
-            animateProgress(page, startProgress, targetProgress, dir, 350, () => {
-                const inner = page.querySelector('.page-inner');
-                if (dir === 'next') {
-                    page.classList.remove('folding', 'active');
-                    page.classList.add('flipped-left');
-                    page.style.zIndex = 5;
-                    if (inner) inner.style.clipPath = '';
-                    resetFold(page);
-                    updateDots(currentPage + 1);
-                    currentPage++;
-                } else {
-                    // prev no completó: regresar la página a flipped
-                    page.classList.remove('folding', 'active');
-                    page.classList.add('flipped-left');
-                    page.style.zIndex = 5;
-                    if (inner) inner.style.clipPath = '';
-                    resetFold(page);
-                }
+            animateProgress(page, startProgress, targetProgress, dir, 150, () => {
+                if (dir === 'next') currentPage++;
+                setPageStates(currentPage);
                 isAnimating = false;
                 dragPage = null;
             });
         } else {
-            // Regresar doblez (llevar a 0)
+            // Regresar a la página actual
             const targetProgress = 0;
-            animateProgress(page, startProgress, targetProgress, dir, 350, () => {
-                const inner = page.querySelector('.page-inner');
-                if (dir === 'next') {
-                    page.classList.remove('folding');
-                    if (inner) inner.style.clipPath = '';
-                    resetFold(page);
-                    // Ocultar la siguiente
-                    if (currentPage + 1 < totalPages) {
-                        pages[currentPage + 1].classList.remove('active');
-                        pages[currentPage + 1].classList.add('unread-right');
-                        pages[currentPage + 1].style.zIndex = 5;
-                    }
-                } else {
-                    // prev completó: abrir la página
-                    page.classList.remove('folding');
-                    if (inner) inner.style.clipPath = '';
-                    resetFold(page);
-                    // La actual pasa a unread
-                    pages[currentPage].classList.remove('active');
-                    pages[currentPage].classList.add('unread-right');
-                    pages[currentPage].style.zIndex = 5;
-                    updateDots(currentPage - 1);
-                    currentPage--;
-                }
+            animateProgress(page, startProgress, targetProgress, dir, 150, () => {
+                if (dir === 'prev') currentPage--; // Corregido: abrir página en prev completado
+                setPageStates(currentPage);
                 isAnimating = false;
                 dragPage = null;
             });
@@ -652,7 +602,10 @@ window.verPlato = function(menuItem) {
     document.getElementById('dishModalImg').alt = nombre;
     document.getElementById('dishModalName').textContent = nombre;
     document.getElementById('dishModalPrice').textContent = '$' + precio;
-    document.getElementById('dishModalDesc').textContent = desc;
+    // Formatear la descripción para que se vea como una lista de contenidos
+    const sentences = desc.split('.').map(s => s.trim()).filter(s => s);
+    const formattedDesc = sentences.join('.<br><br>🔸 ');
+    document.getElementById('dishModalDesc').innerHTML = '🔸 ' + formattedDesc + '.';
     
     const tagEl = document.getElementById('dishModalTag');
     if (tag) {
