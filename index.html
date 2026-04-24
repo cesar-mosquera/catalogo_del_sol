@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Pinchos y Chuletas Del Sol — Menú Digital</title>
+    <meta name="description" content="Menú digital de Pinchos y Chuletas Del Sol. Auténtica gastronomía ecuatoriana.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400&family=Outfit:wght@300;400;500;600&family=Dancing+Script:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=10">
+    <style>
+        /* Estilos inline movidos a CSS */
+        .cover-page-inner {
+            background: #000;
+        }
+
+        .cover-bg-image {
+            object-fit: contain;
+        }
+
+        .cover-gradient-overlay {
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 25%);
+        }
+
+        .tag-chef {
+            background: var(--gold);
+            color: var(--wood-dark);
+            font-weight: 700;
+        }
+
+        .btn-modal-close {
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Decoraciones de fondo -->
+    <aside class="bg-decorations" aria-label="Decoraciones de fondo">
+        <div class="bg-sun"></div>
+        <div class="bg-sparks spark-1"></div>
+        <div class="bg-sparks spark-2"></div>
+        <div class="bg-sparks spark-3"></div>
+        <div class="bg-grill-pattern"></div>
+    </aside>
+
+    <!-- Contenedor principal del menú digital -->
+    <main class="notebook" id="notebook" role="main" aria-label="Menú digital interactivo">
+
+        <!-- Indicador de páginas -->
+        <nav class="page-indicator" id="pageIndicator" aria-label="Navegación de páginas"></nav>
+
+        <!-- Portada -->
+        <section class="page page--cover active" data-page="0" aria-label="Portada del menú">
+            <div class="page-inner cover-page cover-page-inner">
+                <img src="img/cover.png" alt="Portada de Pinchos y Chuletas Del Sol" class="cover-bg-image">
+                <div class="cover-overlay cover-gradient-overlay" aria-hidden="true"></div>
+                <div class="cover-content" style="flex: 1;">
+                    <!-- Los textos se eliminaron porque la imagen ya los trae -->
+                </div>
+                <div class="cover-bottom">
+                    <div class="cover-swipe">
+                        <span>Desliza para ver el menú</span>
+                        <div class="swipe-arrow">→</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección: Parrilla al Carbón -->
+        <section class="page" data-page="1" aria-label="Parrilla al Carbón">
+            <div class="page-inner multi-dish-page">
+                <div class="page-header">
+                    <span class="page-section-label">Parrilla al Carbón</span>
+                    <span class="page-number">1</span>
+                </div>
+                <ul class="menu-list compact" role="list">
+                    <!-- Pincho de Pollo -->
+                    <li class="menu-item line-separated" role="listitem"
+                        data-nombre="Pincho de Pollo" data-precio="3.50"
+                        data-desc="Trozos jugosos de pollo marinado en ají y especias criollas. Asado al carbón lentamente hasta dorar. Servido con chimichurri casero. Puro sabor ecuatoriano."
+                        data-img="img/pincho_pollo.png">
+                        <img src="img/pincho_pollo.png" alt="Pincho de Pollo" class="menu-img" onclick="verPlato(this.closest('.menu-item'))">
+                        <div class="menu-info">
+                            <div class="menu-header-row">
+                                <h3>Pincho de Pollo</h3>
+                                <span class="menu-price">$3.50</span>
+                            </div>
+                            <div class="menu-actions-row">
+                                <button class="btn-ver-mas" onclick="verPlato(this.closest('.menu-item'))">📖 Ver más</button>
+                                <button class="btn-whatsapp" onclick="pedirWsp('Pincho de Pollo', 3.50, event)">Pedir 🛒</button>
+                            </div>
+                        </div>
+                    </li>
+                    <!-- Pincho Mixto -->
+                    <li class="menu-item line-separated" role="listitem"
+                        data-nombre="Pincho Mixto" data-precio="4.00"
+                        data-desc="Lo mejor de dos mundos: pollo y res alternados, asados a la leña con carbón natural. Marinados en especias secretas. Acompañados de salsa de maní."
+                        data-img="img/pincho_carne.png">
+                        <img src="img/pincho_carne.png" alt="Pincho Mixto" class="menu-img" onclick="verPlato(this.closest('.menu-item'))">
+                        <div class="menu-info">
+                            <div class="menu-header-row">
+                                <h3>Pincho Mixto</h3>
+                                <span class="menu-price">$4.00</span>
+                            </div>
+                            <div class="menu-actions-row">
+                                <button class="btn-ver-mas" onclick="verPlato(this.closest('.menu-item'))">📖 Ver más</button>
+                                <button class="btn-whatsapp" onclick="pedirWsp('Pincho Mixto', 4.00, event)">Pedir 🛒</button>
+                            </div>
+                        </div>
+                    </li>
+                    <!-- Chuleta a la Plancha -->
+                    <li class="menu-item" role="listitem"
+                        data-nombre="Chuleta a la Plancha" data-precio="7.00"
+                        data-desc="Gruesa chuleta de cerdo sellada en plancha al rojo vivo. Servida con arroz, menestra de lenteja y patacones crujientes. La favorita de la casa."
+                        data-img="img/chuleta.png">
+                        <div class="img-container" onclick="verPlato(this.closest('.menu-item'))">
+                            <img src="img/chuleta.png" alt="Chuleta a la Plancha" class="menu-img">
+                            <span class="mini-badge bg-gold">⭐</span>
+                        </div>
+                        <div class="menu-info">
+                            <div class="menu-header-row">
+                                <h3>Chuleta a la Plancha</h3>
+                                <span class="menu-price">$7.00</span>
+                            </div>
+                            <div class="menu-actions-row">
+                                <button class="btn-ver-mas" onclick="verPlato(this.closest('.menu-item'))">📖 Ver más</button>
+                                <button class="btn-whatsapp" onclick="pedirWsp('Chuleta a la Plancha', 7.00, event)">Pedir 🛒</button>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Sección: Especialidades de la Casa -->
+        <section class="page" data-page="2" aria-label="Especialidades de la Casa">
+            <div class="page-inner multi-dish-page">
+                <div class="page-header">
+                    <span class="page-section-label">Especialidades</span>
+                    <span class="page-number">2</span>
+                </div>
+                <ul class="menu-list compact" role="list">
+                    <!-- Chuleta Ahumada -->
+                    <li class="menu-item line-separated" role="listitem"
+                        data-nombre="Chuleta Ahumada" data-precio="8.00"
+                        data-desc="Ahumada con nogal logrando una textura y sabor inigualables. Proceso de 4 horas de cocción lenta. Servida con guarniciones frescas. Receta exclusiva del Chef."
+                        data-img="img/chuleta.png"
+                        data-tag="🪵 Receta del Chef">
+                        <img src="img/chuleta.png" alt="Chuleta Ahumada" class="menu-img" onclick="verPlato(this.closest('.menu-item'))">
+                        <div class="menu-info">
+                            <div class="menu-header-row">
+                                <h3>Chuleta Ahumada</h3>
+                                <span class="menu-price">$8.00</span>
+                            </div>
+                            <div class="menu-actions-row">
+                                <button class="btn-ver-mas" onclick="verPlato(this.closest('.menu-item'))">📖 Ver más</button>
+                                <button class="btn-whatsapp" onclick="pedirWsp('Chuleta Ahumada', 8.00, event)">Pedir 🛒</button>
+                            </div>
+                        </div>
+                    </li>
+                    <!-- Guatita -->
+                    <li class="menu-item line-separated" role="listitem"
+                        data-nombre="Guatita" data-precio="5.50"
+                        data-desc="Mondongo tierno en salsa cremosa de maní tostado. Acompañada de arroz blanco y aguacate. Un clásico de la cocina ecuatoriana que no puede faltar."
+                        data-img="img/guatita.png">
+                        <img src="img/guatita.png" alt="Guatita" class="menu-img" onclick="verPlato(this.closest('.menu-item'))">
+                        <div class="menu-info">
+                            <div class="menu-header-row">
+                                <h3>Guatita</h3>
+                                <span class="menu-price">$5.50</span>
+                            </div>
+                            <div class="menu-actions-row">
+                                <button class="btn-ver-mas" onclick="verPlato(this.closest('.menu-item'))">📖 Ver más</button>
+                                <button class="btn-whatsapp" onclick="pedirWsp('Guatita', 5.50, event)">Pedir 🛒</button>
+                            </div>
+                        </div>
+                    </li>
+                    <!-- Seco de Carne -->
+                    <li class="menu-item" role="listitem"
+                        data-nombre="Seco de Carne" data-precio="6.00"
+                        data-desc="Estofado lento con reducción de cerveza y cilantro fresco. La carne se deshace en la boca. Servido con arroz amarillo y maduro frito."
+                        data-img="img/seco.png">
+                        <img src="img/seco.png" alt="Seco de Carne" class="menu-img" onclick="verPlato(this.closest('.menu-item'))">
+                        <div class="menu-info">
+                            <div class="menu-header-row">
+                                <h3>Seco de Carne</h3>
+                                <span class="menu-price">$6.00</span>
+                            </div>
+                            <div class="menu-actions-row">
+                                <button class="btn-ver-mas" onclick="verPlato(this.closest('.menu-item'))">📖 Ver más</button>
+                                <button class="btn-whatsapp" onclick="pedirWsp('Seco de Carne', 6.00, event)">Pedir 🛒</button>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Sección: Acompañantes -->
+        <section class="page" data-page="3" aria-label="Acompañantes">
+            <div class="page-inner multi-dish-page">
+                <div class="page-header">
+                    <span class="page-section-label">Acompañantes</span>
+                    <span class="page-number">3</span>
+                </div>
+                <ul class="menu-list compact" role="list">
+                    <!-- Seco de Pollo -->
+                    <li class="menu-item line-separated" role="listitem"
+                        data-nombre="Seco de Pollo" data-precio="5.00"
+                        data-desc="Presas de pollo estofadas con exquisita salsa de naranjilla. Jugoso, aromático y con sabor que reconforta. Servido con arroz y ensalada fresca."
+                        data-img="img/seco.png">
+                        <img src="img/seco.png" alt="Seco de Pollo" class="menu-img" onclick="verPlato(this.closest('.menu-item'))">
+                        <div class="menu-info">
+                            <div class="menu-header-row">
+                                <h3>Seco de Pollo</h3>
+                                <span class="menu-price">$5.00</span>
+                            </div>
+                            <div class="menu-actions-row">
+                                <button class="btn-ver-mas" onclick="verPlato(this.closest('.menu-item'))">📖 Ver más</button>
+                                <button class="btn-whatsapp" onclick="pedirWsp('Seco de Pollo', 5.00, event)">Pedir 🛒</button>
+                            </div>
+                        </div>
+                    </li>
+                    <!-- Choclo con Queso -->
+                    <li class="menu-item line-separated" role="listitem"
+                        data-nombre="Choclo con Queso" data-precio="2.50"
+                        data-desc="Mazorca andina tierna y dulce cubierta en queso artesanal derretido. Cosechado fresco de las tierras altas. Perfecto como acompañante o snack."
+                        data-img="img/choclo.png">
+                        <img src="img/choclo.png" alt="Choclo con Queso" class="menu-img" onclick="verPlato(this.closest('.menu-item'))">
+                        <div class="menu-info">
+                            <div class="menu-header-row">
+                                <h3>Choclo con Queso</h3>
+                                <span class="menu-price">$2.50</span>
+                            </div>
+                            <div class="menu-actions-row">
+                                <button class="btn-ver-mas" onclick="verPlato(this.closest('.menu-item'))">📖 Ver más</button>
+                                <button class="btn-whatsapp" onclick="pedirWsp('Choclo con Queso', 2.50, event)">Pedir 🛒</button>
+                            </div>
+                        </div>
+                    </li>
+                    <!-- Maduros Fritos -->
+                    <li class="menu-item" role="listitem"
+                        data-nombre="Maduros Fritos" data-precio="1.50"
+                        data-desc="Tajadas de plátano maduro caramelizadas a fuego lento. El toque final dulce ideal para cualquier plato. Crujientes por fuera, suaves por dentro."
+                        data-img="img/choclo.png">
+                        <img src="img/choclo.png" alt="Maduros Fritos" class="menu-img" onclick="verPlato(this.closest('.menu-item'))">
+                        <div class="menu-info">
+                            <div class="menu-header-row">
+                                <h3>Maduros Fritos</h3>
+                                <span class="menu-price">$1.50</span>
+                            </div>
+                            <div class="menu-actions-row">
+                                <button class="btn-ver-mas" onclick="verPlato(this.closest('.menu-item'))">📖 Ver más</button>
+                                <button class="btn-whatsapp" onclick="pedirWsp('Maduros Fritos', 1.50, event)">Pedir 🛒</button>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Contraportada -->
+        <section class="page page--back" data-page="4" aria-label="Contraportada e información de contacto">
+            <div class="page-inner cover-page cover-page--back">
+                <div class="cover-decoration cover-decoration--top"></div>
+                <img src="img/logo.png" alt="Logo de Pinchos y Chuletas Del Sol" class="cover-logo">
+                <h2 class="back-title">¡Gracias por<br>visitarnos!</h2>
+                <div class="cover-flame">☀️</div>
+                <div class="back-info">
+                    <p>📍 Dirección del local</p>
+                    <p>📞 Teléfono de contacto</p>
+                    <p>⏰ Horario de atención</p>
+                </div>
+                <p class="back-tagline">Pinchos y Chuletas Del Sol</p>
+                <p class="back-copy">© 2026 Todos los derechos reservados</p>
+                <div class="cover-decoration cover-decoration--bottom"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal de detalle del plato -->
+    <div id="dishModal" class="dish-modal-overlay" onclick="cerrarDetallePlato(event)">
+        <div class="dish-modal" onclick="event.stopPropagation()">
+            <button class="dish-modal-close" onclick="cerrarDetallePlato()" aria-label="Cerrar">✕</button>
+            <div class="dish-modal-img-wrap">
+                <img id="dishModalImg" src="" alt="" class="dish-modal-img">
+            </div>
+            <div class="dish-modal-body">
+                <h3 id="dishModalName"></h3>
+                <span id="dishModalPrice" class="dish-modal-price"></span>
+                <span id="dishModalTag" class="dish-modal-tag" style="display:none;"></span>
+                <p id="dishModalDesc" class="dish-modal-desc"></p>
+                <button id="dishModalBtn" class="btn-whatsapp dish-modal-pedir">Pedir este plato 🛒</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Carrito flotante -->
+    <button id="cartFloat" class="cart-float" onclick="toggleCarrito()" role="button"
+        aria-label="Abrir carrito de compras" aria-expanded="false" aria-controls="cartPanel">
+        🛒
+        <span id="cartItemCount" class="cart-badge">0</span>
+    </button>
+
+    <!-- Panel lateral del carrito -->
+    <aside id="cartPanel" class="cart-panel" role="complementary" aria-label="Resumen del carrito de compras">
+        <div class="cart-header">
+            <h2>Tu Pedido</h2>
+            <button onclick="cerrarCarrito()" class="close-cart btn-modal-close" aria-label="Cerrar carrito"
+                title="Cerrar">✕</button>
+        </div>
+        <ul id="cartList" class="cart-items" role="list">
+            <!-- Items del carrito generados por JS -->
+        </ul>
+        <div class="cart-footer">
+            <div class="cart-total">Total: $<span id="cartTotal">0.00</span></div>
+            <button onclick="abrirCheckout()" class="btn-whatsapp full-width">Continuar Pedido 💬</button>
+        </div>
+    </aside>
+
+    <!-- Modal de checkout/confirmación -->
+    <dialog id="checkoutModal" class="modal-overlay" aria-labelledby="checkout-title">
+        <div class="modal-content notebook-style">
+            <div class="modal-header">
+                <h2 id="checkout-title">Detalles del Pedido</h2>
+                <button onclick="cerrarCheckout()" class="close-modal btn-modal-close" aria-label="Cerrar modal"
+                    title="Cerrar">✕</button>
+            </div>
+            <form id="checkoutForm" class="modal-body" onsubmit="enviarPedido(); return false;">
+                <fieldset>
+                    <legend class="sr-only">Información del cliente</legend>
+                    <div class="form-group">
+                        <label for="clienteNombre">Tu Nombre completo <span aria-label="requerido">*</span></label>
+                        <input type="text" id="clienteNombre" placeholder="Ej: Juan Pérez" required
+                            aria-required="true">
+                    </div>
+                    <div class="form-group">
+                        <label for="pedidoTipo">Tipo de Pedido <span aria-label="requerido">*</span></label>
+                        <select id="pedidoTipo" required aria-required="true">
+                            <option value="Para Servir">🍽️ Para Servir en el local</option>
+                            <option value="Para Llevar">🥡 Para Llevar</option>
+                            <option value="Envío a Domicilio">🛵 Envío a Domicilio</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="metodoPago">Método de Pago <span aria-label="requerido">*</span></label>
+                        <select id="metodoPago" required aria-required="true">
+                            <option value="Efectivo">💵 Efectivo</option>
+                            <option value="Transferencia">🏦 Transferencia</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="clienteDireccion">Dirección / Observaciones</label>
+                        <textarea id="clienteDireccion" rows="2"
+                            placeholder="Ej: Dirección exacta / Especificaciones del pedido..."></textarea>
+                    </div>
+                </fieldset>
+            </form>
+            <div class="modal-footer">
+                <button onclick="enviarPedido()" class="btn-whatsapp full-width">Confirmar por WhatsApp 📲</button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- Script principal -->
+    <script src="script.js?v=14"></script>
+</body>
+
+</html>
