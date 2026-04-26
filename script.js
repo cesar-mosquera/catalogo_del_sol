@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const inner = p.querySelector('.page-inner');
         if (!inner) return;
 
-        // Clonar contenido para la mitad que se dobla
+        // Crear capas de doblez (sin contenido inicial para velocidad)
         const foldLayer = document.createElement('div');
         foldLayer.className = 'fold-layer';
 
@@ -27,16 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const foldBack = document.createElement('div');
         foldBack.className = 'fold-back';
 
-        // Sombra del doblez
         const foldShadow = document.createElement('div');
         foldShadow.className = 'fold-shadow';
 
-        // Sombra en la página base
         const baseShadow = document.createElement('div');
         baseShadow.className = 'fold-base-shadow';
 
-        foldFront.innerHTML = inner.innerHTML;
-        
         foldLayer.appendChild(foldFront);
         foldLayer.appendChild(foldBack);
         p.appendChild(foldLayer);
@@ -44,35 +40,61 @@ document.addEventListener('DOMContentLoaded', () => {
         p.appendChild(baseShadow);
     });
 
+
+    function prepareFoldContent(page) {
+        const inner = page.querySelector('.page-inner');
+        const foldFront = page.querySelector('.fold-front');
+        if (inner && foldFront && foldFront.children.length === 0) {
+            // Clonar nodos es más rápido que innerHTML
+            const children = Array.from(inner.children);
+            children.forEach(child => {
+                foldFront.appendChild(child.cloneNode(true));
+            });
+        }
+    }
+
+
     // ─── Inicializar estados ───
     function setPageStates(activeIndex) {
+        const range = 2; // Solo actualizar páginas cercanas
+        const start = Math.max(0, activeIndex - range);
+        const end = Math.min(totalPages - 1, activeIndex + range);
+
+        // Primero, asegurar que la página activa sea la correcta y visible
         pages.forEach((p, i) => {
-            p.classList.remove('active', 'flipped-left', 'unread-right', 'folding', 'dragging');
-            
             if (i < activeIndex) {
-                p.classList.add('flipped-left');
-                p.style.zIndex = i;
+                if (!p.classList.contains('flipped-left')) {
+                    p.className = 'page flipped-left';
+                    p.style.zIndex = i;
+                    resetFold(p);
+                }
             } else if (i === activeIndex) {
-                p.classList.add('active');
-                p.style.zIndex = 100;
+                p.className = 'page active';
+                p.style.zIndex = 500;
+                resetFold(p);
+                const inner = p.querySelector('.page-inner');
+                if (inner) inner.style.clipPath = '';
             } else {
-                p.classList.add('unread-right');
-                p.style.zIndex = totalPages - i;
+                if (!p.classList.contains('unread-right')) {
+                    p.className = 'page unread-right';
+                    p.style.zIndex = totalPages - i;
+                    resetFold(p);
+                }
             }
-            
-            // Limpiar estilos inline de animación si existen
-            const inner = p.querySelector('.page-inner');
-            if (inner) inner.style.clipPath = '';
-            resetFold(p);
         });
         
         // Sincronizar indicadores
-        if (dots.length > 0) {
+        if (typeof dots !== 'undefined' && dots.length > 0) {
             dots.forEach((dot, i) => {
                 dot.classList.toggle('active', i === activeIndex);
             });
         }
+        
+        notebook.classList.remove('is-navigating');
     }
+
+
+
 
     function resetFold(page) {
         const foldLayer = page.querySelector('.fold-layer');
@@ -143,21 +165,17 @@ document.addEventListener('DOMContentLoaded', () => {
         foldLayer.style.width = foldWidth + '%';
         foldLayer.style.left = foldOriginX + '%';
 
-        // Rotación 3D limpia
+        // Rotación 3D fluida
         const rotateAngle = clampedProgress * 180;
-        foldLayer.style.transformOrigin = 'left center';
-        foldLayer.style.transform = `rotateY(-${rotateAngle}deg)`;
+        foldLayer.style.transform = `translate3d(0,0,10px) rotateY(-${rotateAngle}deg)`;
 
-        // Sombras sutiles y elegantes
-        if (foldShadow) {
-            foldShadow.style.opacity = String(clampedProgress * 0.4);
-            foldShadow.style.left = '0';
-            foldShadow.style.width = '20px';
+        // Sombras sutiles y elegantes (solo actualizar opacidad y posición variable)
+        if (foldShadow && clampedProgress > 0.05) {
+            foldShadow.style.opacity = (clampedProgress * 0.35).toFixed(2);
         }
-        if (baseShadow) {
-            baseShadow.style.opacity = String(clampedProgress * 0.2);
+        if (baseShadow && clampedProgress > 0.05) {
+            baseShadow.style.opacity = (clampedProgress * 0.2).toFixed(2);
             baseShadow.style.right = foldWidth + '%';
-            baseShadow.style.width = '30px';
         }
     }
 
@@ -165,6 +183,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function irAPagina(destino) {
         if (isAnimating || destino === currentPage || destino < 0 || destino >= totalPages) return;
         isAnimating = true;
+        notebook.classList.add('is-navigating');
+
 
         const avanzando = destino > currentPage;
         updateDots(destino);
@@ -172,62 +192,73 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (avanzando) {
             const page = pages[oldPage];
-            page.style.zIndex = 20;
-
-            pages[destino].classList.remove('unread-right');
-            pages[destino].classList.add('active');
-            pages[destino].style.zIndex = 10;
-
+            const nextP = pages[destino];
+            // Asegurar que el contenido esté listo antes de empezar
+            prepareFoldContent(page);
+            
+            // Elevación inmediata
+            page.style.zIndex = 1000;
+            nextP.classList.add('active');
+            nextP.style.zIndex = 500;
+            nextP.classList.remove('unread-right');
+            
+            // Sincronizar estado inicial (totalmente abierta)
+            applyFold(page, 0, 'next');
+            
             page.classList.add('folding');
-
             let start = null;
-            const duration = 250; // Ultra rápido
+            const duration = 50; // Velocidad de relámpago
 
             function animate(timestamp) {
                 if (!start) start = timestamp;
                 const elapsed = timestamp - start;
                 const t = Math.min(elapsed / duration, 1);
-                // Ease Out Expo para profesionalismo
-                const eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
-
+                // Power 4 Out para inicio fulminante
+                const eased = t === 1 ? 1 : 1 - Math.pow(1 - t, 4);
                 applyFold(page, eased, 'next');
-
-                if (t < 1) {
-                    requestAnimationFrame(animate);
-                } else {
+                if (t < 1) requestAnimationFrame(animate);
+                else {
                     currentPage = destino;
                     setPageStates(currentPage);
                     isAnimating = false;
                 }
             }
             requestAnimationFrame(animate);
+            return;
 
         } else {
-            const page = pages[destino];
-            page.style.zIndex = 20;
+            const page = pages[destino]; 
+            const currentP = pages[oldPage];
+            prepareFoldContent(page);
+            
+            // Elevación inmediata para que se vea el vire
+            page.style.zIndex = 1000;
+            currentP.style.zIndex = 500;
+            
+            // Aplicar estado inicial (totalmente plegada)
+            applyFold(page, 1, 'prev');
+            
             page.classList.remove('flipped-left');
             page.classList.add('active', 'folding');
-
+            
             let start = null;
-            const duration = 250;
+            const duration = 50; // Velocidad de relámpago
 
             function animate(timestamp) {
                 if (!start) start = timestamp;
                 const elapsed = timestamp - start;
                 const t = Math.min(elapsed / duration, 1);
-                const eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
-
+                const eased = t === 1 ? 1 : 1 - Math.pow(1 - t, 4);
                 applyFold(page, 1 - eased, 'prev');
-
-                if (t < 1) {
-                    requestAnimationFrame(animate);
-                } else {
+                if (t < 1) requestAnimationFrame(animate);
+                else {
                     currentPage = destino;
                     setPageStates(currentPage);
                     isAnimating = false;
                 }
             }
             requestAnimationFrame(animate);
+            return;
         }
     }
 
@@ -246,8 +277,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let touchStartTime = 0;
     let isHorizontalSwipe = null;
     let hasMoved = false;
-    const DIRECTION_THRESHOLD = 5; // Más sensible
-    const SWIPE_THRESHOLD = 0.1; // Más fácil de pasar la página
+    const DIRECTION_THRESHOLD = 2; // Súper instantáneo
+    const SWIPE_THRESHOLD = 0.05; // Solo con tocar ya se pasa
+
 
     let dragPage = null;
     let dragDirection = null;
@@ -258,29 +290,30 @@ document.addEventListener('DOMContentLoaded', () => {
         viewWidth = Math.min(document.body.clientWidth, 460);
     });
 
+    // ─── CONTROL DE ARRASTRE (DRAG & SWIPE) ───
     function startDrag(x, y) {
-        if (isAnimating) return;
+        if (isAnimating || dragPage) return;
+        notebook.classList.add('is-navigating');
         touchStartX = x;
         touchStartY = y;
         touchStartTime = Date.now();
         isHorizontalSwipe = null;
         hasMoved = false;
-        dragPage = null;
-        dragDirection = null;
         progress = 0;
     }
 
     function moveDrag(x, y, preventDefault) {
         if (isAnimating) return;
+        updateDrag(x, y, preventDefault);
+    }
+
+    function updateDrag(x, y, preventDefault) {
         const dx = x - touchStartX;
         const dy = y - touchStartY;
 
         if (isHorizontalSwipe === null) {
             if (Math.abs(dx) > DIRECTION_THRESHOLD || Math.abs(dy) > DIRECTION_THRESHOLD) {
                 isHorizontalSwipe = Math.abs(dx) > Math.abs(dy);
-                if (!isHorizontalSwipe) return;
-            } else {
-                return;
             }
         }
 
@@ -288,77 +321,80 @@ document.addEventListener('DOMContentLoaded', () => {
         if (preventDefault) preventDefault();
         hasMoved = true;
 
+        const width = notebook.offsetWidth || 400;
+        // Sensibilidad ultra-alta para respuesta fulminante
+        const SENSITIVITY = 2.5;
+
         if (!dragPage) {
-            if (dx < 0 && currentPage < totalPages - 1) {
+            if (dx < -DIRECTION_THRESHOLD && currentPage < totalPages - 1) {
                 dragDirection = 'next';
                 dragPage = pages[currentPage];
-                dragPage.style.zIndex = 20;
-                dragPage.classList.add('folding');
-
-                pages[currentPage + 1].classList.remove('unread-right');
-                pages[currentPage + 1].classList.add('active');
-                pages[currentPage + 1].style.zIndex = 10;
-
-            } else if (dx > 0 && currentPage > 0) {
+                prepareFoldContent(dragPage);
+                dragPage.style.zIndex = 1000;
+                if (pages[currentPage + 1]) {
+                    pages[currentPage + 1].classList.add('active');
+                    pages[currentPage + 1].style.zIndex = 500;
+                }
+                dragPage.classList.add('dragging');
+            } else if (dx > DIRECTION_THRESHOLD && currentPage > 0) {
                 dragDirection = 'prev';
                 dragPage = pages[currentPage - 1];
-                dragPage.style.zIndex = 20;
+                prepareFoldContent(dragPage);
+                dragPage.style.zIndex = 1000;
+                pages[currentPage].style.zIndex = 500;
                 dragPage.classList.remove('flipped-left');
-                dragPage.classList.add('active', 'folding');
+                dragPage.classList.add('active', 'dragging');
+
             }
         }
 
         if (!dragPage) return;
 
         if (dragDirection === 'next') {
-            progress = Math.min(Math.abs(dx) / viewWidth, 1);
+            progress = Math.max(0, Math.min(1, (-dx * SENSITIVITY) / width));
             applyFold(dragPage, progress, 'next');
         } else {
-            progress = 1 - Math.min(dx / viewWidth, 1);
+            progress = Math.max(0, Math.min(1, 1 - (dx * SENSITIVITY) / width));
             applyFold(dragPage, progress, 'prev');
         }
     }
 
-    function endDrag() {
-        isHorizontalSwipe = null;
+    function endDrag(x) {
+        if (!dragPage) return;
 
-        if (!dragPage || isAnimating) {
-            dragPage = null;
-            return;
+        const dx = x - touchStartX;
+        const width = notebook.offsetWidth || 400;
+        const velocity = (Date.now() - touchStartTime) < 250;
+        
+        let shouldComplete = false;
+        if (dragDirection === 'next') {
+            shouldComplete = (progress > 0.15) || (velocity && dx < -15);
+        } else {
+            shouldComplete = (progress < 0.85) || (velocity && dx > 15);
         }
 
-        const elapsed = Date.now() - touchStartTime;
-        const isQuickFlick = elapsed < 300 && progress > 0.08;
-        const passedThreshold = progress > SWIPE_THRESHOLD;
-        const shouldComplete = (dragDirection === 'next')
-            ? (passedThreshold || isQuickFlick)
-            : (progress < (1 - SWIPE_THRESHOLD) || (isQuickFlick && progress < 0.92));
 
         isAnimating = true;
         const page = dragPage;
         const dir = dragDirection;
-        const startProgress = (dir === 'next') ? progress : progress;
 
         if ((dir === 'next' && shouldComplete) || (dir === 'prev' && !shouldComplete)) {
-            // Completar paso de página
-            const targetProgress = 1;
-            animateProgress(page, startProgress, targetProgress, dir, 150, () => {
+            animateProgress(page, progress, 1, dir, 100, () => {
                 if (dir === 'next') currentPage++;
                 setPageStates(currentPage);
                 isAnimating = false;
                 dragPage = null;
             });
         } else {
-            // Regresar a la página actual
-            const targetProgress = 0;
-            animateProgress(page, startProgress, targetProgress, dir, 150, () => {
-                if (dir === 'prev') currentPage--; // Corregido: abrir página en prev completado
+            animateProgress(page, progress, 0, dir, 100, () => {
+                if (dir === 'prev') currentPage--;
                 setPageStates(currentPage);
                 isAnimating = false;
                 dragPage = null;
             });
         }
     }
+
 
     function animateProgress(page, from, to, dir, durationMs, callback) {
         let start = null;
@@ -366,11 +402,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!start) start = timestamp;
             const elapsed = timestamp - start;
             const t = Math.min(elapsed / durationMs, 1);
-            const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+            // Curva de velocidad más agresiva para nitidez
+            const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
             const current = from + (to - from) * eased;
-
             applyFold(page, current, dir);
-
             if (t < 1) {
                 requestAnimationFrame(step);
             } else {
@@ -380,48 +415,36 @@ document.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(step);
     }
 
-    // ─── TOUCH EVENTS ───
+    // Bindings
     notebook.addEventListener('touchstart', (e) => {
         startDrag(e.touches[0].clientX, e.touches[0].clientY);
     }, { passive: true });
 
-    notebook.addEventListener('touchmove', (e) => {
-        moveDrag(
-            e.touches[0].clientX,
-            e.touches[0].clientY,
-            () => e.preventDefault()
-        );
+    window.addEventListener('touchmove', (e) => {
+        moveDrag(e.touches[0].clientX, e.touches[0].clientY, () => e.preventDefault());
     }, { passive: false });
 
-    notebook.addEventListener('touchend', () => {
-        endDrag();
+    window.addEventListener('touchend', (e) => {
+        endDrag(e.changedTouches[0].clientX);
     }, { passive: true });
 
-    // ─── MOUSE EVENTS ───
-    let mouseDown = false;
-
     notebook.addEventListener('mousedown', (e) => {
-        if (e.target.closest('button') || e.target.closest('a')) return;
-        mouseDown = true;
+        if (e.target.closest('button')) return;
         startDrag(e.clientX, e.clientY);
-        e.preventDefault();
-    });
-
-    document.addEventListener('mousemove', (e) => {
-        if (!mouseDown) return;
-        moveDrag(e.clientX, e.clientY);
-    });
-
-    document.addEventListener('mouseup', () => {
-        if (!mouseDown) return;
-        mouseDown = false;
-        endDrag();
+        const onMouseMove = (me) => moveDrag(me.clientX, me.clientY, () => me.preventDefault());
+        const onMouseUp = (me) => {
+            window.removeEventListener('mousemove', onMouseMove);
+            window.removeEventListener('mouseup', onMouseUp);
+            endDrag(me.clientX);
+        };
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mouseup', onMouseUp);
     });
 });
 
 // ═══════════ INTEGRACIÓN CON WHATSAPP (SISTEMA DE CARRITO) ═══════════
 let carrito = [];
-const NUMERO_TELEFONO_RESTAURANTE = '593999999999';
+const NUMERO_TELEFONO_RESTAURANTE = '593969581620';
 
 window.pedirWsp = function(plato, precio, event) {
     if (event) event.stopPropagation();
@@ -582,7 +605,7 @@ function renderizarTextoPedido(carrito, nombre, tipo, pago, direccion) {
         ...carrito.map((item) => `▪️ ${item.cantidad}x ${item.plato} ($${(item.precio * item.cantidad).toFixed(2)})`),
         ``,
         `*💰 TOTAL A PAGAR: $${total.toFixed(2)}*`,
-    ].join('%0A');
+    ].join('\n');
 
     return texto;
 }
