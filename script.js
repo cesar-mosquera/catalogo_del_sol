@@ -82,14 +82,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
-        
+
         // Sincronizar indicadores
         if (typeof dots !== 'undefined' && dots.length > 0) {
             dots.forEach((dot, i) => {
                 dot.classList.toggle('active', i === activeIndex);
             });
         }
-        
+
         notebook.classList.remove('is-navigating');
     }
 
@@ -195,25 +195,26 @@ document.addEventListener('DOMContentLoaded', () => {
             const nextP = pages[destino];
             // Asegurar que el contenido esté listo antes de empezar
             prepareFoldContent(page);
-            
+
             // Elevación inmediata
             page.style.zIndex = 1000;
             nextP.classList.add('active');
             nextP.style.zIndex = 500;
             nextP.classList.remove('unread-right');
-            
+
             // Sincronizar estado inicial (totalmente abierta)
             applyFold(page, 0, 'next');
-            
+
             page.classList.add('folding');
             let start = null;
-            const duration = 50; // Velocidad de relámpago
+            // ⚠️ MODIFICA AQUÍ LA RAPIDEZ AL IR HACIA ADELANTE (Menos número = más rápido)
+            const duration = 120; 
 
             function animate(timestamp) {
                 if (!start) start = timestamp;
                 const elapsed = timestamp - start;
                 const t = Math.min(elapsed / duration, 1);
-                // Power 4 Out para inicio fulminante
+                // Power 4 Out para un inicio más agresivo
                 const eased = t === 1 ? 1 : 1 - Math.pow(1 - t, 4);
                 applyFold(page, eased, 'next');
                 if (t < 1) requestAnimationFrame(animate);
@@ -227,22 +228,23 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
 
         } else {
-            const page = pages[destino]; 
+            const page = pages[destino];
             const currentP = pages[oldPage];
             prepareFoldContent(page);
-            
+
             // Elevación inmediata para que se vea el vire
             page.style.zIndex = 1000;
             currentP.style.zIndex = 500;
-            
+
             // Aplicar estado inicial (totalmente plegada)
             applyFold(page, 1, 'prev');
-            
+
             page.classList.remove('flipped-left');
             page.classList.add('active', 'folding');
-            
+
             let start = null;
-            const duration = 50; // Velocidad de relámpago
+            // ⚠️ MODIFICA AQUÍ LA RAPIDEZ AL REGRESAR (Menos número = más rápido)
+            const duration = 120; 
 
             function animate(timestamp) {
                 if (!start) start = timestamp;
@@ -365,7 +367,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const dx = x - touchStartX;
         const width = notebook.offsetWidth || 400;
         const velocity = (Date.now() - touchStartTime) < 250;
-        
+
         let shouldComplete = false;
         if (dragDirection === 'next') {
             shouldComplete = (progress > 0.15) || (velocity && dx < -15);
@@ -446,20 +448,20 @@ document.addEventListener('DOMContentLoaded', () => {
 let carrito = [];
 const NUMERO_TELEFONO_RESTAURANTE = '593969581620';
 
-window.pedirWsp = function(plato, precio, event) {
+window.pedirWsp = function (plato, precio, event) {
     if (event) event.stopPropagation();
-    
+
     let item = carrito.find(i => i.plato === plato);
     if (item) {
         item.cantidad++;
     } else {
         carrito.push({ plato, precio, cantidad: 1 });
     }
-    
+
     actualizarCarrito();
-    
+
     // Feedback visual
-    if(event && event.currentTarget) {
+    if (event && event.currentTarget) {
         let btn = event.currentTarget;
         let oldText = btn.innerHTML;
         btn.innerHTML = "¡Agregado! ✓";
@@ -471,7 +473,7 @@ window.pedirWsp = function(plato, precio, event) {
     }
 };
 
-window.cambiarCantidad = function(plato, delta, event) {
+window.cambiarCantidad = function (plato, delta, event) {
     if (event) event.stopPropagation();
 
     let item = carrito.find(i => i.plato === plato);
@@ -489,13 +491,13 @@ function actualizarCarrito() {
     const totalEl = document.getElementById('cartTotal');
     const badge = document.getElementById('cartFloat');
     const itemCount = document.getElementById('cartItemCount');
-    
+
     list.innerHTML = '';
     let total = 0;
-    
+
     carrito.forEach(item => {
         total += item.precio * item.cantidad;
-        
+
         let li = document.createElement('li');
         li.className = 'cart-item';
         li.role = 'listitem';
@@ -513,10 +515,10 @@ function actualizarCarrito() {
         `;
         list.appendChild(li);
     });
-    
+
     totalEl.textContent = total.toFixed(2);
     itemCount.textContent = carrito.length;
-    
+
     if (carrito.length > 0) {
         badge.classList.remove('hidden');
     } else {
@@ -525,7 +527,7 @@ function actualizarCarrito() {
     }
 }
 
-window.toggleCarrito = function() {
+window.toggleCarrito = function () {
     const panel = document.getElementById('cartPanel');
     const btn = document.getElementById('cartFloat');
     if (panel.classList.contains('show')) {
@@ -536,7 +538,7 @@ window.toggleCarrito = function() {
     }
 };
 
-window.cerrarCarrito = function() {
+window.cerrarCarrito = function () {
     const panel = document.getElementById('cartPanel');
     const btn = document.getElementById('cartFloat');
     panel.classList.remove('show');
@@ -544,8 +546,8 @@ window.cerrarCarrito = function() {
 };
 
 // ═══════════ CHECKOUT MODAL ═══════════
-window.abrirCheckout = function() {
-    cerrarCarrito(); 
+window.abrirCheckout = function () {
+    cerrarCarrito();
     const modal = document.getElementById('checkoutModal');
     if (modal.tagName === 'DIALOG') {
         modal.showModal();
@@ -554,7 +556,7 @@ window.abrirCheckout = function() {
     }
 };
 
-window.cerrarCheckout = function() {
+window.cerrarCheckout = function () {
     const modal = document.getElementById('checkoutModal');
     if (modal.tagName === 'DIALOG') {
         modal.close();
@@ -563,7 +565,7 @@ window.cerrarCheckout = function() {
     }
 };
 
-window.enviarPedido = function(e) {
+window.enviarPedido = function (e) {
     if (e) e.preventDefault();
     const nombre = document.getElementById('clienteNombre').value.trim();
     const tipo = document.getElementById('pedidoTipo').value;
@@ -593,7 +595,7 @@ window.enviarPedido = function(e) {
 
 function renderizarTextoPedido(carrito, nombre, tipo, pago, direccion) {
     const total = carrito.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
-    
+
     const texto = [
         `*🥩 NUEVO PEDIDO: Pinchos Del Sol*`,
         `*👤 Cliente:* ${nombre}`,
@@ -611,15 +613,15 @@ function renderizarTextoPedido(carrito, nombre, tipo, pago, direccion) {
 }
 
 // ═══════════ MODAL DE DETALLE DEL PLATO ═══════════
-window.verPlato = function(menuItem) {
+window.verPlato = function (menuItem) {
     if (!menuItem) return;
-    
+
     const nombre = menuItem.dataset.nombre;
     const precio = menuItem.dataset.precio;
     const desc = menuItem.dataset.desc;
     const img = menuItem.dataset.img;
     const tag = menuItem.dataset.tag || '';
-    
+
     const modal = document.getElementById('dishModal');
     document.getElementById('dishModalImg').src = img;
     document.getElementById('dishModalImg').alt = nombre;
@@ -629,7 +631,7 @@ window.verPlato = function(menuItem) {
     const sentences = desc.split('.').map(s => s.trim()).filter(s => s);
     const formattedDesc = sentences.join('.<br><br>🔸 ');
     document.getElementById('dishModalDesc').innerHTML = '🔸 ' + formattedDesc + '.';
-    
+
     const tagEl = document.getElementById('dishModalTag');
     if (tag) {
         tagEl.textContent = tag;
@@ -637,23 +639,23 @@ window.verPlato = function(menuItem) {
     } else {
         tagEl.style.display = 'none';
     }
-    
+
     // Configurar botón pedir del modal
     const btnPedir = document.getElementById('dishModalBtn');
-    btnPedir.onclick = function(e) {
+    btnPedir.onclick = function (e) {
         e.stopPropagation();
         pedirWsp(nombre, parseFloat(precio), e);
         setTimeout(() => cerrarDetallePlato(), 600);
     };
-    
+
     // Mostrar modal
     modal.classList.add('show');
     document.body.style.overflow = 'hidden';
 };
 
-window.cerrarDetallePlato = function(event) {
+window.cerrarDetallePlato = function (event) {
     if (event && event.target !== event.currentTarget) return;
-    
+
     const modal = document.getElementById('dishModal');
     modal.classList.remove('show');
     document.body.style.overflow = '';
