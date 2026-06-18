@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
             page.classList.add('folding');
             let start = null;
             // ⚠️ MODIFICA AQUÍ LA RAPIDEZ AL IR HACIA ADELANTE (Menos número = más rápido)
-            const duration = 120; 
+            const duration = 60; 
 
             function animate(timestamp) {
                 if (!start) start = timestamp;
@@ -244,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let start = null;
             // ⚠️ MODIFICA AQUÍ LA RAPIDEZ AL REGRESAR (Menos número = más rápido)
-            const duration = 120; 
+            const duration = 60; 
 
             function animate(timestamp) {
                 if (!start) start = timestamp;
@@ -381,14 +381,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const dir = dragDirection;
 
         if ((dir === 'next' && shouldComplete) || (dir === 'prev' && !shouldComplete)) {
-            animateProgress(page, progress, 1, dir, 100, () => {
+            animateProgress(page, progress, 1, dir, 60, () => {
                 if (dir === 'next') currentPage++;
                 setPageStates(currentPage);
                 isAnimating = false;
                 dragPage = null;
             });
         } else {
-            animateProgress(page, progress, 0, dir, 100, () => {
+            animateProgress(page, progress, 0, dir, 60, () => {
                 if (dir === 'prev') currentPage--;
                 setPageStates(currentPage);
                 isAnimating = false;
