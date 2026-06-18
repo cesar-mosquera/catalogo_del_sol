@@ -26,8 +26,8 @@
     --gold: #FFC000;
     --yellow-bright: #FFE600;
 
-    --bg-body: #1F1008;
-    /* Carbón oscuro */
+    --bg-body: #FFFDF8;
+    /* Blanco cálido */
     --bg-page: #FFF5E1;
     /* Fondo cálido estilo tortilla/pan */
     --bg-page-lines: rgba(232, 93, 23, 0.15);
@@ -85,7 +85,7 @@ body {
     height: 100vh;
     z-index: -1;
     overflow: hidden;
-    background: radial-gradient(circle at 50% 40%, #5E2109 0%, #1F1008 70%);
+    background: radial-gradient(circle at 50% 40%, #FFF2D6 0%, #FFFDF8 70%);
 }
 
 .bg-sun {
@@ -97,7 +97,7 @@ body {
     max-width: 800px;
     max-height: 800px;
     transform: translate(-50%, -50%);
-    background: radial-gradient(circle, rgba(255, 100, 0, 0.8) 0%, rgba(255, 50, 0, 0.4) 30%, transparent 65%);
+    background: radial-gradient(circle, rgba(255, 180, 0, 0.6) 0%, rgba(255, 120, 0, 0.2) 30%, transparent 65%);
     filter: blur(40px);
     animation: sunGlow 4s ease-in-out infinite alternate;
 }
@@ -118,10 +118,10 @@ body {
     position: absolute;
     inset: 0;
     background-image:
-        linear-gradient(45deg, rgba(0, 0, 0, 0.7) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.7) 75%, rgba(0, 0, 0, 0.7)),
-        linear-gradient(-45deg, rgba(0, 0, 0, 0.7) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.7) 75%, rgba(0, 0, 0, 0.7));
+        linear-gradient(45deg, rgba(255, 180, 0, 0.1) 25%, transparent 25%, transparent 75%, rgba(255, 180, 0, 0.1) 75%, rgba(255, 180, 0, 0.1)),
+        linear-gradient(-45deg, rgba(255, 180, 0, 0.1) 25%, transparent 25%, transparent 75%, rgba(255, 180, 0, 0.1) 75%, rgba(255, 180, 0, 0.1));
     background-size: 60px 60px;
-    opacity: 0.35;
+    opacity: 0.5;
 }
 
 .bg-sparks {
@@ -278,16 +278,16 @@ body:has(.is-navigating) .bg-sparks {
 .page-inner {
     width: 100%;
     height: 100%;
-    /* TEXTURA FOTORREALISTA DE FUEGO Y LAVA */
-    background-image: linear-gradient(rgba(255, 150, 50, 0.2), rgba(0, 0, 0, 0.4)), url('img/fire_bg.png');
+    /* FONDO CLARO */
+    background: linear-gradient(135deg, #FFFFFF, #FFF5E1);
     background-size: cover;
     background-position: center;
-    background-color: #8A1100;
+    background-color: #FFFFFF;
     border-radius: var(--page-radius);
-    border: 4px solid #FFC000;
+    border: 3px solid #FFC000;
     box-shadow:
-        inset 0 0 40px rgba(255, 100, 0, 0.6),
-        0 8px 25px rgba(0, 0, 0, 0.7);
+        inset 0 0 20px rgba(255, 180, 0, 0.1),
+        0 8px 25px rgba(0, 0, 0, 0.15);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -301,19 +301,19 @@ body:has(.is-navigating) .bg-sparks {
 .page-back {
     position: absolute;
     inset: 0;
-    /* Fondo realista simulando la textura quemada de atrás */
-    background-image: url('img/fire_bg.png');
+    /* Fondo realista simulando la textura de atrás */
+    background: linear-gradient(135deg, #FFF5E1, #FFE6C2);
     background-size: cover;
     background-position: center;
-    filter: brightness(0.4) sepia(0.6) contrast(1.2); /* Más oscuro y dramático */
-    border: 4px solid #B86B00;
+    filter: none; 
+    border: 3px solid #FFC000;
     border-radius: var(--page-radius);
     transform: rotateY(180deg) translateZ(1px);
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     z-index: 1;
-    box-shadow: inset 25px 0 60px rgba(0,0,0,0.95),
-                inset -25px 0 60px rgba(0,0,0,0.8);
+    box-shadow: inset 15px 0 30px rgba(0,0,0,0.1),
+                inset -15px 0 30px rgba(0,0,0,0.05);
 }
 
 /* Arrastrando con el dedo — sin transición mientras se arrastra */
@@ -334,13 +334,13 @@ body:has(.is-navigating) .bg-sparks {
     bottom: 0;
     width: 14px;
     background: linear-gradient(90deg, 
-        rgba(0, 0, 0, 0.8) 0%, 
-        rgba(255, 100, 0, 0.5) 40%,
-        rgba(255, 140, 0, 0.3) 60%,
-        rgba(0, 0, 0, 0.1) 100%);
+        rgba(0, 0, 0, 0.0) 0%, 
+        rgba(0, 0, 0, 0.05) 40%,
+        rgba(0, 0, 0, 0.1) 60%,
+        rgba(0, 0, 0, 0.2) 100%);
     z-index: 3;
     pointer-events: none;
-    box-shadow: inset -2px 0 10px rgba(0,0,0,0.6);
+    box-shadow: inset -2px 0 10px rgba(0,0,0,0.1);
 }
 
 /* Sombra del borde derecho (simula páginas apiladas) mantenemos la ilusión del cuaderno */
@@ -393,8 +393,8 @@ body:has(.is-navigating) .bg-sparks {
 .fold-back {
     z-index: 1;
     transform: rotateY(180deg);
-    background: linear-gradient(135deg, #4A1000, #2A0800); /* Tono madera/fuego oscuro en lugar de negro */
-    box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+    background: linear-gradient(135deg, #FFF0D4, #FFE5B4); /* Tono madera claro */
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -478,7 +478,7 @@ body:has(.is-navigating) .bg-sparks {
     font-size: 2.2rem;
     color: #4A2800;
     /* TEXTURA FOTORREALISTA DE MONEDA */
-    background-image: url('img/gold_coin.png');
+    background-image: url('img/gold_coin.webp');
     background-size: cover;
     background-position: center;
     background-color: #D49D34; /* Fallback */
@@ -985,10 +985,10 @@ body:has(.is-navigating) .bg-sparks {
     border-radius: 18px;
     overflow: hidden;
     box-shadow: 
-        inset 0 0 25px rgba(255, 150, 0, 0.5),
-        0 6px 15px rgba(0, 0, 0, 0.7);
-    background: linear-gradient(135deg, rgba(160, 40, 0, 0.85), rgba(60, 10, 0, 0.95));
-    border: 2px solid #FFB800;
+        inset 0 0 10px rgba(0, 0, 0, 0.05),
+        0 4px 10px rgba(0, 0, 0, 0.1);
+    background: #FFFFFF;
+    border: 2px solid #FFD966;
     transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
     cursor: pointer;
     margin-bottom: 0; /* Usar gap del contenedor */
@@ -1005,14 +1005,14 @@ body:has(.is-navigating) .bg-sparks {
 /* Interacción súper fluida al tocar el plato */
 .menu-item:hover {
     transform: scale(1.02);
-    box-shadow: 0 8px 25px rgba(255, 100, 0, 0.9), 0 0 30px rgba(255, 200, 0, 0.6);
-    border-color: #FFE600;
+    box-shadow: 0 6px 15px rgba(255, 180, 0, 0.3), 0 0 20px rgba(255, 200, 0, 0.2);
+    border-color: #FFB800;
 }
 
 .menu-item:active {
     transform: scale(0.97);
-    box-shadow: 0 2px 10px rgba(255, 69, 0, 0.8), 0 0 20px rgba(255, 200, 0, 0.4);
-    border-color: #FFB800;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-color: #FFA500;
 }
 
 .img-container {
@@ -1333,30 +1333,30 @@ body:has(.is-navigating) .bg-sparks {
     font-family: var(--font-heading);
     font-size: 1.2rem;
     font-weight: 800;
-    color: #FFF;
+    color: var(--text-dark);
     margin: 0;
     line-height: 1.1;
-    text-shadow: 0 2px 5px rgba(0, 0, 0, 1);
+    text-shadow: none;
 }
 
 .menu-price {
     font-family: var(--font-heading);
-    font-size: 1.25rem; /* Un poco más grande para que destaque */
+    font-size: 1.25rem; 
     font-weight: 900;
-    color: #FFFFFF; /* Blanco como solicitó el usuario */
+    color: var(--orange); 
     flex-shrink: 0;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
-    background: rgba(255, 255, 255, 0.1);
+    text-shadow: none;
+    background: rgba(255, 165, 0, 0.1);
     padding: 2px 8px;
     border-radius: 8px;
 }
 
 .menu-info p {
     font-size: 0.8rem;
-    color: #FFDCA8;
+    color: var(--text-medium);
     line-height: 1.25;
     margin: 0;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 1);
+    text-shadow: none;
     /* Solo mostramos hasta 2 líneas para asegurar que quepa perfecto en la tarjeta */
     display: -webkit-box;
     -webkit-line-clamp: 2;
