@@ -1,49 +1,74 @@
 #!/usr/bin/env python3
 """
-Servidor HTTP multihilo para Catálogo Pinchos y Chuletas Del Sol
-Soporta múltiples conexiones simultáneas desde diferentes dispositivos
+Servidor HTTP para Catálogo — Pinchos y Chuletas Del Sol
+Accesible desde cualquier dispositivo en la misma red local (WiFi/LAN universitaria).
+Uso: python3 servidor.py
 """
 
 import http.server
 import socketserver
-from http.server import SimpleHTTPRequestHandler
+import socket
 import os
 import sys
 
-# Fix Windows console encoding
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
-# Cambiar a directorio actual
+# Cambiar al directorio del proyecto
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-# Puerto
-PORT = 8000
+PORT = 8080  # Puerto 8080 (más libre en redes universitarias que el 8000)
+HOST = "0.0.0.0"  # Escuchar en TODAS las interfaces (WiFi, Ethernet, etc.)
 
-# ThreadingTCPServer permite múltiples conexiones simultáneas
+
+def get_local_ip():
+    """Obtiene la IP local de la máquina en la red actual."""
+    try:
+        # Conectar a un destino externo sin enviar datos — solo para obtener la IP saliente
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "127.0.0.1"
+
+
+class CatalogoHandler(http.server.SimpleHTTPRequestHandler):
+    def end_headers(self):
+        # Sin caché para ver cambios al instante desde cualquier dispositivo
+        self.send_header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+        self.send_header('Pragma', 'no-cache')
+        self.send_header('Expires', '0')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        super().end_headers()
+
+    def log_message(self, format, *args):
+        print(f"  [{self.client_address[0]}] {format % args}")
+
+
 class ThreadingHTTPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     daemon_threads = True
     allow_reuse_address = True
 
-class MyHTTPRequestHandler(SimpleHTTPRequestHandler):
-    def end_headers(self):
-        """Agregar headers para evitar caching y CORS"""
-        self.send_header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
-        self.send_header('Expires', '0')
-        self.send_header('Access-Control-Allow-Origin', '*')
-        super().end_headers()
-    
-    def log_message(self, format, *args):
-        """Log mejorado para ver conexiones"""
-        print(f"[{self.client_address[0]}:{self.client_address[1]}] {format % args}")
 
 if __name__ == "__main__":
-    handler = MyHTTPRequestHandler
-    
-    with ThreadingHTTPServer(("", PORT), handler) as httpd:
-        print(f"🔥 Servidor activado en: http://192.168.18.37:{PORT}")
-        print(f"📱 O accede desde esta PC: http://localhost:{PORT}")
-        print(f"✅ Soporta múltiples conexiones simultáneas (2+)")
-        print(f"🛑 Presiona CTRL+C para detener\n")
+    local_ip = get_local_ip()
+
+    with ThreadingHTTPServer((HOST, PORT), CatalogoHandler) as httpd:
+        print()
+        print("🔥 ══════════════════════════════════════════════════")
+        print(f"   CATÁLOGO DEL SOL — Servidor activo")
+        print("══════════════════════════════════════════════════")
+        print()
+        print(f"📱  Desde el celular (misma red WiFi):")
+        print(f"    http://{local_ip}:{PORT}")
+        print()
+        print(f"💻  Desde esta PC:")
+        print(f"    http://localhost:{PORT}")
+        print()
+        print("ℹ️   Asegúrate de estar en la misma red WiFi/LAN")
+        print("🛑  Presiona CTRL+C para detener")
+        print()
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:

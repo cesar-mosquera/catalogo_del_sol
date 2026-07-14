@@ -9,19 +9,6 @@
     --orange: #FF4500;
     --orange-light: #FF7300;
     --orange-glow: #FF9E00;
-    --transition: 0.35s cubic-bezier(0.2, 0.0, 0, 1);
-}
-
-/* Optimización móvil agresiva */
-@media (max-width: 767px) {
-    * {
-        -webkit-tap-highlight-color: transparent;
-    }
-    .menu-item img {
-        will-change: transform;
-    }
-}
-
     --amber: #FF1A1A;
     --gold: #FFC000;
     --yellow-bright: #FFE600;
@@ -46,6 +33,16 @@
 
     --page-radius: 12px;
     --transition: 0.45s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Optimización móvil agresiva */
+@media (max-width: 767px) {
+    * {
+        -webkit-tap-highlight-color: transparent;
+    }
+    .menu-item img {
+        will-change: transform;
+    }
 }
 
 /* ═══════════ REINICIO DE ESTILOS ═══════════ */
@@ -194,189 +191,111 @@ body:has(.is-navigating) .bg-sparks {
     height: 100dvh;
     max-height: 850px;
     margin: 0 auto;
-    perspective: 2000px; /* Más profundo para nitidez */
+    perspective: 1400px;
     perspective-origin: center center;
     overflow: hidden;
     contain: paint layout;
-    image-rendering: -webkit-optimize-contrast; /* Máxima nitidez */
 }
 
 
 
-/* ═══════════ PÁGINAS (MOTOR 3D GPU NATIVO) ═══════════ */
+/* ═══════════ PÁGINAS — SISTEMA CLIPPATH FOLD ═══════════ */
 .page {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     pointer-events: none;
-    transform-origin: left center;
-    transform-style: preserve-3d;
-    transition: transform 0.65s cubic-bezier(0.34, 1.56, 0.64, 1),
-        opacity 0.15s ease,
-        box-shadow 0.3s ease;
-
-
-    /* Estado por defecto (derecha, no leídas) */
-    transform: rotateY(0deg) translate3d(0,0,0);
     opacity: 0;
-    will-change: transform, opacity;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
+    will-change: opacity;
     transform-style: preserve-3d;
 }
 
+.page.active {
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 100;
+    box-shadow: -8px 0 30px rgba(0,0,0,0.3), 8px 0 20px rgba(0,0,0,0.1);
+}
 
+.page.flipped-left {
+    opacity: 1;
+    z-index: 1;
+    pointer-events: none;
+}
 
-/* Deshabilitar transiciones durante el arrastre para máxima respuesta */
+.page.unread-right {
+    opacity: 0;
+    pointer-events: none;
+}
+
 .page.folding,
 .page.dragging {
     transition: none !important;
 }
 
-
-.page.active {
-    opacity: 1;
-    pointer-events: auto;
-    transform: rotateY(0deg) translate3d(0,0,2px);
-    z-index: 100;
-}
-
-/* Solo mostrar sombras pesadas cuando NO estamos navegando para evitar "trabas" */
-.notebook:not(.is-navigating) .page.active {
-    box-shadow: -20px 10px 60px rgba(0, 0, 0, 0.7),
-                -10px 5px 30px rgba(255, 100, 0, 0.2);
-    filter: drop-shadow(-8px 4px 12px rgba(0,0,0,0.6));
-}
-
-
-/* Página volteada a la izquierda (ya leída) */
-.page.flipped-left {
-    transform: rotateY(-180deg) translateZ(-2px);
-    opacity: 1;
-    /* Reducimos la carga de sombras: solo la última página volteada debería tener sombra pesada */
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
-    filter: none; /* Eliminamos drop-shadow que es carísimo en GPU */
-}
-
-/* Solo la página que está justo debajo de la actual tiene sombra para dar profundidad */
-.page.flipped-left[style*="z-index: 3"],
-.page.flipped-left[style*="z-index: 4"] {
-     box-shadow: 10px 0 30px rgba(0, 0, 0, 0.6);
-}
-
-/* Página esperando a la derecha (aún no leída) */
-.page.unread-right {
-    transform: rotateY(0deg) translateZ(0);
-    opacity: 0;
-    box-shadow: none;
-    filter: drop-shadow(0 0 0px rgba(0,0,0,0));
-}
-
-/* CARA POSTERIOR PARA NO VER TEXTO INVERTIDO */
+/* ─── Interior de página ─── */
 .page-inner {
-    width: 100%;
-    height: 100%;
-    /* FONDO CLARO */
-    background: linear-gradient(135deg, #FFFFFF, #FFF5E1);
-    background-size: cover;
-    background-position: center;
-    background-color: #FFFFFF;
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, #FFFDF6 0%, #FFF5E1 100%);
     border-radius: var(--page-radius);
-    border: 3px solid #FFC000;
+    border: 2px solid rgba(255, 192, 0, 0.6);
     box-shadow:
-        inset 0 0 20px rgba(255, 180, 0, 0.1),
-        0 8px 25px rgba(0, 0, 0, 0.15);
+        inset 0 0 30px rgba(255, 180, 0, 0.08),
+        0 8px 30px rgba(0,0,0,0.2);
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    position: relative;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    will-change: transform, clip-path;
     z-index: 2;
+    contain: paint;
 }
 
-.page-back {
-    position: absolute;
-    inset: 0;
-    /* Fondo realista simulando la textura de atrás */
-    background: linear-gradient(135deg, #FFF5E1, #FFE6C2);
-    background-size: cover;
-    background-position: center;
-    filter: none; 
-    border: 3px solid #FFC000;
-    border-radius: var(--page-radius);
-    transform: rotateY(180deg) translateZ(1px);
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    z-index: 1;
-    box-shadow: inset 15px 0 30px rgba(0,0,0,0.1),
-                inset -15px 0 30px rgba(0,0,0,0.05);
+/* Durante el doblez: promover a capa GPU (clip-path pasa a ser una máscara
+   del compositor en vez de recortarse por CPU) y aligerar la sombra, que es
+   lo más caro de repintar 20+ veces por transición */
+.page.folding .page-inner,
+.page.dragging .page-inner {
+    will-change: clip-path;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.18);
 }
 
-/* Arrastrando con el dedo — sin transición mientras se arrastra */
-.page.dragging {
-    transition: none !important;
-    filter: none !important; /* Nada de filtros durante el arrastre */
-    box-shadow: -5px 5px 20px rgba(0,0,0,0.5);
-    will-change: transform, clip-path;
-}
-
-
-/* Fuego en el borde izquierdo simulando el lomo quemado/brillante */
+/* Sombra del lomo izquierdo */
 .page-inner::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: 14px;
-    background: linear-gradient(90deg, 
-        rgba(0, 0, 0, 0.0) 0%, 
-        rgba(0, 0, 0, 0.05) 40%,
-        rgba(0, 0, 0, 0.1) 60%,
-        rgba(0, 0, 0, 0.2) 100%);
-    z-index: 3;
+    top: 0; left: 0; bottom: 0;
+    width: 18px;
+    background: linear-gradient(90deg, rgba(0,0,0,0.1) 0%, transparent 100%);
+    z-index: 10;
     pointer-events: none;
-    box-shadow: inset -2px 0 10px rgba(0,0,0,0.1);
 }
 
-/* Sombra del borde derecho (simula páginas apiladas) mantenemos la ilusión del cuaderno */
+/* Borde derecho (pila de páginas) */
 .page-inner::after {
     content: '';
     position: absolute;
-    top: 0;
-    right: -4px;
-    bottom: 0;
+    top: 2px; right: -5px; bottom: 2px;
     width: 8px;
-    background: linear-gradient(90deg,
-            rgba(200, 100, 50, 0.6),
-            rgba(200, 100, 50, 0.2),
-            rgba(200, 100, 50, 0.05));
+    background: linear-gradient(90deg, rgba(160,70,10,0.45), rgba(160,70,10,0.1), transparent);
     border-radius: 0 var(--page-radius) var(--page-radius) 0;
     pointer-events: none;
-    box-shadow: 2px 0 15px rgba(0,0,0,0.5);
+    box-shadow: 3px 0 10px rgba(0,0,0,0.35);
 }
 
-/* ══════════ MOTOR DE DOBLEZ REALISTA (DIAGONAL) ══════════ */
+/* ─── Fold layer (el trozo que se dobla en 3D) ─── */
 .fold-layer {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; height: 100%;
     pointer-events: none;
     z-index: 50;
     transform-style: preserve-3d;
-    transform: translate3d(0,0,0);
-    will-change: transform, clip-path;
     overflow: visible;
+    opacity: 0;
+    will-change: transform, opacity;
 }
 
-
-.fold-front, .fold-back {
+.fold-front,
+.fold-back {
     position: absolute;
     inset: 0;
     backface-visibility: hidden;
@@ -387,62 +306,27 @@ body:has(.is-navigating) .bg-sparks {
 
 .fold-front {
     z-index: 2;
-    background: inherit; /* Hereda el fondo de page-inner */
+    background: linear-gradient(160deg, #FFFDF6 0%, #FFF5E1 100%);
 }
 
 .fold-back {
     z-index: 1;
     transform: rotateY(180deg);
-    background: linear-gradient(135deg, #FFF0D4, #FFE5B4); /* Tono madera claro */
-    box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+    background: linear-gradient(160deg, #FFE5B0 0%, #FFCF78 100%);
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: inset 0 0 30px rgba(180,80,0,0.15);
 }
 
 .fold-back::after {
     content: '☀️';
     font-size: 4rem;
-    opacity: 0.2;
-    filter: drop-shadow(0 0 10px rgba(255,100,0,0.5));
+    opacity: 0.18;
 }
 
-.fold-shadow {
-    position: absolute;
-    top: 0;
-    height: 100%;
-    width: 30px;
-    background: linear-gradient(90deg, rgba(0,0,0,0.25), transparent);
-    pointer-events: none;
-    z-index: 6;
-    opacity: 0;
-    /* Eliminar filtros pesados en móvil */
-}
-
-@media (min-width: 768px) {
-    .fold-shadow {
-        width: 60px;
-        filter: blur(8px);
-    }
-}
-
-.fold-base-shadow {
-    position: absolute;
-    top: 0;
-    height: 100%;
-    width: 40px;
-    background: linear-gradient(-90deg, rgba(0,0,0,0.15), transparent);
-    pointer-events: none;
-    z-index: 1;
-    opacity: 0;
-}
-
-@media (min-width: 768px) {
-    .fold-base-shadow {
-        width: 80px;
-        filter: blur(15px);
-    }
-}
+/* page-back no se usa en este sistema */
+.page-back { display: none; }
 
 
 
@@ -504,13 +388,6 @@ body:has(.is-navigating) .bg-sparks {
     border-radius: 50%;
     border: 1px dashed rgba(74, 40, 0, 0.4);
     z-index: 1;
-}
-    }
-
-    100% {
-        transform: scale(1.5);
-        opacity: 1;
-    }
 }
 
 @keyframes sunSpin {
@@ -674,21 +551,18 @@ body:has(.is-navigating) .bg-sparks {
     color: var(--text-medium);
 }
 
-/* ═══════════ PORTADA ═══════════ */
+/* ═══════════ PORTADA PREMIUM ═══════════ */
 .cover-page {
-    position: relative;
-    align-items: stretch;
-    justify-content: stretch;
-    text-align: center;
+    /* No pisar position/inset de .page-inner: si se pone relative aquí,
+       pierde el height:100% implícito de inset:0 y la portada se encoge
+       al alto de su contenido (bug real, dejaba ver el fondo debajo). */
     padding: 0;
-    gap: 0;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
-.cover-page::before {
-    display: none;
-}
-
+.cover-page::before,
 .cover-page::after {
     display: none;
 }
@@ -699,136 +573,187 @@ body:has(.is-navigating) .bg-sparks {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center;
     z-index: 0;
 }
 
+/* Fade oscuro superior para que el logo se lea */
+.cover-top-fade {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 45%;
+    background: linear-gradient(to bottom,
+        rgba(0,0,0,0.7) 0%,
+        rgba(0,0,0,0.3) 50%,
+        transparent 100%);
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Fade oscuro inferior para que los textos se lean */
 .cover-overlay {
     position: absolute;
     inset: 0;
     z-index: 1;
-    background: linear-gradient(180deg,
-            rgba(0, 0, 0, 0.25) 0%,
-            rgba(0, 0, 0, 0.05) 35%,
-            rgba(0, 0, 0, 0.0) 50%,
-            rgba(0, 0, 0, 0.15) 80%,
-            rgba(0, 0, 0, 0.45) 100%);
+    background: linear-gradient(to top,
+        rgba(0,0,0,0.88) 0%,
+        rgba(0,0,0,0.6) 30%,
+        rgba(0,0,0,0.1) 55%,
+        transparent 75%);
+    pointer-events: none;
 }
 
-.cover-content {
+/* Logo en la parte superior */
+.cover-logo-wrap {
     position: relative;
     z-index: 2;
+    display: flex;
+    justify-content: center;
+    padding: 1.4rem 1rem 0;
+    flex-shrink: 0;
+}
+
+.cover-logo-top {
+    width: 90px;
+    height: 90px;
+    object-fit: contain;
+    filter:
+        drop-shadow(0 4px 20px rgba(0,0,0,0.8))
+        drop-shadow(0 0 30px rgba(255,150,0,0.4));
+    animation: logoFloat 3s ease-in-out infinite;
+}
+
+@keyframes logoFloat {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-5px); }
+}
+
+/* Espaciador para empujar la marca hacia abajo */
+.cover-content-bottom {
+    position: relative;
+    z-index: 2;
+    margin-top: auto;
+    padding: 0 1.4rem 2rem;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    flex: 1;
-    padding: 2rem 1.2rem;
-    padding-top: 15%;
+    gap: 1.4rem;
 }
 
-.cover-sun {
-    font-size: 3rem;
-    margin-bottom: 0.5rem;
-    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
+.cover-brand {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.cover-brand-sub {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.75);
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+}
+
+.cover-brand-title {
+    font-family: var(--font-heading);
+    font-size: clamp(3rem, 12vw, 4.2rem);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: 0.04em;
+    /* Gradiente dorado brillante */
+    background: linear-gradient(160deg,
+        #FFE566 0%,
+        #FFC200 35%,
+        #FF8C00 70%,
+        #FFD700 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 3px 12px rgba(255,140,0,0.6));
+    -webkit-text-stroke: 0;
+}
+
+.cover-brand-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    width: 100%;
+    margin: 0.3rem 0;
+}
+
+.cover-divider-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,200,0,0.6), transparent);
+}
+
+.cover-divider-icon {
+    font-size: 1.1rem;
     animation: flamePulse 2.5s ease-in-out infinite;
 }
 
-.cover-title {
-    font-family: var(--font-heading);
-    font-size: 2.2rem;
-    font-weight: 800;
-    color: #fff;
-    line-height: 1.15;
-    text-shadow:
-        2px 2px 4px rgba(0, 0, 0, 0.5),
-        0 0 20px rgba(232, 93, 23, 0.3);
-    letter-spacing: 0.04em;
-    margin-bottom: 0;
+.cover-brand-tagline {
+    font-family: var(--font-accent);
+    font-size: 1rem;
+    color: rgba(255,255,255,0.82);
+    letter-spacing: 0.05em;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.6);
 }
 
-.cover-subtitle {
-    font-family: var(--font-heading);
-    font-size: 2.8rem;
-    font-weight: 800;
-    color: var(--yellow-bright);
-    line-height: 1.1;
-    text-shadow:
-        2px 2px 4px rgba(0, 0, 0, 0.5),
-        0 0 25px rgba(255, 218, 71, 0.3);
-    letter-spacing: 0.06em;
-    -webkit-text-stroke: 1px rgba(0, 0, 0, 0.15);
+/* Swipe hint con flechas chevron */
+.cover-swipe-hint {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.cover-swipe-text {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.65);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.cover-swipe-arrow {
+    display: flex;
+    gap: 4px;
+    animation: swipeChevron 1.8s ease-in-out infinite;
+}
+
+.cover-swipe-arrow span {
+    display: block;
+    width: 10px;
+    height: 10px;
+    border-right: 2px solid rgba(255,200,0,0.8);
+    border-bottom: 2px solid rgba(255,200,0,0.8);
+    transform: rotate(-45deg);
+    opacity: 0;
+    animation: chevronFade 1.8s ease-in-out infinite;
+}
+
+.cover-swipe-arrow span:nth-child(1) { animation-delay: 0s; }
+.cover-swipe-arrow span:nth-child(2) { animation-delay: 0.2s; }
+.cover-swipe-arrow span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes chevronFade {
+    0%   { opacity: 0; transform: rotate(-45deg) translate(-4px, -4px); }
+    50%  { opacity: 1; }
+    100% { opacity: 0; transform: rotate(-45deg) translate(4px, 4px); }
+}
+
+@keyframes swipeChevron {
+    0%, 100% { transform: translateX(0); }
+    50%       { transform: translateX(5px); }
 }
 
 @keyframes flamePulse {
-
-    0%,
-    100% {
-        transform: scale(1);
-    }
-
-    50% {
-        transform: scale(1.12);
-    }
-}
-
-.cover-tagline {
-    font-family: var(--font-accent);
-    font-size: 1.05rem;
-    color: #fff;
-    margin-top: 0.6rem;
-    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
-    font-weight: 600;
-}
-
-.cover-bottom {
-    position: relative;
-    z-index: 2;
-    padding: 1.2rem;
-    display: flex;
-    justify-content: center;
-}
-
-.cover-swipe {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.85);
-    letter-spacing: 0.04em;
-    animation: swipeHint 2s ease-in-out infinite;
-    background: rgba(0, 0, 0, 0.4); /* Más oscuro para compensar menos blur */
-    padding: 0.4rem 1rem;
-    border-radius: 20px;
-}
-
-.swipe-arrow {
-    font-size: 1.2rem;
-    color: var(--yellow-bright);
-    font-weight: 700;
-}
-
-@keyframes swipeHint {
-
-    0%,
-    100% {
-        transform: translateX(0);
-    }
-
-    50% {
-        transform: translateX(6px);
-    }
-}
-
-@keyframes pageFlipShadow {
-    0% {
-        box-shadow: -20px 10px 60px rgba(0, 0, 0, 0.5);
-    }
-    50% {
-        box-shadow: 0 25px 90px rgba(0, 0, 0, 0.8);
-    }
-    100% {
-        box-shadow: 20px 10px 60px rgba(0, 0, 0, 0.5);
-    }
+    0%, 100% { transform: scale(1); }
+    50%       { transform: scale(1.15); }
 }
 
 
@@ -1689,4 +1614,77 @@ body:has(.is-navigating) .bg-sparks {
 
 .modal-footer {
     margin-top: 1.5rem;
+}
+
+/* ═══════════ COSTO DE ENVÍO (GEOLOCALIZACIÓN) ═══════════ */
+.envio-fee-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.btn-calc-envio {
+    align-self: flex-start;
+    background: rgba(255, 165, 0, 0.12);
+    border: 1px solid rgba(232, 93, 23, 0.3);
+    color: var(--text-dark);
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 0.6rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-calc-envio:hover {
+    background: rgba(255, 165, 0, 0.22);
+    border-color: var(--orange);
+}
+
+.btn-calc-envio:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.envio-fee-result {
+    font-size: 0.85rem;
+    color: var(--text-medium);
+    background: var(--bg-warm);
+    border-radius: 10px;
+    padding: 0.5rem 0.8rem;
+    line-height: 1.4;
+}
+
+.envio-fee-result.error {
+    color: #B23A00;
+    background: rgba(178, 58, 0, 0.1);
+}
+
+.direccion-sugerida-hint {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-top: 0.3rem;
+}
+
+.checkout-total-row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.2rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px dashed rgba(232, 93, 23, 0.25);
+}
+
+.checkout-total-line {
+    font-size: 0.9rem;
+    color: var(--text-medium);
+}
+
+.checkout-total-final {
+    font-family: var(--font-heading);
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--orange);
 }

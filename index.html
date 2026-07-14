@@ -11,19 +11,29 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400&family=Outfit:wght@300;400;500;600&family=Dancing+Script:wght@600;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=10">
+    <link rel="stylesheet" href="styles.css?v=12">
+    <script src="script.js?v=16" defer></script>
     <style>
-        /* Estilos inline movidos a CSS */
         .cover-page-inner {
             background: #000;
+            border: none !important;
+            border-radius: 0 !important;
+            overflow: hidden;
         }
 
         .cover-bg-image {
-            object-fit: contain;
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            z-index: 0;
+            display: block;
         }
 
         .cover-gradient-overlay {
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 25%);
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.65) 0%, transparent 40%);
         }
 
         .tag-chef {
@@ -70,18 +80,38 @@
         <!-- Portada -->
         <section class="page page--cover active" data-page="0" aria-label="Portada del menú">
             <div class="page-inner cover-page cover-page-inner">
-                <img src="img/cover.webp" alt="Portada de Pinchos y Chuletas Del Sol" class="cover-bg-image">
+                <img src="img/hero.webp" alt="Portada de Pinchos y Chuletas Del Sol" class="cover-bg-image" loading="eager">
+                <!-- Gradiente superior oscuro para el logo -->
+                <div class="cover-top-fade" aria-hidden="true"></div>
+                <!-- Gradiente inferior para el texto -->
                 <div class="cover-overlay cover-gradient-overlay" aria-hidden="true"></div>
-                <div class="cover-content" style="flex: 1;">
-                    <!-- Los textos se eliminaron porque la imagen ya los trae -->
+
+                <!-- Logo superior -->
+                <div class="cover-logo-wrap">
+                    <img src="img/logo.webp" alt="Logo Del Sol" class="cover-logo-top">
                 </div>
-                <div class="cover-bottom">
-                    <div class="cover-swipe">
-                        <span>Desliza para ver el menú</span>
-                        <div class="swipe-arrow">→</div>
+
+                <!-- Contenido central / inferior -->
+                <div class="cover-content-bottom">
+                    <div class="cover-brand">
+                        <p class="cover-brand-sub">PINCHOS Y CHULETAS</p>
+                        <h1 class="cover-brand-title">DEL SOL</h1>
+                        <div class="cover-brand-divider">
+                            <span class="cover-divider-line"></span>
+                            <span class="cover-divider-icon">🔥</span>
+                            <span class="cover-divider-line"></span>
+                        </div>
+                        <p class="cover-brand-tagline">Parrilla al carbón · Cocina ecuatoriana</p>
+                    </div>
+                    <div class="cover-swipe-hint">
+                        <span class="cover-swipe-text">Desliza para ver el menú</span>
+                        <div class="cover-swipe-arrow">
+                            <span></span><span></span><span></span>
+                        </div>
                     </div>
                 </div>
             </div>
+            <div class="fold-layer"><div class="fold-front"></div><div class="fold-back"></div></div>
         </section>
 
         <!-- Sección: Parrilla al Carbón -->
@@ -155,6 +185,7 @@
                     </li>
                 </ul>
             </div>
+            <div class="fold-layer"><div class="fold-front"></div><div class="fold-back"></div></div>
         </section>
 
         <!-- Sección: Especialidades de la Casa -->
@@ -228,6 +259,7 @@
                     </li>
                 </ul>
             </div>
+            <div class="fold-layer"><div class="fold-front"></div><div class="fold-back"></div></div>
         </section>
 
         <!-- Sección: Acompañantes -->
@@ -300,6 +332,7 @@
                     </li>
                 </ul>
             </div>
+            <div class="fold-layer"><div class="fold-front"></div><div class="fold-back"></div></div>
         </section>
 
         <!-- Contraportada -->
@@ -318,6 +351,7 @@
                 <p class="back-copy">© 2026 Todos los derechos reservados</p>
                 <div class="cover-decoration cover-decoration--bottom"></div>
             </div>
+            <div class="fold-layer"><div class="fold-front"></div><div class="fold-back"></div></div>
         </section>
 
     </main>
@@ -398,17 +432,30 @@
                         <label for="clienteDireccion">Dirección / Observaciones</label>
                         <textarea id="clienteDireccion" rows="2"
                             placeholder="Ej: Dirección exacta / Especificaciones del pedido..."></textarea>
+                        <p id="direccionSugeridaHint" class="direccion-sugerida-hint" style="display:none;">
+                            📍 Sugerida según tu ubicación — puedes editarla o borrarla.</p>
+                    </div>
+                    <div class="form-group" id="envioFeeGroup" style="display:none;">
+                        <label>Costo de envío</label>
+                        <div class="envio-fee-box">
+                            <button type="button" id="btnCalcularEnvio" class="btn-calc-envio"
+                                onclick="calcularCostoEnvio()">📍 Calcular costo de envío</button>
+                            <p id="envioFeeResult" class="envio-fee-result" style="display:none;"></p>
+                        </div>
                     </div>
                 </fieldset>
             </form>
             <div class="modal-footer">
+                <div class="checkout-total-row" id="checkoutTotalRow">
+                    <span class="checkout-total-line">Subtotal: $<span id="checkoutSubtotal">0.00</span></span>
+                    <span class="checkout-total-line" id="checkoutEnvioLine" style="display:none;">Envío: $<span id="checkoutEnvioMonto">0.00</span></span>
+                    <span class="checkout-total-final">Total: $<span id="checkoutTotalFinal">0.00</span></span>
+                </div>
                 <button onclick="enviarPedido()" class="btn-whatsapp full-width">Confirmar por WhatsApp 📲</button>
             </div>
         </div>
     </dialog>
 
-    <!-- Script principal -->
-    <script src="script.js?v=14"></script>
 </body>
 
 </html>
