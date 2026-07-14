@@ -1,6 +1,11 @@
 /* ═══════════════════════════════════════════════════════════
-   PINCHOS Y CHULETAS DEL SOL — Flip Engine v6
-   Doblez real: derecha→izquierda al avanzar, izquierda→derecha al retroceder
+   PINCHOS Y CHULETAS DEL SOL — Flip Engine v7
+   Deslizamiento con inclinación 3D leve (nunca cruza los 90°, así
+   que no depende de backface-visibility ni de recortes 3D — ambas
+   técnicas resultaron poco confiables entre navegadores/GPUs).
+   'next' → la página actual sale hacia la izquierda.
+   'prev' → la página anterior entra desde la izquierda.
+   Misma fórmula para ambas: solo cambia CUÁL página se anima.
    ═══════════════════════════════════════════════════════════ */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -21,21 +26,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     const dots = Array.from(indicator.querySelectorAll('.page-dot'));
 
-    /* ─── Clonar contenido en el fold-front (una sola vez) ─── */
-    function prepareFold(page) {
-        const inner = page.querySelector('.page-inner');
-        const front = page.querySelector('.fold-front');
-        if (inner && front && front.children.length === 0) {
-            Array.from(inner.children).forEach(c => front.appendChild(c.cloneNode(true)));
-        }
-    }
-
-    /* ─── Reset visual de pliegue ─── */
+    /* ─── Reset visual: vuelve al estado definido por la hoja de estilos ─── */
     function resetFold(page) {
-        const fl = page.querySelector('.fold-layer');
-        const fi = page.querySelector('.page-inner');
-        if (fl) { fl.style.cssText = 'opacity:0;'; }
-        if (fi) { fi.style.clipPath = ''; }
+        const pi = page.querySelector('.page-inner');
+        if (pi) { pi.style.cssText = ''; }
     }
 
     /* ─── Estado de página ─── */
@@ -53,58 +47,23 @@ document.addEventListener('DOMContentLoaded', () => {
     setStates(0);
 
     /* ═══════════════════════════════════════════════════════
-       MOTOR DE DOBLEZ
-       direction 'next' → dobla de DERECHA a IZQUIERDA
-       direction 'prev' → dobla de IZQUIERDA a DERECHA
-       progress 0 = página completamente plana
-       progress 1 = página completamente doblada/oculta
+       MOTOR DE DESLIZAMIENTO
+       progress 0 = página en reposo (plana, en su sitio)
+       progress 1 = página completamente afuera (oculta)
+       La página "quieta" (la que se revela) no se toca: ya está
+       en su lugar debajo, solo la de arriba se desliza y la destapa.
     ═══════════════════════════════════════════════════════ */
     function applyFold(page, progress, direction) {
-        const fl = page.querySelector('.fold-layer');
-        const fi = page.querySelector('.page-inner');
-        if (!fl || !fi) return;
-        const ffront = fl.querySelector('.fold-front');
-        const fback = fl.querySelector('.fold-back');
+        const pi = page.querySelector('.page-inner');
+        if (!pi) return;
 
         const p = Math.max(0, Math.min(1, progress));
-        const angle = p * 180;
+        const hinge = direction === 'next' ? 'left' : 'right';
 
-        /* No confiar en backface-visibility (soporte inconsistente entre
-           navegadores/GPUs): forzar a mano cuál cara se ve según el ángulo. */
-        if (ffront && fback) {
-            const pasadoElEcuador = angle > 90;
-            ffront.style.opacity = pasadoElEcuador ? '0' : '1';
-            fback.style.opacity = pasadoElEcuador ? '1' : '0';
-        }
-
-        if (p < 0.002) {
-            fl.style.opacity = '0';
-            fi.style.clipPath = '';
-            return;
-        }
-
-        fl.style.opacity = '1';
-        const pct = p * 100;
-
-        if (direction === 'next') {
-            /* La página actual dobla desde el borde DERECHO hacia la izquierda */
-            fi.style.clipPath = `inset(0 ${pct}% 0 0)`;
-
-            fl.style.width           = pct + '%';
-            fl.style.left            = (100 - pct) + '%';
-            fl.style.right           = '';
-            fl.style.transformOrigin = 'left center';
-            fl.style.transform       = `rotateY(-${angle}deg)`;
-        } else {
-            /* La página previa se "despliega" desde el borde IZQUIERDO hacia la derecha */
-            fi.style.clipPath = `inset(0 0 0 ${pct}%)`;
-
-            fl.style.width           = pct + '%';
-            fl.style.left            = '0';
-            fl.style.right           = '';
-            fl.style.transformOrigin = 'right center';
-            fl.style.transform       = `rotateY(${angle}deg)`;
-        }
+        pi.style.transformOrigin = hinge + ' center';
+        pi.style.transform = `translateX(${-p * 100}%) rotateY(${-p * 12}deg) scale(${1 - p * 0.05})`;
+        pi.style.boxShadow = `${-18 - p * 12}px 10px ${28 + p * 26}px rgba(0, 0, 0, ${0.18 + p * 0.32})`;
+        pi.style.opacity = String(1 - p * 0.08);
     }
 
     /* ─── Easing ágil tipo libro (cúbico: arranca antes que el quártico anterior) ─── */
@@ -144,7 +103,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (fwd) {
             const page = pages[currentPage];
             const next = pages[dest];
-            prepareFold(page);
 
             page.style.zIndex = 1000;
             page.classList.add('folding');
@@ -161,7 +119,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             const page = pages[dest];
             const curr = pages[currentPage];
-            prepareFold(page);
 
             page.style.zIndex = 1000;
             page.classList.remove('flipped-left');
@@ -218,7 +175,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (dx < -8 && currentPage < totalPages - 1) {
                 dragDir = 'next';
                 dragPage = pages[currentPage];
-                prepareFold(dragPage);
                 dragPage.style.zIndex = 1000;
                 dragPage.classList.add('dragging');
 
@@ -233,7 +189,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (dx > 8 && currentPage > 0) {
                 dragDir = 'prev';
                 dragPage = pages[currentPage - 1];
-                prepareFold(dragPage);
                 dragPage.style.zIndex = 1000;
                 dragPage.classList.remove('flipped-left');
                 dragPage.classList.add('active', 'dragging');
