@@ -272,8 +272,12 @@ const ENVIO_BASE = 1.50;
 const ENVIO_KM_INCLUIDOS = 2;
 const ENVIO_POR_KM = 0.50;
 
-let envioDistanciaKm = null;
-let envioCosto = null;
+/* Estado único de la ubicación de entrega: un solo lugar que actualizar
+   (fijarUbicacionEntrega) sin importar de dónde venga el punto (GPS
+   automático hoy, un pin arrastrable en un mapa mañana) — todo lo demás
+   (tarifa, total, mensaje de WhatsApp) lee de aquí, así que agregar una
+   nueva forma de fijar la ubicación no obliga a tocar el resto del flujo. */
+let ubicacionEntrega = null; // { lat, lng, distanciaKm, costo } | null
 
 function calcularTarifaEnvio(km) {
     if (km <= ENVIO_KM_INCLUIDOS) return ENVIO_BASE;
@@ -288,6 +292,21 @@ function distanciaKm(lat1, lng1, lat2, lng2) {
     const a = Math.sin(dLat / 2) ** 2 +
         Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+/* Único punto de entrada para fijar dónde se entrega el pedido.
+   Recalcula tarifa y distancia y deja todo listo para el resto del
+   flujo (checkout, WhatsApp). Cualquier forma futura de obtener la
+   ubicación (mapa manual, favoritos guardados, etc.) solo necesita
+   llamar a esta función con un lat/lng. */
+function fijarUbicacionEntrega(lat, lng) {
+    const km = distanciaKm(LOCAL_LAT, LOCAL_LNG, lat, lng);
+    ubicacionEntrega = { lat, lng, distanciaKm: km, costo: calcularTarifaEnvio(km) };
+    return ubicacionEntrega;
+}
+
+function limpiarUbicacionEntrega() {
+    ubicacionEntrega = null;
 }
 
 /* Sugiere (sin forzar) una dirección a partir de la ubicación, vía Nominatim/OSM.
@@ -328,7 +347,7 @@ window.calcularCostoEnvio = function () {
         resultEl.textContent = 'Tu navegador no soporta geolocalización. El costo de envío se confirmará por WhatsApp.';
         resultEl.classList.add('error');
         resultEl.style.display = 'block';
-        envioDistanciaKm = null; envioCosto = null;
+        limpiarUbicacionEntrega();
         actualizarTotalCheckout();
         return;
     }
@@ -338,16 +357,14 @@ window.calcularCostoEnvio = function () {
 
     navigator.geolocation.getCurrentPosition(
         pos => {
-            const km = distanciaKm(LOCAL_LAT, LOCAL_LNG, pos.coords.latitude, pos.coords.longitude);
-            envioDistanciaKm = km;
-            envioCosto = calcularTarifaEnvio(km);
+            const u = fijarUbicacionEntrega(pos.coords.latitude, pos.coords.longitude);
             resultEl.classList.remove('error');
-            resultEl.textContent = `📍 ${km.toFixed(1)} km del local — Envío: $${envioCosto.toFixed(2)}`;
+            resultEl.textContent = `📍 ${u.distanciaKm.toFixed(1)} km del local — Envío: $${u.costo.toFixed(2)}`;
             resultEl.style.display = 'block';
             btn.textContent = '📍 Recalcular ubicación';
             btn.disabled = false;
             actualizarTotalCheckout();
-            sugerirDireccion(pos.coords.latitude, pos.coords.longitude);
+            sugerirDireccion(u.lat, u.lng);
         },
         () => {
             resultEl.classList.add('error');
@@ -355,7 +372,7 @@ window.calcularCostoEnvio = function () {
             resultEl.style.display = 'block';
             btn.textContent = '📍 Reintentar';
             btn.disabled = false;
-            envioDistanciaKm = null; envioCosto = null;
+            limpiarUbicacionEntrega();
             actualizarTotalCheckout();
         },
         { enableHighAccuracy: true, timeout: 10000 }
@@ -369,10 +386,10 @@ function actualizarTotalCheckout() {
     document.getElementById('checkoutSubtotal').textContent = subtotal.toFixed(2);
 
     let total = subtotal;
-    if (tipo === 'Envío a Domicilio' && envioCosto != null) {
-        document.getElementById('checkoutEnvioMonto').textContent = envioCosto.toFixed(2);
+    if (tipo === 'Envío a Domicilio' && ubicacionEntrega) {
+        document.getElementById('checkoutEnvioMonto').textContent = ubicacionEntrega.costo.toFixed(2);
         envioLine.style.display = 'inline';
-        total += envioCosto;
+        total += ubicacionEntrega.costo;
     } else {
         envioLine.style.display = 'none';
     }
@@ -472,9 +489,13 @@ window.enviarPedido = function (e) {
     let total = subtotal;
     let lineasEnvio = [];
     if (esEnvio) {
-        if (envioCosto != null) {
-            total += envioCosto;
-            lineasEnvio = [`*🛵 Envío:* $${envioCosto.toFixed(2)} (${envioDistanciaKm.toFixed(1)} km aprox.)`];
+        if (ubicacionEntrega) {
+            total += ubicacionEntrega.costo;
+            const mapsLink = `https://www.google.com/maps?q=${ubicacionEntrega.lat},${ubicacionEntrega.lng}`;
+            lineasEnvio = [
+                `*🛵 Envío:* $${ubicacionEntrega.costo.toFixed(2)} (${ubicacionEntrega.distanciaKm.toFixed(1)} km aprox.)`,
+                `*📍 Ubicación exacta (GPS):* ${mapsLink}`,
+            ];
         } else {
             lineasEnvio = [`*🛵 Envío:* A confirmar (no se pudo calcular la distancia)`];
         }
@@ -495,7 +516,7 @@ window.enviarPedido = function (e) {
     window.open(`https://wa.me/${TEL}?text=${encodeURIComponent(texto)}`, '_blank');
     carrito = []; actualizarCarrito(); cerrarCheckout();
     document.getElementById('checkoutForm').reset();
-    envioDistanciaKm = null; envioCosto = null;
+    limpiarUbicacionEntrega();
     document.getElementById('envioFeeResult').style.display = 'none';
     document.getElementById('btnCalcularEnvio').textContent = '📍 Calcular costo de envío';
     document.getElementById('direccionSugeridaHint').style.display = 'none';
