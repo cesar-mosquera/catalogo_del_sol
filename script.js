@@ -5,12 +5,12 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     const notebook = document.getElementById('notebook');
-    const pages    = Array.from(document.querySelectorAll('.page'));
+    const pages = Array.from(document.querySelectorAll('.page'));
     const indicator = document.getElementById('pageIndicator');
 
     const totalPages = pages.length;
-    let currentPage  = 0;
-    let isAnimating  = false;
+    let currentPage = 0;
+    let isAnimating = false;
 
     /* ─── Dots ─── */
     pages.forEach((_, i) => {
@@ -23,8 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* ─── Clonar contenido en el fold-front (una sola vez) ─── */
     function prepareFold(page) {
-        const inner  = page.querySelector('.page-inner');
-        const front  = page.querySelector('.fold-front');
+        const inner = page.querySelector('.page-inner');
+        const front = page.querySelector('.fold-front');
         if (inner && front && front.children.length === 0) {
             Array.from(inner.children).forEach(c => front.appendChild(c.cloneNode(true)));
         }
@@ -43,9 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
         pages.forEach((p, i) => {
             resetFold(p);
             p.classList.remove('active', 'flipped-left', 'unread-right', 'folding', 'dragging');
-            if      (i < activeIdx)  { p.classList.add('flipped-left'); p.style.zIndex = i; }
-            else if (i === activeIdx){ p.classList.add('active');       p.style.zIndex = 500; }
-            else                     { p.classList.add('unread-right'); p.style.zIndex = totalPages - i; }
+            if (i < activeIdx) { p.classList.add('flipped-left'); p.style.zIndex = i; }
+            else if (i === activeIdx) { p.classList.add('active'); p.style.zIndex = 500; }
+            else { p.classList.add('unread-right'); p.style.zIndex = totalPages - i; }
         });
         dots.forEach((d, i) => d.classList.toggle('active', i === activeIdx));
         notebook.classList.remove('is-navigating');
@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const fi = page.querySelector('.page-inner');
         if (!fl || !fi) return;
         const ffront = fl.querySelector('.fold-front');
-        const fback  = fl.querySelector('.fold-back');
+        const fback = fl.querySelector('.fold-back');
 
         const p = Math.max(0, Math.min(1, progress));
         const angle = p * 180;
@@ -74,25 +74,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (ffront && fback) {
             const pasadoElEcuador = angle > 90;
             ffront.style.opacity = pasadoElEcuador ? '0' : '1';
-            fback.style.opacity  = pasadoElEcuador ? '1' : '0';
+            fback.style.opacity = pasadoElEcuador ? '1' : '0';
         }
 
         if (p < 0.002) {
-            fl.style.opacity  = '0';
+            fl.style.opacity = '0';
             fi.style.clipPath = '';
             return;
         }
 
         fl.style.opacity = '1';
         const pct = p * 100;
-
-        /* El fold-layer clonado actúa como "ventana" 3D: su contenido (ffront)
-           se dimensiona al ancho REAL de la página completa y se desplaza para
-           compensar, en vez de reescalarse al ancho angosto de la tira que se
-           dobla — así el texto/logo no se ve duplicado ni desalineado. */
-        if (ffront) {
-            ffront.style.width = (100 / pct * 100) + '%';
-        }
 
         if (direction === 'next') {
             /* La página actual dobla desde el borde DERECHO hacia la izquierda */
@@ -103,7 +95,6 @@ document.addEventListener('DOMContentLoaded', () => {
             fl.style.right           = '';
             fl.style.transformOrigin = 'left center';
             fl.style.transform       = `rotateY(-${angle}deg)`;
-            if (ffront) ffront.style.left = -((100 - pct) / pct * 100) + '%';
         } else {
             /* La página previa se "despliega" desde el borde IZQUIERDO hacia la derecha */
             fi.style.clipPath = `inset(0 0 0 ${pct}%)`;
@@ -113,7 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
             fl.style.right           = '';
             fl.style.transformOrigin = 'right center';
             fl.style.transform       = `rotateY(${angle}deg)`;
-            if (ffront) ffront.style.left = '0';
         }
     }
 
@@ -163,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
             next.style.zIndex = 500;
 
             applyFold(page, 0, 'next');
-            animateFold(page, 0, 1, 'next', 260, () => {
+            animateFold(page, 0, 1, 'next', 480, () => {
                 currentPage = dest;
                 setStates(currentPage);
                 isAnimating = false;
@@ -179,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
             curr.style.zIndex = 500;
 
             applyFold(page, 1, 'prev');
-            animateFold(page, 1, 0, 'prev', 260, () => {
+            animateFold(page, 1, 0, 'prev', 480, () => {
                 currentPage = dest;
                 setStates(currentPage);
                 isAnimating = false;
@@ -193,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ─── Teclado ─── */
     document.addEventListener('keydown', e => {
         if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next();
-        if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   prev();
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prev();
     });
 
     /* ═══════════════════════════════════════════════════════
@@ -226,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!dragPage) {
             if (dx < -8 && currentPage < totalPages - 1) {
-                dragDir  = 'next';
+                dragDir = 'next';
                 dragPage = pages[currentPage];
                 prepareFold(dragPage);
                 dragPage.style.zIndex = 1000;
@@ -241,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 notebook.classList.add('is-navigating');
 
             } else if (dx > 8 && currentPage > 0) {
-                dragDir  = 'prev';
+                dragDir = 'prev';
                 dragPage = pages[currentPage - 1];
                 prepareFold(dragPage);
                 dragPage.style.zIndex = 1000;
@@ -264,20 +254,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function endDrag(x) {
         if (!dragPage) return;
-        const dx    = x - txStart;
-        const fast  = Date.now() - tStart < 280;
-        const page  = dragPage;
-        const dir   = dragDir;
+        const dx = x - txStart;
+        const fast = Date.now() - tStart < 280;
+        const page = dragPage;
+        const dir = dragDir;
         const fromP = dragP;
         dragPage = null; dragDir = null;
 
         let complete = false;
         if (dir === 'next') complete = fromP > 0.28 || (fast && dx < -18);
-        else                complete = fromP < 0.72 || (fast && dx >  18);
+        else complete = fromP < 0.72 || (fast && dx > 18);
 
         const toP = (dir === 'next' && complete) || (dir === 'prev' && !complete) ? 1 : 0;
         const remaining = Math.abs(toP - fromP);
-        const dur = Math.max(90, remaining * 260);
+        const dur = Math.max(160, remaining * 480);
 
         isAnimating = true;
         animateFold(page, fromP, toP, dir, dur, () => {
@@ -290,17 +280,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* Bindings táctiles */
     notebook.addEventListener('touchstart', e => startDrag(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
-    window.addEventListener('touchmove',    e => moveDrag(e.touches[0].clientX, e.touches[0].clientY, () => e.preventDefault()), { passive: false });
-    window.addEventListener('touchend',     e => endDrag(e.changedTouches[0].clientX), { passive: true });
+    window.addEventListener('touchmove', e => moveDrag(e.touches[0].clientX, e.touches[0].clientY, () => e.preventDefault()), { passive: false });
+    window.addEventListener('touchend', e => endDrag(e.changedTouches[0].clientX), { passive: true });
 
     /* Bindings mouse */
     notebook.addEventListener('mousedown', e => {
         if (e.target.closest('button')) return;
         startDrag(e.clientX, e.clientY);
         const onMove = me => moveDrag(me.clientX, me.clientY, () => me.preventDefault());
-        const onUp   = me => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); endDrag(me.clientX); };
+        const onUp = me => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); endDrag(me.clientX); };
         window.addEventListener('mousemove', onMove);
-        window.addEventListener('mouseup',   onUp);
+        window.addEventListener('mouseup', onUp);
     });
 });
 
@@ -308,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
    WHATSAPP + CARRITO
 ════════════════════════════════════════════════════════ */
 let carrito = [];
-const TEL = '593969581620';
+const TEL = '593980118603';
 
 /* ═══════════ COSTO DE ENVÍO POR GEOLOCALIZACIÓN ═══════════
    $1.50 fijo hasta 2 km, luego $0.50 por cada km adicional. */
@@ -366,7 +356,7 @@ async function sugerirDireccion(lat, lng) {
     }
 }
 
-window.calcularCostoEnvio = function() {
+window.calcularCostoEnvio = function () {
     const resultEl = document.getElementById('envioFeeResult');
     const btn = document.getElementById('btnCalcularEnvio');
 
@@ -431,7 +421,7 @@ function actualizarVisibilidadEnvio() {
     actualizarTotalCheckout();
 }
 
-window.pedirWsp = function(plato, precio, event) {
+window.pedirWsp = function (plato, precio, event) {
     if (event) event.stopPropagation();
     const item = carrito.find(i => i.plato === plato);
     if (item) item.cantidad++;
@@ -446,7 +436,7 @@ window.pedirWsp = function(plato, precio, event) {
     }
 };
 
-window.cambiarCantidad = function(plato, delta, event) {
+window.cambiarCantidad = function (plato, delta, event) {
     if (event) event.stopPropagation();
     const item = carrito.find(i => i.plato === plato);
     if (item) {
@@ -480,37 +470,37 @@ function actualizarCarrito() {
         list.appendChild(li);
     });
     totalEl.textContent = total.toFixed(2);
-    count.textContent   = carrito.length;
+    count.textContent = carrito.length;
     if (carrito.length > 0) badge.classList.remove('hidden');
     else { badge.classList.add('hidden'); cerrarCarrito(); }
 }
 
 window.toggleCarrito = () => {
     const p = document.getElementById('cartPanel');
-    p.classList.contains('show') ? cerrarCarrito() : (p.classList.add('show'), document.getElementById('cartFloat').setAttribute('aria-expanded','true'));
+    p.classList.contains('show') ? cerrarCarrito() : (p.classList.add('show'), document.getElementById('cartFloat').setAttribute('aria-expanded', 'true'));
 };
 window.cerrarCarrito = () => {
     document.getElementById('cartPanel').classList.remove('show');
-    document.getElementById('cartFloat').setAttribute('aria-expanded','false');
+    document.getElementById('cartFloat').setAttribute('aria-expanded', 'false');
 };
 
 window.abrirCheckout = () => {
     cerrarCarrito();
     const m = document.getElementById('checkoutModal');
-    m.tagName==='DIALOG' ? m.showModal() : m.classList.add('show');
+    m.tagName === 'DIALOG' ? m.showModal() : m.classList.add('show');
     actualizarVisibilidadEnvio();
 };
-window.cerrarCheckout = () => { const m = document.getElementById('checkoutModal'); m.tagName==='DIALOG' ? m.close() : m.classList.remove('show'); };
+window.cerrarCheckout = () => { const m = document.getElementById('checkoutModal'); m.tagName === 'DIALOG' ? m.close() : m.classList.remove('show'); };
 
 document.getElementById('pedidoTipo').addEventListener('change', actualizarVisibilidadEnvio);
 
-window.enviarPedido = function(e) {
+window.enviarPedido = function (e) {
     if (e) e.preventDefault();
     const nombre = document.getElementById('clienteNombre').value.trim();
-    const tipo   = document.getElementById('pedidoTipo').value;
-    const pago   = document.getElementById('metodoPago').value;
-    const dir    = document.getElementById('clienteDireccion').value.trim();
-    if (!nombre)         { alert('Por favor ingresa tu nombre.'); return; }
+    const tipo = document.getElementById('pedidoTipo').value;
+    const pago = document.getElementById('metodoPago').value;
+    const dir = document.getElementById('clienteDireccion').value.trim();
+    if (!nombre) { alert('Por favor ingresa tu nombre.'); return; }
     if (!carrito.length) { alert('Tu carrito está vacío.'); return; }
 
     const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
@@ -532,9 +522,9 @@ window.enviarPedido = function(e) {
         `*🍽️ Tipo:* ${tipo}`,
         `*💸 Pago:* ${pago}`,
         ...(dir ? [`*📍 Dir/Obs:* ${dir}`] : []),
-        ``,`*📝 DETALLE:*`,
-        ...carrito.map(i => `▪️ ${i.cantidad}x ${i.plato} ($${(i.precio*i.cantidad).toFixed(2)})`),
-        ``,`*💵 Subtotal: $${subtotal.toFixed(2)}*`,
+        ``, `*📝 DETALLE:*`,
+        ...carrito.map(i => `▪️ ${i.cantidad}x ${i.plato} ($${(i.precio * i.cantidad).toFixed(2)})`),
+        ``, `*💵 Subtotal: $${subtotal.toFixed(2)}*`,
         ...lineasEnvio,
         `*💰 TOTAL A PAGAR: $${total.toFixed(2)}*`,
     ].join('\n');
@@ -548,18 +538,18 @@ window.enviarPedido = function(e) {
 };
 
 /* ─── Modal plato ─── */
-window.verPlato = function(el) {
+window.verPlato = function (el) {
     if (!el) return;
     const { nombre, precio, desc, img, tag } = el.dataset;
-    document.getElementById('dishModalImg').src   = img;
-    document.getElementById('dishModalImg').alt   = nombre;
-    document.getElementById('dishModalName').textContent  = nombre;
+    document.getElementById('dishModalImg').src = img;
+    document.getElementById('dishModalImg').alt = nombre;
+    document.getElementById('dishModalName').textContent = nombre;
     document.getElementById('dishModalPrice').textContent = '$' + precio;
-    const sents = desc.split('.').map(s=>s.trim()).filter(Boolean);
+    const sents = desc.split('.').map(s => s.trim()).filter(Boolean);
     document.getElementById('dishModalDesc').innerHTML = '🔸 ' + sents.join('.<br><br>🔸 ') + '.';
     const tagEl = document.getElementById('dishModalTag');
     if (tag) { tagEl.textContent = tag; tagEl.style.display = 'inline-block'; }
-    else       tagEl.style.display = 'none';
+    else tagEl.style.display = 'none';
     document.getElementById('dishModalBtn').onclick = ev => {
         ev.stopPropagation();
         pedirWsp(nombre, parseFloat(precio), ev);
@@ -569,7 +559,7 @@ window.verPlato = function(el) {
     document.body.style.overflow = 'hidden';
 };
 
-window.cerrarDetallePlato = function(event) {
+window.cerrarDetallePlato = function (event) {
     if (event && event.target !== event.currentTarget) return;
     document.getElementById('dishModal').classList.remove('show');
     document.body.style.overflow = '';

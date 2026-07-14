@@ -289,7 +289,7 @@ body:has(.is-navigating) .bg-sparks {
     pointer-events: none;
     z-index: 50;
     transform-style: preserve-3d;
-    overflow: hidden;
+    overflow: visible;
     opacity: 0;
     will-change: transform, opacity;
 }
