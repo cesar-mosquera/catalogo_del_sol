@@ -47,23 +47,32 @@ document.addEventListener('DOMContentLoaded', () => {
     setStates(0);
 
     /* ═══════════════════════════════════════════════════════
-       MOTOR DE DESLIZAMIENTO
-       progress 0 = página en reposo (plana, en su sitio)
-       progress 1 = página completamente afuera (oculta)
-       La página "quieta" (la que se revela) no se toca: ya está
-       en su lugar debajo, solo la de arriba se desliza y la destapa.
+       MOTOR DE DOBLEZ (giro real, sin fold-layer ni clip-path)
+       progress 0 = página en reposo (plana)
+       progress 1 = página completamente girada (oculta)
+       La página gira como una sola pieza rígida alrededor de su
+       borde (como una hoja de cuaderno). Cerca de los 90° queda casi
+       de canto por la perspectiva — ahí mismo se desvanece, dejando
+       ver la página de abajo (que ya está quieta en su sitio). Así
+       evitamos depender de backface-visibility, que resultó poco
+       confiable entre navegadores/GPUs.
     ═══════════════════════════════════════════════════════ */
     function applyFold(page, progress, direction) {
         const pi = page.querySelector('.page-inner');
         if (!pi) return;
 
         const p = Math.max(0, Math.min(1, progress));
+        const angle = p * 180;
         const hinge = direction === 'next' ? 'left' : 'right';
+        const sign  = direction === 'next' ? -1 : 1;
 
         pi.style.transformOrigin = hinge + ' center';
-        pi.style.transform = `translateX(${-p * 100}%) rotateY(${-p * 12}deg) scale(${1 - p * 0.05})`;
-        pi.style.boxShadow = `${-18 - p * 12}px 10px ${28 + p * 26}px rgba(0, 0, 0, ${0.18 + p * 0.32})`;
-        pi.style.opacity = String(1 - p * 0.08);
+        pi.style.transform = `rotateY(${sign * angle}deg)`;
+        pi.style.boxShadow = `${sign * -1 * (14 + p * 16)}px 8px ${26 + p * 30}px rgba(0, 0, 0, ${0.15 + p * 0.35})`;
+
+        const fadeStart = 80, fadeEnd = 100;
+        const opacity = angle <= fadeStart ? 1 : angle >= fadeEnd ? 0 : 1 - (angle - fadeStart) / (fadeEnd - fadeStart);
+        pi.style.opacity = String(opacity);
     }
 
     /* ─── Easing ágil tipo libro (cúbico: arranca antes que el quártico anterior) ─── */
@@ -111,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
             next.style.zIndex = 500;
 
             applyFold(page, 0, 'next');
-            animateFold(page, 0, 1, 'next', 480, () => {
+            animateFold(page, 0, 1, 'next', 400, () => {
                 currentPage = dest;
                 setStates(currentPage);
                 isAnimating = false;
@@ -126,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
             curr.style.zIndex = 500;
 
             applyFold(page, 1, 'prev');
-            animateFold(page, 1, 0, 'prev', 480, () => {
+            animateFold(page, 1, 0, 'prev', 400, () => {
                 currentPage = dest;
                 setStates(currentPage);
                 isAnimating = false;
@@ -222,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const toP = (dir === 'next' && complete) || (dir === 'prev' && !complete) ? 1 : 0;
         const remaining = Math.abs(toP - fromP);
-        const dur = Math.max(160, remaining * 480);
+        const dur = Math.max(140, remaining * 400);
 
         isAnimating = true;
         animateFold(page, fromP, toP, dir, dur, () => {
