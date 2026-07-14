@@ -339,12 +339,126 @@ async function sugerirDireccion(lat, lng) {
     }
 }
 
-window.calcularCostoEnvio = function () {
+/* ═══ MAPA LEAFLET — PIN ARRASTRABLE ═══
+   Estado interno del mapa (se crea una sola vez por sesión de checkout). */
+let _mapaLeaflet = null;
+let _mapaPin = null;
+let _mapaAbierto = false;
+
+/* Centra el mapa y el pin en lat/lng y recalcula tarifa */
+function _actualizarPinMapa(lat, lng) {
+    const u = fijarUbicacionEntrega(lat, lng);
+    if (_mapaPin) _mapaPin.setLatLng([lat, lng]);
+    if (_mapaLeaflet) _mapaLeaflet.panTo([lat, lng]);
+    _mostrarResultadoEnvio(u);
+}
+
+function _mostrarResultadoEnvio(u) {
     const resultEl = document.getElementById('envioFeeResult');
-    const btn = document.getElementById('btnCalcularEnvio');
+    resultEl.classList.remove('error');
+    resultEl.innerHTML = `📍 <strong>${u.distanciaKm.toFixed(1)} km</strong> del local &mdash; Envío: <strong>$${u.costo.toFixed(2)}</strong>`;
+    resultEl.style.display = 'block';
+    actualizarTotalCheckout();
+}
+
+/* Inicializa el mapa Leaflet la primera vez que se abre */
+function initMapaEntrega(centerLat, centerLng) {
+    if (_mapaLeaflet) {
+        // Ya inicializado: solo recentrar
+        _mapaLeaflet.invalidateSize();
+        _mapaLeaflet.setView([centerLat, centerLng], 16);
+        _mapaPin.setLatLng([centerLat, centerLng]);
+        return;
+    }
+
+    _mapaLeaflet = L.map('mapaEntrega', { zoomControl: true }).setView([centerLat, centerLng], 16);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19,
+    }).addTo(_mapaLeaflet);
+
+    /* Pin de entrega (arrastrable) */
+    const pinIcono = L.divIcon({
+        html: `<div class="leaflet-pin-entrega">📍</div>`,
+        className: '',
+        iconSize: [40, 40],
+        iconAnchor: [20, 40],
+    });
+
+    _mapaPin = L.marker([centerLat, centerLng], {
+        draggable: true,
+        icon: pinIcono,
+        title: 'Arrastra para ajustar tu punto de entrega',
+    }).addTo(_mapaLeaflet);
+
+    /* También marcar el local */
+    const localIcono = L.divIcon({
+        html: `<div class="leaflet-pin-local">🏪</div>`,
+        className: '',
+        iconSize: [36, 36],
+        iconAnchor: [18, 36],
+    });
+    L.marker([LOCAL_LAT, LOCAL_LNG], { icon: localIcono, title: 'Pinchos y Chuletas Del Sol' })
+        .bindPopup('🏪 <strong>Pinchos Del Sol</strong>')
+        .addTo(_mapaLeaflet);
+
+    /* Actualizar costo al terminar de arrastrar */
+    _mapaPin.on('dragend', e => {
+        const { lat, lng } = e.target.getLatLng();
+        const u = fijarUbicacionEntrega(lat, lng);
+        _mostrarResultadoEnvio(u);
+        sugerirDireccion(lat, lng);
+    });
+
+    /* Clic en el mapa mueve el pin (alternativa al drag en móvil) */
+    _mapaLeaflet.on('click', e => {
+        const { lat, lng } = e.latlng;
+        _mapaPin.setLatLng([lat, lng]);
+        const u = fijarUbicacionEntrega(lat, lng);
+        _mostrarResultadoEnvio(u);
+        sugerirDireccion(lat, lng);
+    });
+
+    // Calcular costo inicial desde el centro dado
+    _actualizarPinMapa(centerLat, centerLng);
+}
+
+/* Abre/cierra el mapa. Intenta obtener GPS primero para centrar. */
+window.toggleMapaEntrega = function () {
+    const wrap = document.getElementById('mapaEntregaWrap');
+    const btnMapa = document.getElementById('btnAbrirMapa');
+
+    if (_mapaAbierto) {
+        wrap.style.display = 'none';
+        btnMapa.textContent = '🗺️ Ajustar en mapa';
+        _mapaAbierto = false;
+        return;
+    }
+
+    wrap.style.display = 'block';
+    btnMapa.textContent = '✖️ Cerrar mapa';
+    _mapaAbierto = true;
+
+    // Intentar GPS para centrar (pero no bloquear si falla)
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            pos => initMapaEntrega(pos.coords.latitude, pos.coords.longitude),
+            ()   => initMapaEntrega(LOCAL_LAT, LOCAL_LNG), // fallback al local
+            { enableHighAccuracy: true, timeout: 6000 }
+        );
+    } else {
+        initMapaEntrega(LOCAL_LAT, LOCAL_LNG);
+    }
+};
+
+/* GPS rápido: usa la posición automática sin abrir el mapa */
+window.usarGpsRapido = function () {
+    const resultEl = document.getElementById('envioFeeResult');
+    const btn = document.getElementById('btnGpsRapido');
 
     if (!navigator.geolocation) {
-        resultEl.textContent = 'Tu navegador no soporta geolocalización. El costo de envío se confirmará por WhatsApp.';
+        resultEl.textContent = 'Tu navegador no soporta geolocalización. El costo se confirmará por WhatsApp.';
         resultEl.classList.add('error');
         resultEl.style.display = 'block';
         limpiarUbicacionEntrega();
@@ -358,19 +472,21 @@ window.calcularCostoEnvio = function () {
     navigator.geolocation.getCurrentPosition(
         pos => {
             const u = fijarUbicacionEntrega(pos.coords.latitude, pos.coords.longitude);
-            resultEl.classList.remove('error');
-            resultEl.textContent = `📍 ${u.distanciaKm.toFixed(1)} km del local — Envío: $${u.costo.toFixed(2)}`;
-            resultEl.style.display = 'block';
-            btn.textContent = '📍 Recalcular ubicación';
-            btn.disabled = false;
-            actualizarTotalCheckout();
+            _mostrarResultadoEnvio(u);
             sugerirDireccion(u.lat, u.lng);
+            btn.textContent = '📡 Recalcular GPS';
+            btn.disabled = false;
+            // Si el mapa ya estaba abierto, sincronizar el pin
+            if (_mapaLeaflet && _mapaPin) {
+                _mapaPin.setLatLng([u.lat, u.lng]);
+                _mapaLeaflet.panTo([u.lat, u.lng]);
+            }
         },
         () => {
             resultEl.classList.add('error');
-            resultEl.textContent = 'No se pudo obtener tu ubicación. El costo de envío se confirmará por WhatsApp.';
+            resultEl.textContent = 'No se pudo obtener tu ubicación. Usa el mapa o confirma por WhatsApp.';
             resultEl.style.display = 'block';
-            btn.textContent = '📍 Reintentar';
+            btn.textContent = '📡 Reintentar GPS';
             btn.disabled = false;
             limpiarUbicacionEntrega();
             actualizarTotalCheckout();
@@ -378,6 +494,10 @@ window.calcularCostoEnvio = function () {
         { enableHighAccuracy: true, timeout: 10000 }
     );
 };
+
+/* Compatibilidad retroactiva: calcularCostoEnvio ahora abre el mapa */
+window.calcularCostoEnvio = window.toggleMapaEntrega;
+
 
 function actualizarTotalCheckout() {
     const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
@@ -494,7 +614,7 @@ window.enviarPedido = function (e) {
             const mapsLink = `https://www.google.com/maps?q=${ubicacionEntrega.lat},${ubicacionEntrega.lng}`;
             lineasEnvio = [
                 `*🛵 Envío:* $${ubicacionEntrega.costo.toFixed(2)} (${ubicacionEntrega.distanciaKm.toFixed(1)} km aprox.)`,
-                `*📍 Ubicación exacta (GPS):* ${mapsLink}`,
+                `*📍 Ubicación exacta (pin en mapa):* ${mapsLink}`,
             ];
         } else {
             lineasEnvio = [`*🛵 Envío:* A confirmar (no se pudo calcular la distancia)`];
@@ -517,8 +637,15 @@ window.enviarPedido = function (e) {
     carrito = []; actualizarCarrito(); cerrarCheckout();
     document.getElementById('checkoutForm').reset();
     limpiarUbicacionEntrega();
+    // Resetear estado del mapa
     document.getElementById('envioFeeResult').style.display = 'none';
-    document.getElementById('btnCalcularEnvio').textContent = '📍 Calcular costo de envío';
+    const mapaWrap = document.getElementById('mapaEntregaWrap');
+    if (mapaWrap) mapaWrap.style.display = 'none';
+    const btnMapa = document.getElementById('btnAbrirMapa');
+    if (btnMapa) btnMapa.textContent = '🗺️ Ajustar en mapa';
+    const btnGps = document.getElementById('btnGpsRapido');
+    if (btnGps) { btnGps.textContent = '📡 Usar mi GPS'; btnGps.disabled = false; }
+    _mapaAbierto = false;
     document.getElementById('direccionSugeridaHint').style.display = 'none';
 };
 

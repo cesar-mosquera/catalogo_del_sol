@@ -6,13 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Pinchos y Chuletas Del Sol — Menú Digital</title>
     <meta name="description" content="Menú digital de Pinchos y Chuletas Del Sol. Auténtica gastronomía ecuatoriana.">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#FF4500">
+    <link rel="apple-touch-icon" href="img/icons/icon-192.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400&family=Outfit:wght@300;400;500;600&family=Dancing+Script:wght@600;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=12">
-    <script src="script.js?v=16" defer></script>
+    <!-- Leaflet CSS (mapas interactivos open-source, sin API key) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <link rel="stylesheet" href="styles.css?v=13">
+    <!-- Leaflet JS (debe cargar antes de script.js) -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV/XN2GqM=" crossorigin=""></script>
+    <script src="script.js?v=17" defer></script>
     <style>
         .cover-page-inner {
             background: #000;
@@ -436,10 +445,19 @@
                             📍 Sugerida según tu ubicación — puedes editarla o borrarla.</p>
                     </div>
                     <div class="form-group" id="envioFeeGroup" style="display:none;">
-                        <label>Costo de envío</label>
+                        <label>Punto de entrega</label>
                         <div class="envio-fee-box">
-                            <button type="button" id="btnCalcularEnvio" class="btn-calc-envio"
-                                onclick="calcularCostoEnvio()">📍 Calcular costo de envío</button>
+                            <div class="envio-btn-row">
+                                <button type="button" id="btnGpsRapido" class="btn-calc-envio btn-gps"
+                                    onclick="usarGpsRapido()">📡 Usar mi GPS</button>
+                                <button type="button" id="btnAbrirMapa" class="btn-calc-envio btn-mapa"
+                                    onclick="toggleMapaEntrega()">🗺️ Ajustar en mapa</button>
+                            </div>
+                            <!-- Contenedor del mapa Leaflet -->
+                            <div id="mapaEntregaWrap" class="mapa-entrega-wrap" style="display:none;">
+                                <div id="mapaEntrega" class="mapa-entrega"></div>
+                                <p class="mapa-hint">📌 Arrastra el pin al lugar exacto de entrega</p>
+                            </div>
                             <p id="envioFeeResult" class="envio-fee-result" style="display:none;"></p>
                         </div>
                     </div>
@@ -455,6 +473,16 @@
             </div>
         </div>
     </dialog>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(() => {
+                    /* silencioso: si falla, el sitio sigue funcionando normal, solo sin caché offline */
+                });
+            });
+        }
+    </script>
 
 </body>
 

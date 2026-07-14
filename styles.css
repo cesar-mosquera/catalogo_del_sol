@@ -1688,3 +1688,107 @@ body:has(.is-navigating) .bg-sparks {
     font-weight: 800;
     color: var(--orange);
 }
+
+/* ═══════════════════════════════════════════
+   MAPA LEAFLET — PIN ARRASTRABLE DE ENTREGA
+   ═══════════════════════════════════════════ */
+
+/* Fila de dos botones: GPS rápido + Abrir mapa */
+.envio-btn-row {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.envio-btn-row .btn-calc-envio {
+    flex: 1;
+    min-width: 120px;
+    text-align: center;
+    justify-content: center;
+}
+
+/* Variantes de color para cada botón */
+.btn-gps {
+    background: rgba(0, 128, 255, 0.1);
+    border-color: rgba(0, 100, 220, 0.3);
+}
+.btn-gps:hover {
+    background: rgba(0, 128, 255, 0.2);
+    border-color: rgba(0, 100, 220, 0.6);
+}
+
+.btn-mapa {
+    background: rgba(232, 93, 23, 0.1);
+    border-color: rgba(232, 93, 23, 0.3);
+}
+.btn-mapa:hover {
+    background: rgba(232, 93, 23, 0.2);
+    border-color: var(--orange);
+}
+
+/* Contenedor del mapa con animación de entrada */
+.mapa-entrega-wrap {
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1.5px solid rgba(232, 93, 23, 0.25);
+    box-shadow: 0 4px 18px rgba(0,0,0,0.1);
+    animation: mapaSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes mapaSlideIn {
+    from { opacity: 0; transform: translateY(-8px) scaleY(0.95); }
+    to   { opacity: 1; transform: translateY(0) scaleY(1); }
+}
+
+/* El mapa en sí: altura generosa pero sin romper el modal en móvil */
+.mapa-entrega {
+    height: 220px;
+    width: 100%;
+    display: block;
+    /* Prevenir que el scroll del mapa arrastre el checkout */
+    touch-action: none;
+}
+
+/* Hint de arrastre debajo del mapa */
+.mapa-hint {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--text-medium);
+    text-align: center;
+    padding: 0.35rem 0.6rem;
+    background: rgba(255, 240, 210, 0.9);
+    border-top: 1px solid rgba(232, 93, 23, 0.1);
+}
+
+/* Pins personalizados con emoji */
+.leaflet-pin-entrega,
+.leaflet-pin-local {
+    font-size: 2rem;
+    line-height: 1;
+    text-align: center;
+    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.4));
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: transform 0.15s ease;
+}
+
+.leaflet-pin-entrega:active {
+    cursor: grabbing;
+    transform: scale(1.25) translateY(-4px);
+}
+
+/* Animación de pulso en el pin de entrega para llamar la atención */
+.leaflet-pin-entrega {
+    animation: pinPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes pinPulse {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-5px); }
+}
+
+/* Override de Leaflet para que el attribution no tape el mapa en pantallas pequeñas */
+.leaflet-control-attribution {
+    font-size: 0.6rem !important;
+}
