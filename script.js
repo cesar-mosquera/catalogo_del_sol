@@ -86,6 +86,14 @@ document.addEventListener('DOMContentLoaded', () => {
         fl.style.opacity = '1';
         const pct = p * 100;
 
+        /* El fold-layer clonado actúa como "ventana" 3D: su contenido (ffront)
+           se dimensiona al ancho REAL de la página completa y se desplaza para
+           compensar, en vez de reescalarse al ancho angosto de la tira que se
+           dobla — así el texto/logo no se ve duplicado ni desalineado. */
+        if (ffront) {
+            ffront.style.width = (100 / pct * 100) + '%';
+        }
+
         if (direction === 'next') {
             /* La página actual dobla desde el borde DERECHO hacia la izquierda */
             fi.style.clipPath = `inset(0 ${pct}% 0 0)`;
@@ -95,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
             fl.style.right           = '';
             fl.style.transformOrigin = 'left center';
             fl.style.transform       = `rotateY(-${angle}deg)`;
+            if (ffront) ffront.style.left = -((100 - pct) / pct * 100) + '%';
         } else {
             /* La página previa se "despliega" desde el borde IZQUIERDO hacia la derecha */
             fi.style.clipPath = `inset(0 0 0 ${pct}%)`;
@@ -104,6 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
             fl.style.right           = '';
             fl.style.transformOrigin = 'right center';
             fl.style.transform       = `rotateY(${angle}deg)`;
+            if (ffront) ffront.style.left = '0';
         }
     }
 
