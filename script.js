@@ -1,262 +1,105 @@
 /* ═══════════════════════════════════════════════════════════
-   PINCHOS Y CHULETAS DEL SOL — Flip Engine v7
-   Deslizamiento con inclinación 3D leve (nunca cruza los 90°, así
-   que no depende de backface-visibility ni de recortes 3D — ambas
-   técnicas resultaron poco confiables entre navegadores/GPUs).
-   'next' → la página actual sale hacia la izquierda.
-   'prev' → la página anterior entra desde la izquierda.
-   Misma fórmula para ambas: solo cambia CUÁL página se anima.
+   PINCHOS Y CHULETAS DEL SOL — PageFlip
    ═══════════════════════════════════════════════════════════ */
 
+let pageFlip;
+
 document.addEventListener('DOMContentLoaded', () => {
+    /* ─── Cargar y renderizar menú desde JSON ─── */
+    fetch('menu.json').then(r => r.json()).then(data => {
+        data.sections.forEach(section => {
+            const container = document.getElementById('menuSection' + (section.page - 1));
+            if (!container) return;
+            section.items.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'menu-item' + (item.separated ? ' line-separated' : '');
+                li.role = 'listitem';
+                li.dataset.nombre = item.nombre;
+                li.dataset.precio = String(item.precio);
+                li.dataset.desc = item.desc;
+                li.dataset.img = item.img;
+                if (item.tag) li.dataset.tag = item.tag;
+                li.addEventListener('click', () => verPlato(li));
+
+                const badgeHtml = item.badge ? `<span class="mini-badge bg-gold">${item.badge}</span>` : '';
+
+                li.innerHTML = `
+                    <div class="img-container">
+                        <img src="${item.img}" alt="${item.nombre}" class="menu-img" loading="lazy">
+                        ${badgeHtml}
+                    </div>
+                    <div class="menu-info">
+                        <div class="menu-header-row">
+                            <h3>${item.nombre}</h3>
+                            <span class="menu-price">$${item.precio.toFixed(2)}</span>
+                        </div>
+                        <div class="menu-actions-row">
+                            <button class="btn-ver-mas">📖 Ver m&aacute;s</button>
+                            <button class="btn-whatsapp">Pedir 🛒</button>
+                        </div>
+                    </div>`;
+
+                li.querySelector('.btn-ver-mas').addEventListener('click', e => {
+                    e.stopPropagation();
+                    verPlato(li);
+                });
+                li.querySelector('.btn-whatsapp').addEventListener('click', e => {
+                    e.stopPropagation();
+                    pedirWsp(item.nombre, item.precio, e);
+                });
+
+                container.appendChild(li);
+            });
+        });
+        
+        // Iniciar PageFlip una vez cargado el menú
+        initPageFlip();
+        
+    }).catch(err => console.error('Error cargando menu.json:', err));
+});
+
+function initPageFlip() {
     const notebook = document.getElementById('notebook');
-    const pages = Array.from(document.querySelectorAll('.page'));
     const indicator = document.getElementById('pageIndicator');
+    const pages = document.querySelectorAll('.page');
 
-    const totalPages = pages.length;
-    let currentPage = 0;
-    let isAnimating = false;
+    pageFlip = new StPageFlip.PageFlip(notebook, {
+        width: 460, 
+        height: 800,
+        size: "stretch",
+        minWidth: 320,
+        maxWidth: 460,
+        minHeight: 500,
+        maxHeight: 850,
+        maxShadowOpacity: 0.3,
+        showCover: true,
+        usePortrait: true,
+        mobileScrollSupport: true
+    });
 
-    /* ─── Dots ─── */
+    pageFlip.loadFromHTML(pages);
+
+    // Crear Dots
     pages.forEach((_, i) => {
         const dot = document.createElement('div');
         dot.className = 'page-dot' + (i === 0 ? ' active' : '');
-        dot.addEventListener('click', () => goTo(i));
+        dot.addEventListener('click', () => pageFlip.turnToPage(i));
         indicator.appendChild(dot);
     });
     const dots = Array.from(indicator.querySelectorAll('.page-dot'));
 
-    /* ─── Reset visual: vuelve al estado definido por la hoja de estilos ─── */
-    function resetFold(page) {
-        const pi = page.querySelector('.page-inner');
-        if (pi) { pi.style.cssText = ''; }
-    }
+    // Actualizar dots al girar
+    pageFlip.on('flip', (e) => {
+        dots.forEach((d, i) => d.classList.toggle('active', i === e.data));
+    });
 
-    /* ─── Estado de página ─── */
-    function setStates(activeIdx) {
-        pages.forEach((p, i) => {
-            resetFold(p);
-            p.classList.remove('active', 'flipped-left', 'unread-right', 'folding', 'dragging');
-            if (i < activeIdx) { p.classList.add('flipped-left'); p.style.zIndex = i; }
-            else if (i === activeIdx) { p.classList.add('active'); p.style.zIndex = 500; }
-            else { p.classList.add('unread-right'); p.style.zIndex = totalPages - i; }
-        });
-        dots.forEach((d, i) => d.classList.toggle('active', i === activeIdx));
-        notebook.classList.remove('is-navigating');
-    }
-    setStates(0);
-
-    /* ═══════════════════════════════════════════════════════
-       MOTOR DE DOBLEZ (giro real, sin fold-layer ni clip-path)
-       progress 0 = página en reposo (plana)
-       progress 1 = página completamente girada (oculta)
-       La página gira como una sola pieza rígida alrededor de su
-       borde (como una hoja de cuaderno). Cerca de los 90° queda casi
-       de canto por la perspectiva — ahí mismo se desvanece, dejando
-       ver la página de abajo (que ya está quieta en su sitio). Así
-       evitamos depender de backface-visibility, que resultó poco
-       confiable entre navegadores/GPUs.
-    ═══════════════════════════════════════════════════════ */
-    function applyFold(page, progress, direction) {
-        const pi = page.querySelector('.page-inner');
-        if (!pi) return;
-
-        const p = Math.max(0, Math.min(1, progress));
-        const angle = p * 180;
-        const hinge = direction === 'next' ? 'left' : 'right';
-        const sign  = direction === 'next' ? -1 : 1;
-
-        pi.style.transformOrigin = hinge + ' center';
-        pi.style.transform = `rotateY(${sign * angle}deg)`;
-        pi.style.boxShadow = `${sign * -1 * (14 + p * 16)}px 8px ${26 + p * 30}px rgba(0, 0, 0, ${0.15 + p * 0.35})`;
-
-        const fadeStart = 80, fadeEnd = 100;
-        const opacity = angle <= fadeStart ? 1 : angle >= fadeEnd ? 0 : 1 - (angle - fadeStart) / (fadeEnd - fadeStart);
-        pi.style.opacity = String(opacity);
-    }
-
-    /* ─── Easing ágil tipo libro (cúbico: arranca antes que el quártico anterior) ─── */
-    function easeInOutQuart(t) {
-        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-    }
-
-    /* ─── Animación entre dos valores de progress ─── */
-    function animateFold(page, from, to, direction, durationMs, cb) {
-        let start = null;
-        function frame(ts) {
-            if (!start) start = ts;
-            const raw = Math.min((ts - start) / durationMs, 1);
-            const eased = easeInOutQuart(raw);
-            applyFold(page, from + (to - from) * eased, direction);
-            if (raw < 1) {
-                requestAnimationFrame(frame);
-            } else {
-                applyFold(page, to, direction);
-                cb();
-            }
-        }
-        requestAnimationFrame(frame);
-    }
-
-    /* ─── Ir a página ─── */
-    function goTo(dest) {
-        if (isAnimating || dest === currentPage || dest < 0 || dest >= totalPages) return;
-        isAnimating = true;
-        notebook.classList.add('is-navigating');
-
-        dots[currentPage].classList.remove('active');
-        dots[dest].classList.add('active');
-
-        const fwd = dest > currentPage;
-
-        if (fwd) {
-            const page = pages[currentPage];
-            const next = pages[dest];
-
-            page.style.zIndex = 1000;
-            page.classList.add('folding');
-            next.classList.remove('unread-right');
-            next.classList.add('active');
-            next.style.zIndex = 500;
-
-            applyFold(page, 0, 'next');
-            animateFold(page, 0, 1, 'next', 400, () => {
-                currentPage = dest;
-                setStates(currentPage);
-                isAnimating = false;
-            });
-        } else {
-            const page = pages[dest];
-            const curr = pages[currentPage];
-
-            page.style.zIndex = 1000;
-            page.classList.remove('flipped-left');
-            page.classList.add('active', 'folding');
-            curr.style.zIndex = 500;
-
-            applyFold(page, 1, 'prev');
-            animateFold(page, 1, 0, 'prev', 400, () => {
-                currentPage = dest;
-                setStates(currentPage);
-                isAnimating = false;
-            });
-        }
-    }
-
-    const next = () => goTo(currentPage + 1);
-    const prev = () => goTo(currentPage - 1);
-
-    /* ─── Teclado ─── */
+    // Teclado
     document.addEventListener('keydown', e => {
-        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next();
-        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prev();
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') pageFlip.flipNext();
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') pageFlip.flipPrev();
     });
+}
 
-    /* ═══════════════════════════════════════════════════════
-       DRAG / SWIPE
-    ═══════════════════════════════════════════════════════ */
-    let txStart = 0, tyStart = 0, tStart = 0;
-    let isH = null, hasMoved = false;
-    let dragPage = null, dragDir = null, dragP = 0;
-    let viewW = Math.min(document.body.clientWidth, 460);
-    window.addEventListener('resize', () => { viewW = Math.min(document.body.clientWidth, 460); });
-
-    function startDrag(x, y) {
-        if (isAnimating || dragPage) return;
-        txStart = x; tyStart = y; tStart = Date.now();
-        isH = null; hasMoved = false; dragP = 0;
-    }
-
-    function moveDrag(x, y, prevent) {
-        if (isAnimating) return;
-        const dx = x - txStart, dy = y - tyStart;
-
-        if (isH === null && (Math.abs(dx) > 6 || Math.abs(dy) > 6))
-            isH = Math.abs(dx) > Math.abs(dy);
-
-        if (!isH) return;
-        if (prevent) prevent();
-        hasMoved = true;
-
-        const W = notebook.offsetWidth || viewW;
-
-        if (!dragPage) {
-            if (dx < -8 && currentPage < totalPages - 1) {
-                dragDir = 'next';
-                dragPage = pages[currentPage];
-                dragPage.style.zIndex = 1000;
-                dragPage.classList.add('dragging');
-
-                const nxt = pages[currentPage + 1];
-                if (nxt) {
-                    nxt.classList.remove('unread-right');
-                    nxt.classList.add('active');
-                    nxt.style.zIndex = 500;
-                }
-                notebook.classList.add('is-navigating');
-
-            } else if (dx > 8 && currentPage > 0) {
-                dragDir = 'prev';
-                dragPage = pages[currentPage - 1];
-                dragPage.style.zIndex = 1000;
-                dragPage.classList.remove('flipped-left');
-                dragPage.classList.add('active', 'dragging');
-                pages[currentPage].style.zIndex = 500;
-                notebook.classList.add('is-navigating');
-            }
-        }
-
-        if (!dragPage) return;
-
-        if (dragDir === 'next') {
-            dragP = Math.max(0, Math.min(1, -dx / W * 1.6));
-        } else {
-            dragP = Math.max(0, Math.min(1, 1 - dx / W * 1.6));
-        }
-        applyFold(dragPage, dragP, dragDir);
-    }
-
-    function endDrag(x) {
-        if (!dragPage) return;
-        const dx = x - txStart;
-        const fast = Date.now() - tStart < 280;
-        const page = dragPage;
-        const dir = dragDir;
-        const fromP = dragP;
-        dragPage = null; dragDir = null;
-
-        let complete = false;
-        if (dir === 'next') complete = fromP > 0.28 || (fast && dx < -18);
-        else complete = fromP < 0.72 || (fast && dx > 18);
-
-        const toP = (dir === 'next' && complete) || (dir === 'prev' && !complete) ? 1 : 0;
-        const remaining = Math.abs(toP - fromP);
-        const dur = Math.max(140, remaining * 400);
-
-        isAnimating = true;
-        animateFold(page, fromP, toP, dir, dur, () => {
-            if (dir === 'next' && toP === 1) currentPage++;
-            if (dir === 'prev' && toP === 0) currentPage--;
-            setStates(currentPage);
-            isAnimating = false;
-        });
-    }
-
-    /* Bindings táctiles */
-    notebook.addEventListener('touchstart', e => startDrag(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
-    window.addEventListener('touchmove', e => moveDrag(e.touches[0].clientX, e.touches[0].clientY, () => e.preventDefault()), { passive: false });
-    window.addEventListener('touchend', e => endDrag(e.changedTouches[0].clientX), { passive: true });
-
-    /* Bindings mouse */
-    notebook.addEventListener('mousedown', e => {
-        if (e.target.closest('button')) return;
-        startDrag(e.clientX, e.clientY);
-        const onMove = me => moveDrag(me.clientX, me.clientY, () => me.preventDefault());
-        const onUp = me => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); endDrag(me.clientX); };
-        window.addEventListener('mousemove', onMove);
-        window.addEventListener('mouseup', onUp);
-    });
-});
 
 /* ════════════════════════════════════════════════════════
    WHATSAPP + CARRITO
