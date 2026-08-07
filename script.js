@@ -76,8 +76,8 @@ function initPageFlip() {
         showCover: false,
         usePortrait: true,
         mobileScrollSupport: true,
-        flippingTime: 200,
-        swipeDistance: 9999  // Nativo desactivado; usamos nuestro handler
+        flippingTime: 150,
+        swipeDistance: 9999
     });
 
     pageFlip.loadFromHTML(pages);
@@ -86,8 +86,8 @@ function initPageFlip() {
     setTimeout(() => { notebook.style.opacity = '1'; }, 400);
 
     // ── Animación manual para el giro de REGRESO ──────────────────────
-    const DURACION = 200; // ms — igual que flippingTime
-    let isAnimating = false; // Bloquea llamadas múltiples durante el giro
+    const DURACION = 150;
+    let isAnimating = false;
 
     function flipAtras() {
         if (isAnimating || pageFlip.getCurrentPageIndex() === 0) return;
@@ -122,9 +122,10 @@ function initPageFlip() {
             });
         });
 
-        // A los 90° la hoja es invisible → cambiamos página
+        // A los 90° la hoja es invisible → cambiamos a la página anterior exacta
         setTimeout(() => {
-            pageFlip.flipPrev();
+            const targetPage = Math.max(0, pageFlip.getCurrentPageIndex() - 1);
+            pageFlip.turnToPage(targetPage); // turnToPage: va a la página exacta, sin saltos múltiples
 
             // Fase 2: viene del otro lado (−90° → 0°)
             overlay.style.transformOrigin = 'left center';
@@ -160,11 +161,12 @@ function initPageFlip() {
     notebook.addEventListener('touchend', e => {
         if (!swiping) return;
         swiping = false;
-        if (isAnimating) return; // Bloquear si ya hay un giro en curso
+        if (isAnimating) return;
         const dx = e.changedTouches[0].clientX - startX;
         const dy = e.changedTouches[0].clientY - startY;
         if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
         if (dx < 0) {
+            isAnimating = true;
             pageFlip.flipNext('bottom');
         } else {
             flipAtras();
@@ -182,6 +184,7 @@ function initPageFlip() {
 
     pageFlip.on('flip', e => {
         dots.forEach((d, i) => d.classList.toggle('active', i === e.data));
+        isAnimating = false; // Liberar guard cuando PageFlip confirma el cambio de página
     });
 
     document.addEventListener('keydown', e => {
