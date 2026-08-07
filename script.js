@@ -110,11 +110,11 @@ let carrito = [];
 const TEL = '593969581620';
 
 /* ═══════════ COSTO DE ENVÍO POR GEOLOCALIZACIÓN ═══════════
-   $1.50 fijo hasta 2 km, luego $0.50 por cada km adicional. */
+   $2.00 fijo hasta 2.9 km, luego $0.50 por cada km adicional. */
 const LOCAL_LAT = -0.3229875;
 const LOCAL_LNG = -78.556484375;
-const ENVIO_BASE = 1.50;
-const ENVIO_KM_INCLUIDOS = 2;
+const ENVIO_BASE = 2.00;
+const ENVIO_KM_INCLUIDOS = 2.9;
 const ENVIO_POR_KM = 0.50;
 
 /* Estado único de la ubicación de entrega: un solo lugar que actualizar
