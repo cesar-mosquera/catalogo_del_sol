@@ -63,10 +63,6 @@ function initPageFlip() {
     const indicator = document.getElementById('pageIndicator');
     const pages = document.querySelectorAll('.page');
 
-    // Ocultar hasta que PageFlip esté listo para evitar el salto visual en móviles
-    notebook.style.opacity = '0';
-    notebook.style.transition = 'opacity 0.2s ease';
-
     pageFlip = new St.PageFlip(notebook, {
         width: 460,
         height: 800,
@@ -75,12 +71,12 @@ function initPageFlip() {
         maxWidth: 460,
         minHeight: 500,
         maxHeight: 850,
-        maxShadowOpacity: 0.1, // Sombra ligera: menos carga en GPU de celulares
+        maxShadowOpacity: 0.1,
         showCover: true,
         usePortrait: true,
         mobileScrollSupport: true,
-        flippingTime: 400, // Animación rápida (era 600ms)
-        swipeDistance: 25  // Detecta el arrastre con movimiento más corto
+        flippingTime: 300, // Más rápido posible sin perder la sensación de giro
+        swipeDistance: 25
     });
 
     pageFlip.loadFromHTML(pages);
