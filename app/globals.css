@@ -6,3 +6,29 @@
 * { box-sizing: border-box; }
 body { margin: 0; background: #fffaf2; color: #29150b; font-family: Arial, sans-serif; }
 button, input, textarea { font: inherit; }
+
+/* El lomo es independiente del motor de giro: no se duplica ni deja rastros
+   al retroceder una página. */
+.book-frame {
+  position: relative;
+  padding: 12px 12px 12px 26px;
+  border-radius: 8px 18px 18px 8px;
+  background: linear-gradient(90deg, #35170b 0 15px, #6a3216 15px 22px, #f8ead6 22px 100%);
+  box-shadow: -7px 8px 0 #211008, 0 24px 45px rgba(48, 23, 10, .28);
+}
+
+.book-frame::before {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  z-index: 5;
+  top: 16px;
+  bottom: 16px;
+  left: 20px;
+  width: 7px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #180904, #a76331 48%, #2d1006);
+  box-shadow: 2px 0 5px rgba(0, 0, 0, .45);
+}
+
+.book-pages { position: relative; z-index: 1; }
