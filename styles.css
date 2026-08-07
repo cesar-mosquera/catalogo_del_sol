@@ -209,8 +209,8 @@ body:has(.is-navigating) .bg-sparks {
 /* ═══════════ PÁGINAS — PAGE-FLIP ═══════════ */
 .page {
     background-color: transparent;
-    /* Cada página es su propia capa del compositor → giro fluido en GPU */
-    transform: translateZ(0);
+    /* Sugerimos al browser que estas capas se van a transformar,
+       sin imponer un transform que choque con la animación de PageFlip */
     will-change: transform;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;

@@ -72,10 +72,10 @@ function initPageFlip() {
         minHeight: 500,
         maxHeight: 850,
         maxShadowOpacity: 0.1,
-        showCover: true,
+        showCover: false, // false = todas las páginas se animan igual, sin salto en portada
         usePortrait: true,
         mobileScrollSupport: true,
-        flippingTime: 300, // Más rápido posible sin perder la sensación de giro
+        flippingTime: 300,
         swipeDistance: 25
     });
 
