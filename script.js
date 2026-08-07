@@ -75,7 +75,7 @@ function initPageFlip() {
         showCover: false, // false = todas las páginas se animan igual, sin salto en portada
         usePortrait: true,
         mobileScrollSupport: true,
-        flippingTime: 300,
+        flippingTime: 450,   // Un poco más lento para apreciar el giro en ambos lados
         swipeDistance: 25
     });
 

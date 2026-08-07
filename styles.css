@@ -209,11 +209,9 @@ body:has(.is-navigating) .bg-sparks {
 /* ═══════════ PÁGINAS — PAGE-FLIP ═══════════ */
 .page {
     background-color: transparent;
-    /* Sugerimos al browser que estas capas se van a transformar,
-       sin imponer un transform que choque con la animación de PageFlip */
+    /* Solo hint de GPU sin backface-visibility: hidden, ya que esa propiedad
+       hace desaparecer la hoja al girar hacia atrás causando un snap brusco */
     will-change: transform;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
 }
 
 /* ─── Interior de página ─── */
