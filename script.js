@@ -284,6 +284,11 @@ window.toggleMapaEntrega = function () {
     wrap.style.display = 'block';
     btnMapa.textContent = '✖️ Cerrar mapa';
     _mapaAbierto = true;
+    
+    // Forzar redibujado de Leaflet al hacerse visible el contenedor
+    if (_mapaLeaflet) {
+        setTimeout(() => _mapaLeaflet.invalidateSize(), 50);
+    }
 
     // Intentar GPS para centrar (pero no bloquear si falla)
     if (navigator.geolocation) {
