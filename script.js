@@ -51,10 +51,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.appendChild(li);
             });
         });
-        
+
         // Iniciar PageFlip una vez cargado el menú
         initPageFlip();
-        
+
     }).catch(err => console.error('Error cargando menu.json:', err));
 });
 
@@ -64,7 +64,7 @@ function initPageFlip() {
     const pages = document.querySelectorAll('.page');
 
     pageFlip = new St.PageFlip(notebook, {
-        width: 460, 
+        width: 460,
         height: 800,
         size: "stretch",
         minWidth: 320,
@@ -105,7 +105,7 @@ function initPageFlip() {
    WHATSAPP + CARRITO
 ════════════════════════════════════════════════════════ */
 let carrito = [];
-const TEL = '593980118603';
+const TEL = '593969581620';
 
 /* ═══════════ COSTO DE ENVÍO POR GEOLOCALIZACIÓN ═══════════
    $1.50 fijo hasta 2 km, luego $0.50 por cada km adicional. */
@@ -287,7 +287,7 @@ window.toggleMapaEntrega = function () {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             pos => initMapaEntrega(pos.coords.latitude, pos.coords.longitude),
-            ()   => initMapaEntrega(LOCAL_LAT, LOCAL_LNG), // fallback al local
+            () => initMapaEntrega(LOCAL_LAT, LOCAL_LNG), // fallback al local
             { enableHighAccuracy: true, timeout: 6000 }
         );
     } else {
