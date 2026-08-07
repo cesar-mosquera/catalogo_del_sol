@@ -193,13 +193,11 @@ body:has(.is-navigating) .bg-sparks {
     height: 100svh;
     max-height: 850px;
     margin: 0 auto;
-    perspective: 1400px;
+    perspective: 1000px;
     perspective-origin: center center;
     overflow: hidden;
-    contain: paint layout;
-    will-change: transform;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
+    /* NO usar contain aquí: bloquea la aceleración por GPU del compositor */
+    transform: translateZ(0);
     /* Ocultamos desde CSS para que el primer pintado ya salga invisible.
        El JS lo hace visible cuando PageFlip termina de cargar. */
     opacity: 0;
@@ -211,6 +209,11 @@ body:has(.is-navigating) .bg-sparks {
 /* ═══════════ PÁGINAS — PAGE-FLIP ═══════════ */
 .page {
     background-color: transparent;
+    /* Cada página es su propia capa del compositor → giro fluido en GPU */
+    transform: translateZ(0);
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
 }
 
 /* ─── Interior de página ─── */
@@ -224,7 +227,6 @@ body:has(.is-navigating) .bg-sparks {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    contain: paint;
 }
 
 /* Sombra del lomo izquierdo (simulada por PageFlip pero podemos dejar la textura) */
