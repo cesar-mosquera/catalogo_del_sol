@@ -20,13 +20,13 @@
      viejos.
    ═══════════════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'catalogo-del-sol-v1';
+const CACHE_NAME = 'catalogo-del-sol-v2';
 
 const PRECACHE_URLS = [
     './',
     'index.html',
     'styles.css?v=13',
-    'script.js?v=17',
+    'script.js?v=18',
     'manifest.json',
     'img/cover.webp',
     'img/logo.webp',

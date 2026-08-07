@@ -63,7 +63,7 @@ function initPageFlip() {
     const indicator = document.getElementById('pageIndicator');
     const pages = document.querySelectorAll('.page');
 
-    pageFlip = new StPageFlip.PageFlip(notebook, {
+    pageFlip = new St.PageFlip(notebook, {
         width: 460, 
         height: 800,
         size: "stretch",
