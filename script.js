@@ -76,7 +76,7 @@ function initPageFlip() {
         showCover: false,
         usePortrait: true,
         mobileScrollSupport: true,
-        flippingTime: 150,
+        flippingTime: 100,
         swipeDistance: 9999
     });
 
@@ -86,9 +86,9 @@ function initPageFlip() {
     setTimeout(() => { notebook.style.opacity = '1'; }, 400);
 
     // ── Animación manual para el giro de REGRESO ──────────────────────
-    const DURACION = 150;
-    let isAnimatingBack = false;  // Guard solo para el regreso
-    let isAnimatingFwd  = false;  // Guard solo para la ida
+    const DURACION = 100;
+    let isAnimatingBack = false;
+    let isAnimatingFwd  = false;
 
     function flipAtras() {
         if (isAnimatingBack || pageFlip.getCurrentPageIndex() === 0) return;
@@ -109,7 +109,7 @@ function initPageFlip() {
             borderRadius:   '12px',
             border:         '2px solid rgba(255,192,0,0.6)',
             boxShadow:      '0 6px 30px rgba(0,0,0,0.35)',
-            pointerEvents:  'none',
+            pointerEvents:  'auto',   // Bloquea toques durante animación: nada pasa a PageFlip
             transform:      'perspective(1200px) rotateY(0deg)',
             transition:     `transform ${DURACION}ms ease-in-out`,
         });
