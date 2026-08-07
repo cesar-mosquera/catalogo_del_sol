@@ -76,8 +76,8 @@ function initPageFlip() {
         showCover: false,
         usePortrait: true,
         mobileScrollSupport: false,
-        flippingTime: 380,   // Velocidad ágil pero visible
-        swipeDistance: 30
+        flippingTime: 380,
+        swipeDistance: 9999  // Deshabilita el swipe interno: solo usamos nuestro handler
     });
 
     pageFlip.loadFromHTML(pages);
