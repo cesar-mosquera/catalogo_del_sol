@@ -74,7 +74,9 @@ function initPageFlip() {
         maxShadowOpacity: 0.3,
         showCover: true,
         usePortrait: true,
-        mobileScrollSupport: true
+        mobileScrollSupport: true,
+        flippingTime: 600, // Acelera la animación (por defecto suele ser 1000ms)
+        swipeDistance: 30  // Hace que el celular detecte el arrastre más rápido
     });
 
     pageFlip.loadFromHTML(pages);
