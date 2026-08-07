@@ -76,8 +76,8 @@ function initPageFlip() {
         showCover: false,
         usePortrait: true,
         mobileScrollSupport: true,
-        flippingTime: 280,   // Más rápido
-        swipeDistance: 9999  // Desactiva el detector nativo sin doble disparo
+        flippingTime: 280,
+        swipeDistance: 9999  // Nativo desactivado; usamos nuestro handler
     });
 
     pageFlip.loadFromHTML(pages);
@@ -85,26 +85,85 @@ function initPageFlip() {
     pageFlip.on('init', () => { notebook.style.opacity = '1'; });
     setTimeout(() => { notebook.style.opacity = '1'; }, 400);
 
-    // Handler de swipe único para AMBAS direcciones (nativo desactivado arriba)
-    let startX = 0, startY = 0, moved = false;
+    // ── Animación manual para el giro de REGRESO ──────────────────────
+    // PageFlip no anima flipPrev en portrait; creamos un overlay CSS 3D
+    // que imita la hoja volteando desde el borde derecho hacia la izquierda.
+    function flipAtras() {
+        if (pageFlip.getCurrentPageIndex() === 0) return;
+        const nb = notebook.getBoundingClientRect();
+        const DURACION = 280; // ms — debe coincidir con flippingTime
+
+        // Overlay que imita la página actual
+        const overlay = document.createElement('div');
+        Object.assign(overlay.style, {
+            position:       'fixed',
+            top:            nb.top  + 'px',
+            left:           nb.left + 'px',
+            width:          nb.width + 'px',
+            height:         nb.height + 'px',
+            zIndex:         '9999',
+            transformOrigin:'right center',
+            transformStyle: 'preserve-3d',
+            background:     'linear-gradient(160deg,#FFFDF6,#FFF5E1)',
+            borderRadius:   '12px',
+            border:         '2px solid rgba(255,192,0,0.6)',
+            boxShadow:      '0 4px 20px rgba(0,0,0,0.18)',
+            pointerEvents:  'none',
+            transform:      'perspective(1200px) rotateY(0deg)',
+            transition:     `transform ${DURACION}ms ease-in-out`,
+        });
+        document.body.appendChild(overlay);
+
+        // Fase 1: doblar la hoja hacia la derecha (0 → 90°)
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                overlay.style.transform = 'perspective(1200px) rotateY(90deg)';
+            });
+        });
+
+        // En la mitad del giro la hoja es invisible de canto → cambiamos página
+        setTimeout(() => {
+            pageFlip.flipPrev();
+
+            // Fase 2: el overlay ahora viene del otro lado (−90° → 0°)
+            overlay.style.transformOrigin = 'left center';
+            overlay.style.transition = 'none';
+            overlay.style.transform = 'perspective(1200px) rotateY(-90deg)';
+            overlay.style.background = 'linear-gradient(160deg,#FFF5E1,#FFFDF6)';
+
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    overlay.style.transition = `transform ${DURACION}ms ease-in-out`;
+                    overlay.style.transform  = 'perspective(1200px) rotateY(0deg)';
+                });
+            });
+
+            setTimeout(() => overlay.remove(), DURACION + 50);
+        }, DURACION);
+    }
+
+    // ── Swipe handler unificado ───────────────────────────────────────
+    let startX = 0, startY = 0, swiping = false;
 
     notebook.addEventListener('touchstart', e => {
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
-        moved = false;
+        startX  = e.touches[0].clientX;
+        startY  = e.touches[0].clientY;
+        swiping = false;
     }, { passive: true });
 
-    notebook.addEventListener('touchmove', e => {
-        moved = true;
-    }, { passive: true });
+    notebook.addEventListener('touchmove', () => { swiping = true; }, { passive: true });
 
     notebook.addEventListener('touchend', e => {
-        if (!moved) return;
+        if (!swiping) return;
         const dx = e.changedTouches[0].clientX - startX;
         const dy = e.changedTouches[0].clientY - startY;
-        // Solo actuar si el movimiento es más horizontal que vertical
         if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
-        dx < 0 ? pageFlip.flipNext() : pageFlip.flipPrev();
+        if (dx < 0) {
+            pageFlip.flipNext('bottom'); // Adelante: animación nativa desde borde inferior
+        } else {
+            flipAtras();                 // Atrás: nuestra animación CSS 3D
+        }
+        swiping = false;
     }, { passive: true });
 
     // Crear Dots
@@ -116,15 +175,16 @@ function initPageFlip() {
     });
     const dots = Array.from(indicator.querySelectorAll('.page-dot'));
 
-    pageFlip.on('flip', (e) => {
+    pageFlip.on('flip', e => {
         dots.forEach((d, i) => d.classList.toggle('active', i === e.data));
     });
 
     document.addEventListener('keydown', e => {
-        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') pageFlip.flipNext();
-        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') pageFlip.flipPrev();
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') pageFlip.flipNext('bottom');
+        if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   flipAtras();
     });
 }
+
 
 
 
