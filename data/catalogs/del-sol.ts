@@ -1,0 +1,32 @@
+import type { Catalog } from '@/lib/catalog-types';
+
+export const delSol: Catalog = {
+  slug: 'del-sol',
+  name: 'Pinchos y Chuletas Del Sol',
+  tagline: 'Parrilla al carbón · Cocina ecuatoriana',
+  description: 'Menú digital de Pinchos y Chuletas Del Sol.',
+  phone: '593980118603',
+  address: 'Consulta la dirección al confirmar tu pedido.',
+  coverImage: '/img/cover.webp',
+  logoImage: '/img/logo.webp',
+  template: 'book',
+  minimumOrder: 5,
+  businessHours: { timezone: 'America/Guayaquil', open: 11, close: 22, days: [0, 1, 2, 3, 4, 5, 6] },
+  sections: [
+    { name: 'Parrilla al carbón', products: [
+      { id: 'pincho-pollo', name: 'Pincho de Pollo', price: 3.5, description: 'Pollo marinado en ají y especias criollas, asado al carbón.', image: '/img/pincho_pollo.webp' },
+      { id: 'pincho-mixto', name: 'Pincho Mixto', price: 4, description: 'Pollo y res con especias secretas y salsa de maní.', image: '/img/pincho_carne.webp' },
+      { id: 'chuleta-plancha', name: 'Chuleta a la Plancha', price: 7, description: 'Chuleta de cerdo con arroz, menestra y patacones.', image: '/img/chuleta.webp', badge: 'Favorita' },
+    ] },
+    { name: 'Especialidades', products: [
+      { id: 'chuleta-ahumada', name: 'Chuleta Ahumada', price: 8, description: 'Cocción lenta y sabor ahumado de nogal.', image: '/img/chuleta.webp', badge: 'Chef' },
+      { id: 'guatita', name: 'Guatita', price: 5.5, description: 'Mondongo tierno en salsa cremosa de maní tostado.', image: '/img/guatita.webp' },
+      { id: 'seco-carne', name: 'Seco de Carne', price: 6, description: 'Estofado lento con cerveza y cilantro fresco.', image: '/img/seco.webp' },
+    ] },
+    { name: 'Acompañantes', products: [
+      { id: 'seco-pollo', name: 'Seco de Pollo', price: 5, description: 'Pollo estofado en salsa de naranjilla.', image: '/img/seco.webp' },
+      { id: 'choclo-queso', name: 'Choclo con Queso', price: 2.5, description: 'Mazorca andina con queso artesanal.', image: '/img/choclo.webp' },
+      { id: 'maduros', name: 'Maduros Fritos', price: 1.5, description: 'Tajadas caramelizadas, suaves y doradas.', image: '/img/choclo.webp' },
+    ] },
+  ],
+};
