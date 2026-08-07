@@ -195,6 +195,9 @@ body:has(.is-navigating) .bg-sparks {
     perspective-origin: center center;
     overflow: hidden;
     contain: paint layout;
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
 }
 
 

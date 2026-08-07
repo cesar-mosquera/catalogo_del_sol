@@ -63,6 +63,10 @@ function initPageFlip() {
     const indicator = document.getElementById('pageIndicator');
     const pages = document.querySelectorAll('.page');
 
+    // Ocultar hasta que PageFlip esté listo para evitar el salto visual en móviles
+    notebook.style.opacity = '0';
+    notebook.style.transition = 'opacity 0.2s ease';
+
     pageFlip = new St.PageFlip(notebook, {
         width: 460,
         height: 800,
@@ -71,15 +75,22 @@ function initPageFlip() {
         maxWidth: 460,
         minHeight: 500,
         maxHeight: 850,
-        maxShadowOpacity: 0.3,
+        maxShadowOpacity: 0.1, // Sombra ligera: menos carga en GPU de celulares
         showCover: true,
         usePortrait: true,
         mobileScrollSupport: true,
-        flippingTime: 600, // Acelera la animación (por defecto suele ser 1000ms)
-        swipeDistance: 30  // Hace que el celular detecte el arrastre más rápido
+        flippingTime: 400, // Animación rápida (era 600ms)
+        swipeDistance: 25  // Detecta el arrastre con movimiento más corto
     });
 
     pageFlip.loadFromHTML(pages);
+
+    // Mostrar el notebook una vez que PageFlip terminó de inicializarse
+    pageFlip.on('init', () => {
+        notebook.style.opacity = '1';
+    });
+    // Fallback: si el evento no dispara, mostrar igual después de 400ms
+    setTimeout(() => { notebook.style.opacity = '1'; }, 400);
 
     // Crear Dots
     pages.forEach((_, i) => {
