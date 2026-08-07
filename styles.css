@@ -1067,12 +1067,25 @@ body:has(.is-navigating) .bg-sparks {
 }
 
 /* ═══════════ MODALES GENERALES ═══════════ */
+
+/* Reset de los estilos por defecto del navegador para dialog.
+   Sin esto, el navegador añade margin, padding, border y max-width propios
+   que desplazan el modal a la izquierda en móviles. */
+dialog.modal-overlay {
+    margin: 0;
+    padding: 0;
+    border: none;
+    max-width: none;
+    max-height: none;
+    overflow: visible;
+}
+
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    height: 100dvh;
     background: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(5px);
     z-index: 2000;
