@@ -76,15 +76,36 @@ function initPageFlip() {
         showCover: false,
         usePortrait: true,
         mobileScrollSupport: true,
-        flippingTime: 380,
-        swipeDistance: 30
+        flippingTime: 280,   // Más rápido
+        swipeDistance: 9999  // Desactiva el detector nativo sin doble disparo
     });
 
     pageFlip.loadFromHTML(pages);
 
-    // Mostrar el notebook una vez que PageFlip terminó de inicializarse
     pageFlip.on('init', () => { notebook.style.opacity = '1'; });
     setTimeout(() => { notebook.style.opacity = '1'; }, 400);
+
+    // Handler de swipe único para AMBAS direcciones (nativo desactivado arriba)
+    let startX = 0, startY = 0, moved = false;
+
+    notebook.addEventListener('touchstart', e => {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        moved = false;
+    }, { passive: true });
+
+    notebook.addEventListener('touchmove', e => {
+        moved = true;
+    }, { passive: true });
+
+    notebook.addEventListener('touchend', e => {
+        if (!moved) return;
+        const dx = e.changedTouches[0].clientX - startX;
+        const dy = e.changedTouches[0].clientY - startY;
+        // Solo actuar si el movimiento es más horizontal que vertical
+        if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+        dx < 0 ? pageFlip.flipNext() : pageFlip.flipPrev();
+    }, { passive: true });
 
     // Crear Dots
     pages.forEach((_, i) => {
@@ -95,17 +116,16 @@ function initPageFlip() {
     });
     const dots = Array.from(indicator.querySelectorAll('.page-dot'));
 
-    // Actualizar dots al girar
     pageFlip.on('flip', (e) => {
         dots.forEach((d, i) => d.classList.toggle('active', i === e.data));
     });
 
-    // Teclado
     document.addEventListener('keydown', e => {
         if (e.key === 'ArrowRight' || e.key === 'ArrowDown') pageFlip.flipNext();
         if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') pageFlip.flipPrev();
     });
 }
+
 
 
 
