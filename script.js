@@ -71,7 +71,7 @@ function initPageFlip() {
         maxWidth: 460,
         minHeight: 500,
         maxHeight: 850,
-        maxShadowOpacity: 0.15,
+        maxShadowOpacity: 0.5,  // Sombra más pronunciada para ver mejor el giro
         drawShadow: true,
         showCover: false,
         usePortrait: true,
@@ -87,14 +87,14 @@ function initPageFlip() {
 
     // ── Animación manual para el giro de REGRESO ──────────────────────
     const DURACION = 150;
-    let isAnimating = false;
+    let isAnimatingBack = false;  // Guard solo para el regreso
+    let isAnimatingFwd  = false;  // Guard solo para la ida
 
     function flipAtras() {
-        if (isAnimating || pageFlip.getCurrentPageIndex() === 0) return;
-        isAnimating = true;
+        if (isAnimatingBack || pageFlip.getCurrentPageIndex() === 0) return;
+        isAnimatingBack = true;
 
         const nb = notebook.getBoundingClientRect();
-
         const overlay = document.createElement('div');
         Object.assign(overlay.style, {
             position:       'fixed',
@@ -108,26 +108,23 @@ function initPageFlip() {
             background:     'linear-gradient(160deg,#FFFDF6,#FFF5E1)',
             borderRadius:   '12px',
             border:         '2px solid rgba(255,192,0,0.6)',
-            boxShadow:      '0 4px 20px rgba(0,0,0,0.18)',
+            boxShadow:      '0 6px 30px rgba(0,0,0,0.35)',
             pointerEvents:  'none',
             transform:      'perspective(1200px) rotateY(0deg)',
             transition:     `transform ${DURACION}ms ease-in-out`,
         });
         document.body.appendChild(overlay);
 
-        // Fase 1: hoja dobla hacia la derecha (0 → 90°)
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
                 overlay.style.transform = 'perspective(1200px) rotateY(90deg)';
             });
         });
 
-        // A los 90° la hoja es invisible → cambiamos a la página anterior exacta
         setTimeout(() => {
             const targetPage = Math.max(0, pageFlip.getCurrentPageIndex() - 1);
-            pageFlip.turnToPage(targetPage); // turnToPage: va a la página exacta, sin saltos múltiples
+            pageFlip.turnToPage(targetPage);
 
-            // Fase 2: viene del otro lado (−90° → 0°)
             overlay.style.transformOrigin = 'left center';
             overlay.style.transition = 'none';
             overlay.style.transform = 'perspective(1200px) rotateY(-90deg)';
@@ -140,10 +137,11 @@ function initPageFlip() {
                 });
             });
 
+            // isAnimatingBack se libera SOLO cuando el overlay termina (no antes)
             setTimeout(() => {
                 overlay.remove();
-                isAnimating = false; // Permitir nuevo giro
-            }, DURACION + 50);
+                isAnimatingBack = false;
+            }, DURACION + 80);
         }, DURACION);
     }
 
@@ -161,12 +159,12 @@ function initPageFlip() {
     notebook.addEventListener('touchend', e => {
         if (!swiping) return;
         swiping = false;
-        if (isAnimating) return;
+        if (isAnimatingBack || isAnimatingFwd) return;
         const dx = e.changedTouches[0].clientX - startX;
         const dy = e.changedTouches[0].clientY - startY;
         if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
         if (dx < 0) {
-            isAnimating = true;
+            isAnimatingFwd = true;
             pageFlip.flipNext('bottom');
         } else {
             flipAtras();
@@ -184,7 +182,7 @@ function initPageFlip() {
 
     pageFlip.on('flip', e => {
         dots.forEach((d, i) => d.classList.toggle('active', i === e.data));
-        isAnimating = false; // Liberar guard cuando PageFlip confirma el cambio de página
+        isAnimatingFwd = false; // Solo libera el guard de forward
     });
 
     document.addEventListener('keydown', e => {
