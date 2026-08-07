@@ -76,7 +76,7 @@ function initPageFlip() {
         showCover: false,
         usePortrait: true,
         mobileScrollSupport: true,
-        flippingTime: 280,
+        flippingTime: 200,
         swipeDistance: 9999  // Nativo desactivado; usamos nuestro handler
     });
 
@@ -86,14 +86,15 @@ function initPageFlip() {
     setTimeout(() => { notebook.style.opacity = '1'; }, 400);
 
     // ── Animación manual para el giro de REGRESO ──────────────────────
-    // PageFlip no anima flipPrev en portrait; creamos un overlay CSS 3D
-    // que imita la hoja volteando desde el borde derecho hacia la izquierda.
-    function flipAtras() {
-        if (pageFlip.getCurrentPageIndex() === 0) return;
-        const nb = notebook.getBoundingClientRect();
-        const DURACION = 280; // ms — debe coincidir con flippingTime
+    const DURACION = 200; // ms — igual que flippingTime
+    let isAnimating = false; // Bloquea llamadas múltiples durante el giro
 
-        // Overlay que imita la página actual
+    function flipAtras() {
+        if (isAnimating || pageFlip.getCurrentPageIndex() === 0) return;
+        isAnimating = true;
+
+        const nb = notebook.getBoundingClientRect();
+
         const overlay = document.createElement('div');
         Object.assign(overlay.style, {
             position:       'fixed',
@@ -114,18 +115,18 @@ function initPageFlip() {
         });
         document.body.appendChild(overlay);
 
-        // Fase 1: doblar la hoja hacia la derecha (0 → 90°)
+        // Fase 1: hoja dobla hacia la derecha (0 → 90°)
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
                 overlay.style.transform = 'perspective(1200px) rotateY(90deg)';
             });
         });
 
-        // En la mitad del giro la hoja es invisible de canto → cambiamos página
+        // A los 90° la hoja es invisible → cambiamos página
         setTimeout(() => {
             pageFlip.flipPrev();
 
-            // Fase 2: el overlay ahora viene del otro lado (−90° → 0°)
+            // Fase 2: viene del otro lado (−90° → 0°)
             overlay.style.transformOrigin = 'left center';
             overlay.style.transition = 'none';
             overlay.style.transform = 'perspective(1200px) rotateY(-90deg)';
@@ -138,7 +139,10 @@ function initPageFlip() {
                 });
             });
 
-            setTimeout(() => overlay.remove(), DURACION + 50);
+            setTimeout(() => {
+                overlay.remove();
+                isAnimating = false; // Permitir nuevo giro
+            }, DURACION + 50);
         }, DURACION);
     }
 
@@ -155,15 +159,16 @@ function initPageFlip() {
 
     notebook.addEventListener('touchend', e => {
         if (!swiping) return;
+        swiping = false;
+        if (isAnimating) return; // Bloquear si ya hay un giro en curso
         const dx = e.changedTouches[0].clientX - startX;
         const dy = e.changedTouches[0].clientY - startY;
         if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
         if (dx < 0) {
-            pageFlip.flipNext('bottom'); // Adelante: animación nativa desde borde inferior
+            pageFlip.flipNext('bottom');
         } else {
-            flipAtras();                 // Atrás: nuestra animación CSS 3D
+            flipAtras();
         }
-        swiping = false;
     }, { passive: true });
 
     // Crear Dots
