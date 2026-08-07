@@ -71,13 +71,13 @@ function initPageFlip() {
         maxWidth: 460,
         minHeight: 500,
         maxHeight: 850,
-        maxShadowOpacity: 0.1,
+        maxShadowOpacity: 0.15,
         drawShadow: true,
         showCover: false,
         usePortrait: true,
-        mobileScrollSupport: false, // false = el giro arranca INMEDIATAMENTE sin esperar scroll
-        flippingTime: 550,          // Duración cómoda para apreciar el giro
-        swipeDistance: 20           // Umbral mínimo de arrastre para disparar el giro
+        mobileScrollSupport: false,
+        flippingTime: 380,   // Velocidad ágil pero visible
+        swipeDistance: 30
     });
 
     pageFlip.loadFromHTML(pages);
@@ -86,8 +86,41 @@ function initPageFlip() {
     pageFlip.on('init', () => {
         notebook.style.opacity = '1';
     });
-    // Fallback: si el evento no dispara, mostrar igual después de 400ms
     setTimeout(() => { notebook.style.opacity = '1'; }, 400);
+
+    // ── Swipe manual para que AMBAS direcciones usen la animación 3D ──
+    // PageFlip en portrait no siempre anima el regreso; interceptamos el
+    // gesto y llamamos a flipNext / flipPrev nosotros mismos.
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let isSwiping = false;
+
+    notebook.addEventListener('touchstart', e => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        isSwiping = false;
+    }, { passive: true });
+
+    notebook.addEventListener('touchmove', e => {
+        const dx = e.touches[0].clientX - touchStartX;
+        const dy = e.touches[0].clientY - touchStartY;
+        // Confirmar que es un swipe horizontal (no scroll)
+        if (!isSwiping && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
+            isSwiping = true;
+        }
+    }, { passive: true });
+
+    notebook.addEventListener('touchend', e => {
+        if (!isSwiping) return;
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        if (Math.abs(dx) < 30) return; // Ignorar swipes muy cortos
+        if (dx < 0) {
+            pageFlip.flipNext();   // Deslize izquierda → página siguiente
+        } else {
+            pageFlip.flipPrev();   // Deslize derecha  → página anterior (con animación)
+        }
+        isSwiping = false;
+    }, { passive: true });
 
     // Crear Dots
     pages.forEach((_, i) => {
@@ -109,6 +142,7 @@ function initPageFlip() {
         if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') pageFlip.flipPrev();
     });
 }
+
 
 
 /* ════════════════════════════════════════════════════════
