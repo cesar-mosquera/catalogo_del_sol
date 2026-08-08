@@ -4,10 +4,12 @@
 
 :root { color-scheme: light; }
 * { box-sizing: border-box; }
-body { margin: 0; background: #1a0a04; color: #29150b; font-family: Arial, sans-serif; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: #1a0a04; color: #29150b; font-family: Arial, sans-serif; }
 button, input, textarea { font: inherit; }
 
-/* ── MODO PANTALLA COMPLETA (mobile-first) ─────────────────────── */
+/* ════════════════════════════════════════════════════════
+   LIBRO: contenedor principal ocupa TODO el viewport
+════════════════════════════════════════════════════════ */
 .book-fullscreen {
   position: fixed;
   inset: 0;
@@ -15,85 +17,139 @@ button, input, textarea { font: inherit; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #1a0a04;
-  padding: 12px;
+  background: radial-gradient(ellipse at center, #2d0f05 0%, #0e0401 100%);
 }
 
-/* Marco exterior del cuaderno */
+/* Marco exterior tipo encuadernado */
 .book-frame-fullscreen {
   position: relative;
-  flex: 1;
-  width: 100%;
-  max-width: 480px;
-  /* Limita altura para dejar espacio a los puntos */
-  max-height: calc(100vh - 56px);
-  padding: 10px 10px 10px 24px;
-  border-radius: 8px 18px 18px 8px;
-  background: linear-gradient(90deg, #35170b 0 14px, #6a3216 14px 21px, #f8ead6 21px 100%);
-  box-shadow: -6px 8px 0 #211008, 0 24px 45px rgba(48, 23, 10, .40);
+  /* Ocupa el máximo espacio disponible respetando el aspect-ratio */
+  width: min(100vw - 16px, (100vh - 48px) * 0.68);
+  height: min(100vh - 48px, (100vw - 16px) / 0.68);
+  padding: 8px 8px 8px 20px;
+  border-radius: 6px 14px 14px 6px;
+  background: linear-gradient(90deg,
+    #2b1208 0 12px,
+    #5a2a12 12px 18px,
+    #f0e2c8 18px 100%
+  );
+  box-shadow:
+    -5px 6px 0 #150603,
+    0 20px 50px rgba(0,0,0,0.7),
+    inset 0 0 0 1px rgba(255,220,160,0.08);
 }
 
-/* Lomo decorativo exterior */
+/* Lomo decorativo */
 .book-frame-fullscreen::before {
   content: '';
   pointer-events: none;
   position: absolute;
   z-index: 5;
-  top: 14px;
-  bottom: 14px;
-  left: 18px;
-  width: 7px;
-  border-radius: 5px;
-  background: linear-gradient(90deg, #180904, #a76331 48%, #2d1006);
-  box-shadow: 2px 0 5px rgba(0, 0, 0, .45);
+  top: 12px; bottom: 12px; left: 14px;
+  width: 6px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #120703, #9a5828 48%, #261004);
+  box-shadow: 2px 0 6px rgba(0,0,0,0.5);
 }
 
-/* Área de páginas: ocupa todo el espacio disponible */
+/* Área interna de páginas */
 .notebook-stage-fullscreen {
   position: relative;
   width: 100%;
   height: 100%;
   overflow: hidden;
   background: #f8ead6;
-  border-radius: 4px 12px 12px 4px;
-  touch-action: pan-y;
+  border-radius: 3px 10px 10px 3px;
+  /* CRÍTICO: deshabilitar comportamiento táctil por defecto
+     para que los eventos de pointer no sean cancelados */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
-/* ── PUNTOS INDICADORES ─────────────────────────────────────────── */
+/* ════════════════════════════════════════════════════════
+   PUNTOS INDICADORES
+════════════════════════════════════════════════════════ */
 .book-dots {
+  position: absolute;
+  bottom: 8px;
+  left: 0; right: 0;
   display: flex;
-  gap: 7px;
-  padding: 10px 0 4px;
+  gap: 6px;
   justify-content: center;
-  flex-shrink: 0;
+  pointer-events: none;
+  z-index: 20;
 }
 .book-dot {
-  width: 7px;
-  height: 7px;
+  width: 6px; height: 6px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.25);
-  transition: background 0.3s;
+  background: rgba(255,255,255,0.22);
+  transition: background 0.3s, transform 0.3s;
 }
 .book-dot-active {
   background: #f97316;
-  transform: scale(1.3);
+  transform: scale(1.4);
 }
 
-/* ── MOTOR DE PÁGINAS (compartido) ──────────────────────────────── */
-.notebook-spine { position: absolute; z-index: 10; top: 0; bottom: 0; left: 0; width: 9px; background: linear-gradient(90deg, #180904, #a76331 48%, #2d1006); box-shadow: 2px 0 5px rgba(0, 0, 0, .45); pointer-events: none; }
-.notebook-pages { position: absolute; inset: 0; perspective: 1800px; }
-.notebook-page { position: absolute; inset: 0; overflow: hidden; transform-style: preserve-3d; backface-visibility: hidden; -webkit-backface-visibility: hidden; transform-origin: left center; }
+/* ════════════════════════════════════════════════════════
+   MOTOR DE PÁGINAS
+════════════════════════════════════════════════════════ */
+.notebook-spine {
+  position: absolute; z-index: 10;
+  top: 0; bottom: 0; left: 0; width: 8px;
+  background: linear-gradient(90deg, #120703, #9a5828 48%, #261004);
+  box-shadow: 2px 0 5px rgba(0,0,0,0.5);
+  pointer-events: none;
+}
+.notebook-pages {
+  position: absolute; inset: 0;
+  perspective: 2000px;
+  transform-style: preserve-3d;
+}
+.notebook-page {
+  position: absolute; inset: 0;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-origin: left center;
+  will-change: transform;
+}
 .notebook-page > div { height: 100%; }
-.page-visible { visibility: visible; z-index: 2; }
-.page-hidden { visibility: hidden; z-index: 0; }
-.page-turn-next { z-index: 8; animation: notebook-forward 500ms cubic-bezier(.22,.72,.25,1) both; }
-.page-turn-prev { z-index: 8; transform-origin: right center; animation: notebook-backward 500ms cubic-bezier(.22,.72,.25,1) both; }
-@keyframes notebook-forward { from { transform: rotateY(0); } to { transform: rotateY(-180deg); } }
-@keyframes notebook-backward { from { transform: rotateY(-180deg); } to { transform: rotateY(0); } }
+.page-visible  { visibility: visible; z-index: 2; }
+.page-hidden   { visibility: hidden;  z-index: 0; }
 
-/* ── ANIMACIÓN FLECHA PORTADA ───────────────────────────────────── */
+/* Giro adelante: página actual gira hacia la izquierda (se dobla) */
+.page-turn-next {
+  z-index: 8;
+  animation: page-fold-fwd 520ms cubic-bezier(0.18, 0.70, 0.25, 1.00) both;
+}
+/* Giro atrás: la página previa regresa desde la izquierda */
+.page-turn-prev {
+  z-index: 8;
+  transform-origin: right center;
+  animation: page-fold-bwd 520ms cubic-bezier(0.18, 0.70, 0.25, 1.00) both;
+}
+
+@keyframes page-fold-fwd {
+  0%   { transform: rotateY(0deg);    box-shadow: none; }
+  40%  { transform: rotateY(-90deg);  box-shadow: -8px 0 20px rgba(0,0,0,0.35); }
+  100% { transform: rotateY(-180deg); box-shadow: none; }
+}
+@keyframes page-fold-bwd {
+  0%   { transform: rotateY(-180deg); box-shadow: none; }
+  60%  { transform: rotateY(-90deg);  box-shadow: 8px 0 20px rgba(0,0,0,0.35); }
+  100% { transform: rotateY(0deg);    box-shadow: none; }
+}
+
+/* ════════════════════════════════════════════════════════
+   ANIMACIÓN FLECHA PORTADA
+════════════════════════════════════════════════════════ */
 @keyframes bounce-x {
   0%, 100% { transform: translateX(0); }
-  50% { transform: translateX(6px); }
+  50%       { transform: translateX(7px); }
 }
-.animate-bounce-x { display: inline-block; animation: bounce-x 1.2s ease-in-out infinite; }
+.animate-bounce-x {
+  display: inline-block;
+  animation: bounce-x 1.3s ease-in-out infinite;
+}
