@@ -31,7 +31,7 @@ button, input, textarea { font: inherit; }
   box-shadow: 2px 0 5px rgba(0, 0, 0, .45);
 }
 
-.notebook-stage { position: relative; width: 460px; height: 650px; overflow: hidden; background: #f8ead6; touch-action: pan-y; }
+.notebook-stage { position: relative; width: min(460px, calc(100vw - 48px)); height: min(650px, calc((100vw - 48px) * 1.41)); overflow: hidden; background: #f8ead6; touch-action: pan-y; }
 .notebook-spine { position: absolute; z-index: 10; top: 0; bottom: 0; left: 0; width: 9px; background: linear-gradient(90deg, #180904, #a76331 48%, #2d1006); box-shadow: 2px 0 5px rgba(0, 0, 0, .45); pointer-events: none; }
 .notebook-pages { position: absolute; inset: 0; perspective: 1800px; }
 .notebook-page { position: absolute; inset: 0; overflow: hidden; transform-style: preserve-3d; backface-visibility: hidden; -webkit-backface-visibility: hidden; transform-origin: left center; }
