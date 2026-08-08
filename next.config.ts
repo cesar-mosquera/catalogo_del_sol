@@ -1,6 +1,7 @@
 import type { NextConfig } from 'next';
 
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH;
+const isVercel = process.env.VERCEL === '1';
+const basePath = isVercel ? undefined : process.env.NEXT_PUBLIC_BASE_PATH;
 const isStaticExport = Boolean(basePath);
 
 const nextConfig: NextConfig = {
