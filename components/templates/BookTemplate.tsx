@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
-import Image from 'next/image';
 import type { Catalog } from '@/lib/catalog-types';
 import { asset } from '@/lib/asset';
 import { ProductCard } from '@/components/ProductCard';
@@ -147,13 +146,11 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
               onAnimationEnd={turn?.page === 0 ? finishTurn : undefined}
             >
               <div className="relative flex h-full flex-col overflow-hidden bg-stone-950 text-white">
-                <Image
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   src={asset(catalog.coverImage)}
                   alt=""
-                  fill
-                  sizes="100vw"
-                  priority
-                  className="absolute inset-0 object-cover"
+                  className="absolute inset-0 h-full w-full object-cover"
                   style={{ opacity: 0.92 }}
                 />
                 {/* Gradiente solo abajo para legibilidad del texto */}
@@ -162,11 +159,10 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
                   style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%)' }}
                 />
                 <div className="relative z-10 flex h-full flex-col justify-end p-6 pb-8">
-                  <Image
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
                     src={asset(catalog.logoImage)}
                     alt=""
-                    width={120} height={120}
-                    sizes="120px"
                     className="mb-auto h-16 w-16 object-contain drop-shadow-lg"
                   />
                   <p className="text-[10px] font-bold uppercase tracking-[0.25em] opacity-60">Menú Digital</p>
@@ -225,11 +221,10 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
               onAnimationEnd={turn?.page === lastPage ? finishTurn : undefined}
             >
               <div className="flex h-full flex-col items-center justify-center bg-stone-900 p-8 text-center text-white">
-                <Image
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   src={asset(catalog.logoImage)}
                   alt=""
-                  width={192} height={192}
-                  sizes="192px"
                   className="h-20 w-20 object-contain"
                 />
                 <h2 className="mt-5 font-serif text-2xl">Gracias por visitarnos</h2>
