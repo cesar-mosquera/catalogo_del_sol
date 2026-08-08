@@ -1,6 +1,0 @@
-services:
-  - name: catalogo-del-sol
-    type: web
-    runtime: static
-    staticPublishPath: ./
-    buildCommand: echo "Sitio estatico, no requiere build"

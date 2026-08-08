@@ -7,31 +7,23 @@
    tuvimos con el deploy:
    - El HTML SIEMPRE se pide primero a la red (network-first). Si no
      hay red, recién ahí se usa la copia guardada.
-   - CSS/JS usan "stale-while-revalidate": se sirve la copia guardada
-     al instante, pero en paralelo se pide la versión nueva y se
-     guarda para la PRÓXIMA visita. Como el proyecto ya versiona estos
-     archivos con ?v=N, un cambio de versión automáticamente pide (y
-     cachea) una URL distinta — no hace falta tocar este archivo cada
-     vez que cambian styles.css o script.js.
+   - CSS/JS (los chunks de Next en /_next/static) usan
+     "stale-while-revalidate": se sirve la copia guardada al instante,
+     pero en paralelo se pide la versión nueva y se guarda para la
+     PRÓXIMA visita. Next ya genera estos archivos con nombre hasheado,
+     así que un cambio de versión pide (y cachea) una URL distinta.
    - Imágenes propias: cache-first (rara vez cambian).
-   - Todo lo que NO es de este sitio (fuentes, Leaflet, Nominatim,
-     tiles de OpenStreetMap, WhatsApp) se deja pasar directo a la red,
-     sin interferir — cachear eso podría dar direcciones o mapas
-     viejos.
+   - Todo lo que NO es de este sitio (fuentes, maps, WhatsApp, CDN de
+     terceros) se deja pasar directo a la red, sin interferir.
    ═══════════════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'catalogo-del-sol-v2';
+const CACHE_NAME = 'catalogo-del-sol-v3';
 
 const PRECACHE_URLS = [
     './',
-    'index.html',
-    'styles.css?v=13',
-    'script.js?v=18',
     'manifest.json',
     'img/cover.webp',
     'img/logo.webp',
-    'img/hero.webp',
-    'img/gold_coin.webp',
     'img/pincho_pollo.webp',
     'img/pincho_carne.webp',
     'img/chuleta.webp',
@@ -86,7 +78,7 @@ self.addEventListener('fetch', event => {
                     caches.open(CACHE_NAME).then(c => c.put(req, copia));
                     return res;
                 })
-                .catch(() => caches.match(req).then(r => r || caches.match('index.html')))
+                .catch(() => caches.match(req).then(r => r || caches.match('./')))
         );
         return;
     }

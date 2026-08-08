@@ -31,4 +31,14 @@ button, input, textarea { font: inherit; }
   box-shadow: 2px 0 5px rgba(0, 0, 0, .45);
 }
 
-.book-pages { position: relative; z-index: 1; }
+.notebook-stage { position: relative; width: 460px; height: 650px; overflow: hidden; background: #f8ead6; touch-action: pan-y; }
+.notebook-spine { position: absolute; z-index: 10; top: 0; bottom: 0; left: 0; width: 9px; background: linear-gradient(90deg, #180904, #a76331 48%, #2d1006); box-shadow: 2px 0 5px rgba(0, 0, 0, .45); pointer-events: none; }
+.notebook-pages { position: absolute; inset: 0; perspective: 1800px; }
+.notebook-page { position: absolute; inset: 0; overflow: hidden; transform-style: preserve-3d; backface-visibility: hidden; -webkit-backface-visibility: hidden; transform-origin: left center; }
+.notebook-page > div { height: 100%; }
+.page-visible { visibility: visible; z-index: 2; }
+.page-hidden { visibility: hidden; z-index: 0; }
+.page-turn-next { z-index: 8; animation: notebook-forward 500ms cubic-bezier(.22,.72,.25,1) both; }
+.page-turn-prev { z-index: 8; transform-origin: right center; animation: notebook-backward 500ms cubic-bezier(.22,.72,.25,1) both; }
+@keyframes notebook-forward { from { transform: rotateY(0); } to { transform: rotateY(-180deg); } }
+@keyframes notebook-backward { from { transform: rotateY(-180deg); } to { transform: rotateY(0); } }

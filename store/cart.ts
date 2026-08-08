@@ -6,24 +6,36 @@ import type { Product } from '@/lib/catalog-types';
 
 export type CartItem = Product & { quantity: number };
 type CartState = {
-  items: CartItem[];
-  add: (product: Product) => void;
-  remove: (id: string) => void;
-  clear: () => void;
+  carts: Record<string, CartItem[]>;
+  add: (catalogSlug: string, product: Product) => void;
+  remove: (catalogSlug: string, id: string) => void;
+  clear: (catalogSlug: string) => void;
 };
 
 export const useCart = create<CartState>()(persist((set) => ({
-  items: [],
-  add: (product) => set((state) => {
-    const existing = state.items.find((item) => item.id === product.id);
+  carts: {},
+  add: (catalogSlug, product) => set((state) => {
+    const current = state.carts[catalogSlug] ?? [];
+    const existing = current.find((item) => item.id === product.id);
     return {
-      items: existing
-        ? state.items.map((item) => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item)
-        : [...state.items, { ...product, quantity: 1 }],
+      carts: {
+        ...state.carts,
+        [catalogSlug]: existing
+          ? current.map((item) => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item)
+          : [...current, { ...product, quantity: 1 }],
+      },
     };
   }),
-  remove: (id) => set((state) => ({
-    items: state.items.flatMap((item) => item.id !== id ? [item] : item.quantity > 1 ? [{ ...item, quantity: item.quantity - 1 }] : []),
+  remove: (catalogSlug, id) => set((state) => {
+    const current = state.carts[catalogSlug] ?? [];
+    return {
+      carts: {
+        ...state.carts,
+        [catalogSlug]: current.flatMap((item) => item.id !== id ? [item] : item.quantity > 1 ? [{ ...item, quantity: item.quantity - 1 }] : []),
+      },
+    };
+  }),
+  clear: (catalogSlug) => set((state) => ({
+    carts: { ...state.carts, [catalogSlug]: [] },
   })),
-  clear: () => set({ items: [] }),
 }), { name: 'catalog-cart' }));
