@@ -60,9 +60,9 @@ button, input, textarea { font: inherit; }
   overflow: hidden;
   background: #f8ead6;
   border-radius: 3px 10px 10px 3px;
-  /* CRÍTICO: deshabilitar comportamiento táctil por defecto
-     para que los eventos de pointer no sean cancelados */
-  touch-action: none;
+  /* pan-y: el browser maneja scroll vertical nativo.
+     Nuestro touchmove (passive:false) intercepta el horizontal. */
+  touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
 }

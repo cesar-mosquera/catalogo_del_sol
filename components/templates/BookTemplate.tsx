@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import Image from 'next/image';
 import type { Catalog } from '@/lib/catalog-types';
 import { asset } from '@/lib/asset';
@@ -11,18 +11,17 @@ type Turn = { page: number; under: number; destination: number; direction: 'next
 export function BookTemplate({ catalog }: { catalog: Catalog }) {
   const [current, setCurrent] = useState(0);
   const [turn, setTurn]       = useState<Turn | null>(null);
-  const stageRef = useRef<HTMLDivElement>(null);
+  const stageRef              = useRef<HTMLDivElement>(null);
 
-  // Swipe tracking — guardamos el puntero capturado
-  const startX   = useRef<number | null>(null);
-  const startY   = useRef<number | null>(null);
-  const ptrId    = useRef<number | null>(null);
+  // Seguimiento del toque
+  const touchOrigin  = useRef<{ x: number; y: number } | null>(null);
+  const swipeLocked  = useRef<'horiz' | 'vert' | null>(null); // dirección bloqueada
 
   const pages    = useMemo(() => catalog.sections, [catalog.sections]);
-  const lastPage = pages.length + 1;   // contraportada
+  const lastPage = pages.length + 1;
   const totalPages = lastPage + 1;
 
-  /* ── Lógica de navegación ────────────────────────────────── */
+  /* ── Navegación ─────────────────────────────────────────── */
   const go = useCallback((dir: 'next' | 'prev') => {
     if (turn) return;
     if (dir === 'next' && current < lastPage)
@@ -47,71 +46,100 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
     return () => window.removeEventListener('keydown', onKey);
   }, [go]);
 
-  /* ── Swipe con Pointer Capture ───────────────────────────── */
-  // Capturamos el puntero en el stage para recibirlo aunque el dedo
-  // se salga del elemento mientras desliza.
-  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if ((e.target as HTMLElement).closest('button, a, input, textarea, select')) return;
-    // Solo primer toque
-    if (ptrId.current !== null) return;
-    e.currentTarget.setPointerCapture(e.pointerId);
-    ptrId.current = e.pointerId;
-    startX.current = e.clientX;
-    startY.current = e.clientY;
-  };
+  /* ── Touch con passive:false para interceptar swipe horizontal ── */
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
 
-  const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (ptrId.current !== e.pointerId) return;
-    ptrId.current = null;
-    if (startX.current === null || startY.current === null) return;
-    const dx = e.clientX - startX.current;
-    const dy = e.clientY - startY.current;
-    startX.current = null;
-    startY.current = null;
-    // Activa solo si el movimiento horizontal domina y supera 35px
-    if (Math.abs(dx) > Math.abs(dy) * 1.2 && Math.abs(dx) > 35)
-      go(dx < 0 ? 'next' : 'prev');
-  };
+    const onStart = (e: TouchEvent) => {
+      // Si el toque viene de un botón, link, etc. → no hacemos nada
+      if ((e.target as HTMLElement).closest('button, a, input, textarea, select')) return;
+      const t = e.touches[0];
+      touchOrigin.current = { x: t.clientX, y: t.clientY };
+      swipeLocked.current = null;
+    };
 
-  const onPointerCancel = () => {
-    ptrId.current  = null;
-    startX.current = null;
-    startY.current = null;
-  };
+    const onMove = (e: TouchEvent) => {
+      if (!touchOrigin.current) return;
+      const t  = e.touches[0];
+      const dx = t.clientX - touchOrigin.current.x;
+      const dy = t.clientY - touchOrigin.current.y;
+      const adx = Math.abs(dx);
+      const ady = Math.abs(dy);
 
-  /* ── Visibilidad de página ───────────────────────────────── */
+      // Si aún no hemos determinado la dirección, esperamos al menos 8px
+      if (swipeLocked.current === null && (adx > 8 || ady > 8)) {
+        swipeLocked.current = adx > ady ? 'horiz' : 'vert';
+      }
+
+      // Si es swipe horizontal → bloqueamos el scroll nativo
+      if (swipeLocked.current === 'horiz') {
+        e.preventDefault();
+      }
+      // Si es vertical → dejamos que el browser haga scroll normal
+    };
+
+    const onEnd = (e: TouchEvent) => {
+      if (!touchOrigin.current || swipeLocked.current !== 'horiz') {
+        touchOrigin.current = null;
+        swipeLocked.current = null;
+        return;
+      }
+      const t  = e.changedTouches[0];
+      const dx = t.clientX - touchOrigin.current.x;
+      touchOrigin.current = null;
+      swipeLocked.current = null;
+
+      if (Math.abs(dx) > 40) go(dx < 0 ? 'next' : 'prev');
+    };
+
+    const onCancel = () => {
+      touchOrigin.current = null;
+      swipeLocked.current = null;
+    };
+
+    // touchstart puede ser passive, touchmove NO (necesitamos preventDefault)
+    el.addEventListener('touchstart',  onStart,  { passive: true  });
+    el.addEventListener('touchmove',   onMove,   { passive: false }); // ← clave
+    el.addEventListener('touchend',    onEnd,    { passive: true  });
+    el.addEventListener('touchcancel', onCancel, { passive: true  });
+
+    return () => {
+      el.removeEventListener('touchstart',  onStart);
+      el.removeEventListener('touchmove',   onMove);
+      el.removeEventListener('touchend',    onEnd);
+      el.removeEventListener('touchcancel', onCancel);
+    };
+  }, [go]);
+
+  /* ── Helpers ─────────────────────────────────────────────── */
   const pageVisible = (i: number) =>
     i === current || Boolean(turn && (i === turn.page || i === turn.under));
 
-  /* ── Clase de animación ──────────────────────────────────── */
   const turnClass = (i: number) => {
     if (!turn) return '';
-    if (turn.direction === 'next' && turn.page === i)  return 'page-turn-next';
-    if (turn.direction === 'prev' && turn.page === i)  return 'page-turn-prev';
+    if (turn.page === i) return turn.direction === 'next' ? 'page-turn-next' : 'page-turn-prev';
     return '';
   };
 
   return (
     <div className="book-fullscreen">
       <div className="book-frame-fullscreen">
-        {/* Puntos indicadores — dentro del frame para que no rompan el layout */}
+
+        {/* Puntos indicadores */}
         <div className="book-dots" aria-hidden="true">
           {Array.from({ length: totalPages }).map((_, i) => (
             <span key={i} className={`book-dot ${i === current ? 'book-dot-active' : ''}`} />
           ))}
         </div>
 
-        <div
-          ref={stageRef}
-          className="notebook-stage-fullscreen"
-          onPointerDown={onPointerDown}
-          onPointerUp={onPointerUp}
-          onPointerCancel={onPointerCancel}
-        >
+        {/* Stage — touch-action: pan-y permite scroll vertical nativo;
+            nuestro JS intercepta el horizontal antes de que el browser actúe */}
+        <div ref={stageRef} className="notebook-stage-fullscreen">
           <div className="notebook-spine" aria-hidden="true" />
           <div className="notebook-pages" aria-live="polite">
 
-            {/* ── PORTADA ─────────────────────────────────── */}
+            {/* ── PORTADA ─────────────────────────────── */}
             <div
               className={`notebook-page page-cover
                 ${pageVisible(0) ? 'page-visible' : 'page-hidden'}
@@ -119,7 +147,6 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
               onAnimationEnd={turn?.page === 0 ? finishTurn : undefined}
             >
               <div className="relative flex h-full flex-col overflow-hidden bg-stone-950 text-white">
-                {/* Foto de fondo — sin overlay oscuro para que se vea clara */}
                 <Image
                   src={asset(catalog.coverImage)}
                   alt=""
@@ -129,11 +156,11 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
                   className="absolute inset-0 object-cover"
                   style={{ opacity: 0.92 }}
                 />
-                {/* Gradiente solo en la parte inferior para legibilidad del texto */}
-                <div className="absolute inset-x-0 bottom-0 h-3/5"
-                  style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 100%)' }}
+                {/* Gradiente solo abajo para legibilidad del texto */}
+                <div
+                  className="absolute inset-x-0 bottom-0 h-3/5"
+                  style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%)' }}
                 />
-                {/* Contenido */}
                 <div className="relative z-10 flex h-full flex-col justify-end p-6 pb-8">
                   <Image
                     src={asset(catalog.logoImage)}
@@ -142,18 +169,18 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
                     sizes="120px"
                     className="mb-auto h-16 w-16 object-contain drop-shadow-lg"
                   />
-                  <p className="text-[10px] font-bold uppercase tracking-[0.25em] opacity-70">Menú Digital</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.25em] opacity-60">Menú Digital</p>
                   <h1 className="mt-1 font-serif text-3xl font-bold leading-tight drop-shadow">{catalog.name}</h1>
                   <p className="mt-1 text-sm text-orange-200 drop-shadow">{catalog.tagline}</p>
-                  <div className="mt-6 flex items-center gap-1 text-xs opacity-55">
+                  <div className="mt-6 flex items-center gap-1 text-xs opacity-50">
                     <span>Desliza para ver el menú</span>
-                    <span className="animate-bounce-x">→</span>
+                    <span className="animate-bounce-x ml-1">→</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* ── PÁGINAS DE CONTENIDO ─────────────────────── */}
+            {/* ── PÁGINAS DE CONTENIDO ─────────────────── */}
             {pages.map((section, si) => {
               const idx = si + 1;
               return (
@@ -164,14 +191,15 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
                     ${turnClass(idx)}`}
                   onAnimationEnd={turn?.page === idx ? finishTurn : undefined}
                 >
-                  <div className="h-full overflow-y-auto overflow-x-hidden bg-orange-50 p-4">
+                  {/* overflow-y-auto para scroll vertical dentro de la página */}
+                  <div className="h-full overflow-y-auto overscroll-contain bg-orange-50 p-4 pb-10">
                     <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-orange-600">
                       {catalog.name}
                     </p>
                     <h2 className="mb-3 mt-1 font-serif text-xl font-bold text-stone-900">
                       {section.name}
                     </h2>
-                    <div className="space-y-3 pb-8">
+                    <div className="space-y-3">
                       {section.products.map((product) => (
                         <ProductCard
                           key={product.id}
@@ -181,12 +209,15 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
                         />
                       ))}
                     </div>
+                    <p className="mt-4 text-center text-[10px] text-stone-400 opacity-60">
+                      ← desliza para cambiar página →
+                    </p>
                   </div>
                 </div>
               );
             })}
 
-            {/* ── CONTRAPORTADA ────────────────────────────── */}
+            {/* ── CONTRAPORTADA ────────────────────────── */}
             <div
               className={`notebook-page page-back
                 ${pageVisible(lastPage) ? 'page-visible' : 'page-hidden'}
