@@ -1,11 +1,11 @@
 import type { NextConfig } from 'next';
-import { BASE_PATH } from './lib/base-path';
+
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH;
 
 const nextConfig: NextConfig = {
   output: 'export',
-  basePath: BASE_PATH,
-  assetPrefix: BASE_PATH,
   images: { unoptimized: true },
+  ...(basePath ? { basePath, assetPrefix: basePath } : {}),
 };
 
 export default nextConfig;

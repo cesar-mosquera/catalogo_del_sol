@@ -1,11 +1,14 @@
 import type { Metadata } from 'next';
+import { BASE_PATH } from '@/lib/base-path';
 import './globals.css';
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+
 export const metadata: Metadata = {
-  metadataBase: new URL('https://cesar-mosquera.github.io/catalogo_del_sol'),
+  ...(siteUrl ? { metadataBase: new URL(siteUrl) } : {}),
   title: 'Catálogos digitales',
   description: 'Catálogos digitales interactivos para negocios.',
-  manifest: '/catalogo_del_sol/manifest.json',
+  manifest: `${BASE_PATH}/manifest.json`,
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -13,5 +16,5 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 }
 
 function ServiceWorkerRegister() {
-  return <script dangerouslySetInnerHTML={{ __html: `if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/catalogo_del_sol/sw.js').catch(function () {}); }` }} />;
+  return <script dangerouslySetInnerHTML={{ __html: `if ('serviceWorker' in navigator) { navigator.serviceWorker.register('${BASE_PATH}/sw.js').catch(function () {}); }` }} />;
 }

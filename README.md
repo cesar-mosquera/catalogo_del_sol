@@ -27,4 +27,9 @@ npm run lint     # ESLint (flat config)
 
 ## Deploy
 
-Sitio estático pensado para GitHub Pages del repo (`/catalogo_del_sol`). El `basePath` está definido en `next.config.ts`; si publicas en otro dominio, ajústalo junto con `metadataBase` en `app/layout.tsx`.
+Export estático compatible con Vercel (raíz `/`) y GitHub Pages (bajo `/catalogo_del_sol`). El prefijo lo controla la variable de entorno `NEXT_PUBLIC_BASE_PATH`:
+
+- **Vercel:** no configures nada — la app se sirve en la raíz del dominio.
+- **GitHub Pages:** configura `NEXT_PUBLIC_BASE_PATH=/catalogo_del_sol` en el build.
+- `NEXT_PUBLIC_SITE_URL` (opcional): dominio canónico para las imágenes de OpenGraph (silencia el warning de `metadataBase`).
+

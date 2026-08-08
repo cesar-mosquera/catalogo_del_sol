@@ -1,1 +1,1 @@
-export const BASE_PATH = '/catalogo_del_sol';
+export const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
