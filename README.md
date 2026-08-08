@@ -27,9 +27,10 @@ npm run lint     # ESLint (flat config)
 
 ## Deploy
 
-Export estático compatible con Vercel (raíz `/`) y GitHub Pages (bajo `/catalogo_del_sol`). El prefijo lo controla la variable de entorno `NEXT_PUBLIC_BASE_PATH`:
+Compatibilidad con Vercel (build de servidor de Next) y GitHub Pages (export estático). La presencia de `NEXT_PUBLIC_BASE_PATH` decide el modo:
 
-- **Vercel:** no configures nada — la app se sirve en la raíz del dominio.
-- **GitHub Pages:** configura `NEXT_PUBLIC_BASE_PATH=/catalogo_del_sol` en el build.
+- **Vercel:** no configures nada — `next build` normal (sin `output: 'export'`), la app se sirve en la raíz del dominio.
+- **GitHub Pages:** configura `NEXT_PUBLIC_BASE_PATH=/catalogo_del_sol` en el build — activa `output: 'export'` y el prefijo de rutas.
 - `NEXT_PUBLIC_SITE_URL` (opcional): dominio canónico para las imágenes de OpenGraph (silencia el warning de `metadataBase`).
+
 

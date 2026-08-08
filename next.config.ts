@@ -1,13 +1,13 @@
 import type { NextConfig } from 'next';
 
-// Vercel siempre publica este catálogo en la raíz del dominio. El prefijo
-// solo se usa para GitHub Pages u otro hosting bajo una subcarpeta.
-const basePath = process.env.VERCEL === '1' ? '' : process.env.NEXT_PUBLIC_BASE_PATH;
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH;
+const isStaticExport = Boolean(basePath);
 
 const nextConfig: NextConfig = {
-  output: 'export',
-  images: { unoptimized: true },
-  ...(basePath ? { basePath, assetPrefix: basePath } : {}),
+  images: { unoptimized: isStaticExport },
+  ...(isStaticExport
+    ? { output: 'export' as const, basePath, assetPrefix: basePath }
+    : {}),
 };
 
 export default nextConfig;
