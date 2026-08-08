@@ -4,34 +4,82 @@
 
 :root { color-scheme: light; }
 * { box-sizing: border-box; }
-body { margin: 0; background: #fffaf2; color: #29150b; font-family: Arial, sans-serif; }
+body { margin: 0; background: #1a0a04; color: #29150b; font-family: Arial, sans-serif; }
 button, input, textarea { font: inherit; }
 
-/* El lomo es independiente del motor de giro: no se duplica ni deja rastros
-   al retroceder una página. */
-.book-frame {
-  position: relative;
-  padding: 12px 12px 12px 26px;
-  border-radius: 8px 18px 18px 8px;
-  background: linear-gradient(90deg, #35170b 0 15px, #6a3216 15px 22px, #f8ead6 22px 100%);
-  box-shadow: -7px 8px 0 #211008, 0 24px 45px rgba(48, 23, 10, .28);
+/* ── MODO PANTALLA COMPLETA (mobile-first) ─────────────────────── */
+.book-fullscreen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #1a0a04;
+  padding: 12px;
 }
 
-.book-frame::before {
+/* Marco exterior del cuaderno */
+.book-frame-fullscreen {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  max-width: 480px;
+  /* Limita altura para dejar espacio a los puntos */
+  max-height: calc(100vh - 56px);
+  padding: 10px 10px 10px 24px;
+  border-radius: 8px 18px 18px 8px;
+  background: linear-gradient(90deg, #35170b 0 14px, #6a3216 14px 21px, #f8ead6 21px 100%);
+  box-shadow: -6px 8px 0 #211008, 0 24px 45px rgba(48, 23, 10, .40);
+}
+
+/* Lomo decorativo exterior */
+.book-frame-fullscreen::before {
   content: '';
   pointer-events: none;
   position: absolute;
   z-index: 5;
-  top: 16px;
-  bottom: 16px;
-  left: 20px;
+  top: 14px;
+  bottom: 14px;
+  left: 18px;
   width: 7px;
   border-radius: 5px;
   background: linear-gradient(90deg, #180904, #a76331 48%, #2d1006);
   box-shadow: 2px 0 5px rgba(0, 0, 0, .45);
 }
 
-.notebook-stage { position: relative; width: min(460px, calc(100vw - 48px)); height: min(650px, calc((100vw - 48px) * 1.41)); overflow: hidden; background: #f8ead6; touch-action: pan-y; }
+/* Área de páginas: ocupa todo el espacio disponible */
+.notebook-stage-fullscreen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #f8ead6;
+  border-radius: 4px 12px 12px 4px;
+  touch-action: pan-y;
+}
+
+/* ── PUNTOS INDICADORES ─────────────────────────────────────────── */
+.book-dots {
+  display: flex;
+  gap: 7px;
+  padding: 10px 0 4px;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.book-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  transition: background 0.3s;
+}
+.book-dot-active {
+  background: #f97316;
+  transform: scale(1.3);
+}
+
+/* ── MOTOR DE PÁGINAS (compartido) ──────────────────────────────── */
 .notebook-spine { position: absolute; z-index: 10; top: 0; bottom: 0; left: 0; width: 9px; background: linear-gradient(90deg, #180904, #a76331 48%, #2d1006); box-shadow: 2px 0 5px rgba(0, 0, 0, .45); pointer-events: none; }
 .notebook-pages { position: absolute; inset: 0; perspective: 1800px; }
 .notebook-page { position: absolute; inset: 0; overflow: hidden; transform-style: preserve-3d; backface-visibility: hidden; -webkit-backface-visibility: hidden; transform-origin: left center; }
@@ -42,3 +90,10 @@ button, input, textarea { font: inherit; }
 .page-turn-prev { z-index: 8; transform-origin: right center; animation: notebook-backward 500ms cubic-bezier(.22,.72,.25,1) both; }
 @keyframes notebook-forward { from { transform: rotateY(0); } to { transform: rotateY(-180deg); } }
 @keyframes notebook-backward { from { transform: rotateY(-180deg); } to { transform: rotateY(0); } }
+
+/* ── ANIMACIÓN FLECHA PORTADA ───────────────────────────────────── */
+@keyframes bounce-x {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(6px); }
+}
+.animate-bounce-x { display: inline-block; animation: bounce-x 1.2s ease-in-out infinite; }
