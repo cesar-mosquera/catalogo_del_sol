@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useMemo } from 'react';
-import type { Catalog } from '@/lib/catalog-types';
+import type { Catalog, Product } from '@/lib/catalog-types';
 import { asset } from '@/lib/asset';
 import { ProductCard } from '@/components/ProductCard';
 
@@ -34,7 +34,20 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
   const stageRef  = useRef<HTMLDivElement>(null);
   const touchRef  = useRef<{ x: number; y: number; locked: 'h'|'v'|null } | null>(null);
 
-  const pages    = useMemo(() => catalog.sections, [catalog.sections]);
+  const pages = useMemo(() => {
+    const pgs: { sectionName: string; products: Product[]; isContinued: boolean }[] = [];
+    catalog.sections.forEach(sec => {
+      const chunkSize = 2; // Máximo 2 productos por página para evitar scroll vertical
+      for (let i = 0; i < sec.products.length; i += chunkSize) {
+        pgs.push({
+          sectionName: sec.name,
+          products: sec.products.slice(i, i + chunkSize),
+          isContinued: i > 0
+        });
+      }
+    });
+    return pgs;
+  }, [catalog.sections]);
   const lastPage = pages.length + 1;
   const total    = lastPage + 1;
 
@@ -237,16 +250,18 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
             )}
 
             {/* SECCIONES */}
-            {pages.map((section, si) => renderPage(si + 1,
-              <div className="notebook-menu-page relative h-full overflow-y-auto overscroll-contain bg-orange-50 p-4 pb-10">
+            {pages.map((page, si) => renderPage(si + 1,
+              <div className="notebook-menu-page relative h-full overflow-hidden bg-orange-50 p-4 pb-10 flex flex-col">
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-orange-600">{catalog.name}</p>
-                <h2 className="mb-3 mt-1 font-serif text-xl font-bold text-stone-900">{section.name}</h2>
-                <div className="space-y-3">
-                  {section.products.map(p => (
+                <h2 className="mb-3 mt-1 font-serif text-xl font-bold text-stone-900">
+                  {page.sectionName} {page.isContinued && <span className="text-sm font-normal text-stone-500">(cont.)</span>}
+                </h2>
+                <div className="space-y-3 flex-1">
+                  {page.products.map(p => (
                     <ProductCard key={p.id} product={p} catalogSlug={catalog.slug} compact />
                   ))}
                 </div>
-                <p className="mt-4 text-center text-[10px] text-stone-400">← desliza para cambiar página →</p>
+                <p className="mt-4 text-center text-[10px] text-stone-400">← desliza para ver más →</p>
               </div>
             ))}
 
