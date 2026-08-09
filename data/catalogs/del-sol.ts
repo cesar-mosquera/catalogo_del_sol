@@ -5,7 +5,7 @@ export const delSol: Catalog = {
   name: 'Pinchos y Chuletas Del Sol',
   tagline: 'Parrilla al carbón · Cocina ecuatoriana',
   description: 'Menú digital de Pinchos y Chuletas Del Sol.',
-  phone: '593980118603',
+  phone: '593969581620',
   address: 'Consulta la dirección al confirmar tu pedido.',
   coverImage: '/img/cover.webp',
   logoImage: '/img/logo.webp',
