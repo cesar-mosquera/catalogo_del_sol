@@ -4,7 +4,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Product } from '@/lib/catalog-types';
 
-export type CartItem = Product & { quantity: number };
+export type CartItem = { id: string; quantity: number };
 type CartState = {
   carts: Record<string, CartItem[]>;
   add: (catalogSlug: string, product: Product) => void;
@@ -22,7 +22,7 @@ export const useCart = create<CartState>()(persist((set) => ({
         ...state.carts,
         [catalogSlug]: existing
           ? current.map((item) => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item)
-          : [...current, { ...product, quantity: 1 }],
+          : [...current, { id: product.id, quantity: 1 }],
       },
     };
   }),

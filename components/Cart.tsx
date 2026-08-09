@@ -30,9 +30,19 @@ function isOpen(catalog: Catalog) {
 }
 
 export function Cart({ catalog }: { catalog: Catalog }) {
-  const items  = useCart((s) => s.carts[catalog.slug] ?? EMPTY_CART);
+  const cartState = useCart((s) => s.carts[catalog.slug] ?? EMPTY_CART);
   const remove = useCart((s) => s.remove);
   const clear  = useCart((s) => s.clear);
+
+  // Hidratar ítems del carrito con los datos más recientes del catálogo (evita precios desactualizados)
+  const items = useMemo(() => {
+    const allProducts = catalog.sections.flatMap(s => s.products);
+    return cartState.map(cartItem => {
+      const p = allProducts.find(p => p.id === cartItem.id);
+      if (!p) return null; // El producto fue eliminado del catálogo
+      return { ...p, quantity: cartItem.quantity };
+    }).filter((i): i is NonNullable<typeof i> => i !== null);
+  }, [cartState, catalog]);
 
   const [open,       setOpen]       = useState(false);
   const [showMap,    setShowMap]    = useState(false);
