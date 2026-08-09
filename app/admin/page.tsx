@@ -99,16 +99,19 @@ function ImageUpload({
 function ProductEditor({
   product,
   catalogSlug,
-  sectionName,
+  sectionName: initialSectionName,
+  sections,
   onClose,
 }: {
   product?: Product;
   catalogSlug: string;
   sectionName: string;
+  sections: string[];
   onClose: () => void;
 }) {
   const upsert = useAdmin((s) => s.upsertProduct);
   const remove = useAdmin((s) => s.deleteProduct);
+  const [selectedSection, setSelectedSection] = useState(initialSectionName);
 
   const [form, setForm] = useState<Product>({
     id: product?.id ?? `prod-${Date.now()}`,
@@ -125,7 +128,7 @@ function ProductEditor({
   const save = () => {
     if (!form.name.trim()) return;
     const prod: Product = { ...form, badge: form.badge || undefined };
-    upsert(catalogSlug, sectionName, prod);
+    upsert(catalogSlug, selectedSection, prod);
     onClose();
   };
 
@@ -145,8 +148,18 @@ function ProductEditor({
         />
 
         <div className="mt-4 space-y-3">
+          <div>
+            <label className="block text-xs font-semibold text-stone-500 mb-1">Sección</label>
+            <select
+              className="w-full rounded-xl border border-stone-200 px-3 py-2 text-sm outline-none focus:border-orange-400 bg-white"
+              value={selectedSection}
+              onChange={(e) => setSelectedSection(e.target.value)}
+            >
+              {sections.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </div>
           <Field label="Nombre *" value={form.name} onChange={(v) => set('name', v)} />
-          <Field label="Precio *" type="number" value={String(form.price)} onChange={(v) => set('price', parseFloat(v) || 0)} />
+          <Field label="Precio *" type="number" step="0.01" value={String(form.price)} onChange={(v) => set('price', parseFloat(v) || 0)} />
           <Field label="Descripción" value={form.description} onChange={(v) => set('description', v)} textarea />
           <Field label="Etiqueta (ej: Favorita)" value={form.badge ?? ''} onChange={(v) => set('badge', v)} />
         </div>
@@ -154,7 +167,7 @@ function ProductEditor({
         <div className="mt-5 flex gap-3">
           {product && (
             <button
-              onClick={() => { remove(catalogSlug, sectionName, product.id); onClose(); }}
+              onClick={() => { remove(catalogSlug, initialSectionName, product.id); onClose(); }}
               className="flex-1 rounded-xl border-2 border-red-200 py-2 text-sm font-bold text-red-600 hover:bg-red-50"
             >
               🗑 Eliminar
@@ -183,13 +196,27 @@ function Field({
   textarea?: boolean;
   step?: string;
 }) {
+  const [local, setLocal] = useState(value);
+
+  // Sync prop -> local if it changes from outside
+  useEffect(() => {
+    if (type !== 'number' || parseFloat(value) === parseFloat(local) || (value === '' && local === '')) {
+      if (value !== local) setLocal(value);
+    }
+  }, [value, type, local]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setLocal(e.target.value);
+    onChange(e.target.value);
+  };
+
   const cls = 'w-full rounded-xl border border-stone-200 px-3 py-2 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100';
   return (
     <div>
       <label className="block text-xs font-semibold text-stone-500 mb-1">{label}</label>
       {textarea
-        ? <textarea rows={3} className={cls} value={value} onChange={(e) => onChange(e.target.value)} />
-        : <input type={type} step={step} className={cls} value={value} onChange={(e) => onChange(e.target.value)} />
+        ? <textarea rows={3} className={cls} value={local} onChange={handleChange} />
+        : <input type={type} step={step} className={cls} value={local} onChange={handleChange} />
       }
     </div>
   );
@@ -213,6 +240,7 @@ export default function AdminPage() {
   const setLogo      = useAdmin((s) => s.setLogoImage);
   const setSections  = useAdmin((s) => s.setSections);
   const addSection   = useAdmin((s) => s.addSection);
+  const renameSection= useAdmin((s) => s.renameSection);
   const deleteSection = useAdmin((s) => s.deleteSection);
   const resetCatalog = useAdmin((s) => s.resetCatalog);
 
@@ -345,12 +373,20 @@ export default function AdminPage() {
                 key={section.name}
                 title={section.name}
                 action={
-                  <button
-                    onClick={() => { if (confirm(`¿Eliminar sección "${section.name}"?`)) deleteSection(slug, section.name); }}
-                    className="text-xs text-red-400 hover:text-red-600"
-                  >
-                    Eliminar sección
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => { const nn = prompt('Nuevo nombre:', section.name); if (nn && nn.trim() && nn !== section.name) renameSection(slug, section.name, nn.trim()); }}
+                      className="text-xs font-semibold text-blue-500 hover:text-blue-600"
+                    >
+                      Editar
+                    </button>
+                    <button
+                      onClick={() => { if (confirm(`¿Eliminar sección "${section.name}"?`)) deleteSection(slug, section.name); }}
+                      className="text-xs font-semibold text-red-500 hover:text-red-600"
+                    >
+                      Borrar
+                    </button>
+                  </div>
                 }
               >
                 <div className="space-y-2">
@@ -459,6 +495,7 @@ export default function AdminPage() {
           product={editingProduct.product}
           catalogSlug={slug}
           sectionName={editingProduct.section}
+          sections={sections.map(s => s.name)}
           onClose={() => setEditingProduct(null)}
         />
       )}

@@ -93,14 +93,17 @@ export const useAdmin = create<AdminState>()(
       upsertProduct: (slug, sectionName, product) =>
         set((state) => {
           const override = getOrInit(state, slug);
-          const sections = (override.sections ?? []).map((sec) => {
+          // Eliminar el producto de todas las secciones primero (por si cambió de sección)
+          let sections = (override.sections ?? []).map((sec) => ({
+            ...sec,
+            products: sec.products.filter((p) => p.id !== product.id),
+          }));
+          // Luego agregarlo a la sección de destino
+          sections = sections.map((sec) => {
             if (sec.name !== sectionName) return sec;
-            const exists = sec.products.find((p) => p.id === product.id);
             return {
               ...sec,
-              products: exists
-                ? sec.products.map((p) => p.id === product.id ? product : p)
-                : [...sec.products, product],
+              products: [...sec.products, product],
             };
           });
           return { overrides: { ...state.overrides, [slug]: { ...override, sections } } };
