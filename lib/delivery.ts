@@ -26,9 +26,12 @@ export function quoteDelivery(catalog: Catalog, destination: DeliveryLocation): 
 
   const distanceKm = haversineKm(catalog.location, destination);
   const fee = Number(((catalog.deliveryBaseFee ?? 1) + distanceKm * (catalog.deliveryRatePerKm ?? 0.5)).toFixed(2));
-  const maxDistanceKm = catalog.deliveryMaxKm ?? 10;
+  const maxDistanceKm = catalog.deliveryMaxKm;
+  
+  // Si es 0 o no está definido, consideramos que no hay límite (ilimitado)
+  const isAvailable = !maxDistanceKm ? true : distanceKm <= maxDistanceKm;
 
-  return { distanceKm, fee, isAvailable: distanceKm <= maxDistanceKm };
+  return { distanceKm, fee, isAvailable };
 }
 
 export function isValidLocation(location: DeliveryLocation): boolean {

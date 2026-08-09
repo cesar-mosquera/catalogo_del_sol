@@ -16,7 +16,7 @@ export const delSol: Catalog = {
   location: { lat: -2.1710, lng: -79.9224 },
   deliveryBaseFee: 1.00,     // tarifa base $1.00
   deliveryRatePerKm: 0.50,   // $0.50 por km adicional
-  deliveryMaxKm: 10,         // radio máximo 10 km
+  deliveryMaxKm: 0,          // radio máximo (0 = sin límite para pruebas)
   sections: [
     { name: 'Parrilla al carbón', products: [
       { id: 'pincho-pollo', name: 'Pincho de Pollo', price: 3.5, description: 'Pollo marinado en ají y especias criollas, asado al carbón.', image: '/img/pincho_pollo.webp' },

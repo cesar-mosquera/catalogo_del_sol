@@ -55,7 +55,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
   const deliveryFee  = quote?.fee ?? null;
   const total        = subtotal + (deliveryFee ?? 0);
   const minimumMet   = subtotal >= catalog.minimumOrder;
-  const maxKm        = catalog.deliveryMaxKm ?? 10;
+  const maxKm        = catalog.deliveryMaxKm || 0;
   const tooFar       = quote ? !quote.isAvailable : false;
   const hasLocation  = clientLoc !== null;
   const open_        = isOpen(catalog);
@@ -194,7 +194,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
                   <span className="text-stone-400 text-sm">{hasLocation ? '✏' : '→'}</span>
                 </button>
 
-                {tooFar && (
+                {tooFar && maxKm > 0 && (
                   <div className="bg-red-50 px-3 py-2 border-t border-red-100">
                     <p className="text-xs text-red-700">
                       ⚠ Fuera del radio de entrega ({maxKm} km). Tu ubicación está a {distKm!.toFixed(1)} km.
