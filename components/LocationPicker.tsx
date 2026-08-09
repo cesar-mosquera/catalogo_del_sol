@@ -113,6 +113,10 @@ export function LocationPicker({ restaurantLocation, onSelect, onClose }: Locati
 
   /* ── GPS automático ── */
   const useGPS = () => {
+    if (typeof window !== 'undefined' && !window.isSecureContext && window.location.hostname !== 'localhost') {
+      setGpsError('⚠️ El GPS del navegador requiere HTTPS. Para pruebas en red local, usa la barra de búsqueda arriba.');
+      return;
+    }
     setGpsError('');
     setLoading(true);
     navigator.geolocation.getCurrentPosition(
@@ -123,7 +127,7 @@ export function LocationPicker({ restaurantLocation, onSelect, onClose }: Locati
       },
       (err) => {
         setLoading(false);
-        setGpsError(err.code === 1 ? 'Permiso denegado. Mueve el pin manualmente.' : 'No se pudo obtener ubicación.');
+        setGpsError(err.code === 1 ? 'Permiso denegado. Mueve el pin o usa el buscador.' : 'No se pudo obtener ubicación. Usa el buscador arriba.');
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
