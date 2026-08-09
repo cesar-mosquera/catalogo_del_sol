@@ -1,11 +1,13 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+
 import Image from 'next/image';
 import { useAdmin } from '@/store/admin-store';
 import { getCatalogs } from '@/lib/getCatalog';
 import { compressImage, localStorageUsageKB } from '@/lib/compress-image';
 import type { Product } from '@/lib/catalog-types';
+import { asset } from '@/lib/asset';
 
 /* ───────────────────────── PIN DE ACCESO ──────────────────── */
 const ADMIN_PIN = '1234'; // Cambia este PIN en el código
@@ -142,7 +144,7 @@ function ProductEditor({
 
         <ImageUpload
           label="Foto del producto"
-          current={form.image || undefined}
+          current={form.image ? asset(form.image) : undefined}
           onUpload={(d) => set('image', d)}
           maxPx={800}
         />
@@ -447,7 +449,7 @@ export default function AdminPage() {
             <Card title="Imagen de portada">
               <ImageUpload
                 label="Foto principal del catálogo"
-                current={overrides?.coverImageData}
+                current={asset(overrides?.coverImageData || baseCatalog.coverImage)}
                 onUpload={(d) => setCover(slug, d)}
                 maxPx={1200}
               />
@@ -457,7 +459,7 @@ export default function AdminPage() {
             <Card title="Logo del negocio">
               <ImageUpload
                 label="Logo (cuadrado, fondo transparente ideal)"
-                current={overrides?.logoImageData}
+                current={asset(overrides?.logoImageData || baseCatalog.logoImage)}
                 onUpload={(d) => setLogo(slug, d)}
                 maxPx={400}
               />
