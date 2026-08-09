@@ -10,6 +10,7 @@ export function compressImage(
   file: File,
   maxPx = 900,
   quality = 0.78,
+  aspectRatio?: number
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -17,15 +18,33 @@ export function compressImage(
       const img = new Image();
       img.onload = () => {
         const { width, height } = img;
-        const scale = Math.min(1, maxPx / Math.max(width, height));
-        const w = Math.round(width  * scale);
-        const h = Math.round(height * scale);
+        
+        let sx = 0, sy = 0, sWidth = width, sHeight = height;
+
+        if (aspectRatio) {
+          const imgRatio = width / height;
+          if (imgRatio > aspectRatio) {
+            // Imagen más ancha de lo necesario, recortar lados
+            sWidth = height * aspectRatio;
+            sx = (width - sWidth) / 2;
+          } else {
+            // Imagen más alta de lo necesario, recortar arriba/abajo
+            sHeight = width / aspectRatio;
+            sy = (height - sHeight) / 2;
+          }
+        }
+
+        const scale = Math.min(1, maxPx / Math.max(sWidth, sHeight));
+        const dWidth = Math.round(sWidth * scale);
+        const dHeight = Math.round(sHeight * scale);
 
         const canvas = document.createElement('canvas');
-        canvas.width  = w;
-        canvas.height = h;
+        canvas.width  = dWidth;
+        canvas.height = dHeight;
         const ctx = canvas.getContext('2d')!;
-        ctx.drawImage(img, 0, 0, w, h);
+        
+        // Dibujar el área recortada en el canvas final
+        ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, dWidth, dHeight);
 
         resolve(canvas.toDataURL('image/jpeg', quality));
       };

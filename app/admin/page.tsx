@@ -47,12 +47,13 @@ function PinGate({ onOk }: { onOk: () => void }) {
 
 /* ───────────────────────── COMPONENTE IMAGEN ──────────────── */
 function ImageUpload({
-  label, current, onUpload, maxPx = 900,
+  label, current, onUpload, maxPx = 900, aspectRatio
 }: {
   label: string;
   current?: string;
   onUpload: (base64: string) => void;
   maxPx?: number;
+  aspectRatio?: number;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
@@ -60,7 +61,7 @@ function ImageUpload({
   const handleFile = async (file: File) => {
     setLoading(true);
     try {
-      const data = await compressImage(file, maxPx);
+      const data = await compressImage(file, maxPx, 0.78, aspectRatio);
       onUpload(data);
     } finally {
       setLoading(false);
@@ -147,6 +148,7 @@ function ProductEditor({
           current={form.image ? asset(form.image) : undefined}
           onUpload={(d) => set('image', d)}
           maxPx={800}
+          aspectRatio={1}
         />
 
         <div className="mt-4 space-y-3">
@@ -452,6 +454,7 @@ export default function AdminPage() {
                 current={asset(overrides?.coverImageData || baseCatalog.coverImage)}
                 onUpload={(d) => setCover(slug, d)}
                 maxPx={1200}
+                aspectRatio={0.68}
               />
               <p className="text-xs text-stone-400 mt-2">Se verá como fondo en la primera página del catálogo. Usa una foto horizontal de alta calidad.</p>
             </Card>
@@ -462,6 +465,7 @@ export default function AdminPage() {
                 current={asset(overrides?.logoImageData || baseCatalog.logoImage)}
                 onUpload={(d) => setLogo(slug, d)}
                 maxPx={400}
+                aspectRatio={1}
               />
             </Card>
 
