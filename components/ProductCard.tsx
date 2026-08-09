@@ -15,26 +15,16 @@ export function ProductCard({
 }) {
   const add = useCart((state) => state.add);
   const src = asset(product.image);
-  const isData = src.startsWith('data:');
 
   return (
     <article className={`overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-orange-100`}>
-      {/* Imagen: next/image para rutas estáticas, <img> para base64 */}
-      {isData ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={src}
-          alt={product.name}
-          className={compact ? 'h-32 w-full object-cover' : 'h-40 w-full object-cover'}
-        />
-      ) : (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={src}
-          alt={product.name}
-          className={compact ? 'h-32 w-full object-cover' : 'h-40 w-full object-cover'}
-        />
-      )}
+      {/* Imagen: next/image se usaría para optimizar rutas estáticas si tuvieran un loader configurado */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt={product.name}
+        className={compact ? 'h-32 w-full object-cover' : 'h-40 w-full object-cover'}
+      />
       <div className="flex flex-1 flex-col gap-2 p-4">
         <div className="flex items-start justify-between gap-2">
           <h3 className="font-bold text-stone-900">{product.name}</h3>
