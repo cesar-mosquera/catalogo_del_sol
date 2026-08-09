@@ -174,13 +174,14 @@ function ProductEditor({
 
 /* ───────────────────────── CAMPO REUTILIZABLE ─────────────── */
 function Field({
-  label, value, onChange, type = 'text', textarea = false,
+  label, value, onChange, type = 'text', textarea = false, step,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   type?: string;
   textarea?: boolean;
+  step?: string;
 }) {
   const cls = 'w-full rounded-xl border border-stone-200 px-3 py-2 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100';
   return (
@@ -188,7 +189,7 @@ function Field({
       <label className="block text-xs font-semibold text-stone-500 mb-1">{label}</label>
       {textarea
         ? <textarea rows={3} className={cls} value={value} onChange={(e) => onChange(e.target.value)} />
-        : <input type={type} className={cls} value={value} onChange={(e) => onChange(e.target.value)} />
+        : <input type={type} step={step} className={cls} value={value} onChange={(e) => onChange(e.target.value)} />
       }
     </div>
   );
@@ -309,6 +310,19 @@ export default function AdminPage() {
                 />
               </div>
               <p className="text-xs text-stone-400 mt-1">Días: todos los días por defecto. Personalizar días requiere editar el código.</p>
+            </Card>
+
+            <Card title="Envío a domicilio">
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Latitud del local" type="number" value={String((overrides?.location ?? baseCatalog.location)?.lat ?? '')} onChange={(v) => setField(slug, 'location', { lat: parseFloat(v) || 0, lng: (overrides?.location ?? baseCatalog.location)?.lng ?? 0 })} />
+                <Field label="Longitud del local" type="number" value={String((overrides?.location ?? baseCatalog.location)?.lng ?? '')} onChange={(v) => setField(slug, 'location', { lat: (overrides?.location ?? baseCatalog.location)?.lat ?? 0, lng: parseFloat(v) || 0 })} />
+                <Field label="Precio de envío inicial ($)" type="number" step="0.01" value={String(val('deliveryBaseFee', baseCatalog.deliveryBaseFee ?? 0))} onChange={(v) => setField(slug, 'deliveryBaseFee', parseFloat(v) || 0)} />
+                <Field label="Precio adicional por km ($)" type="number" step="0.01" value={String(val('deliveryRatePerKm', baseCatalog.deliveryRatePerKm ?? 0))} onChange={(v) => setField(slug, 'deliveryRatePerKm', parseFloat(v) || 0)} />
+              </div>
+              <div className="mt-3">
+                <Field label="Radio máximo de entrega (km)" type="number" value={String(val('deliveryMaxKm', baseCatalog.deliveryMaxKm ?? 0))} onChange={(v) => setField(slug, 'deliveryMaxKm', parseFloat(v) || 0)} />
+              </div>
+              <p className="mt-2 text-xs text-stone-400">El total se calcula con tarifa base + distancia en línea recta por costo por km. El cliente puede buscar, mover el pin o ingresar coordenadas.</p>
             </Card>
 
             <Card title="Zona de peligro">

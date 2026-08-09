@@ -22,4 +22,9 @@ export type Catalog = {
   minimumOrder: number;
   businessHours: { timezone: string; open: number; close: number; days: number[] };
   sections: { name: string; products: Product[] }[];
+  // Política de envío del catálogo. Mantenerla en datos permite múltiples locales.
+  location?: { lat: number; lng: number };          // coordenadas del restaurante
+  deliveryRatePerKm?: number;                        // costo por km (ej: 0.50)
+  deliveryBaseFee?: number;                          // tarifa base de envío
+  deliveryMaxKm?: number;                            // radio máximo de entrega
 };

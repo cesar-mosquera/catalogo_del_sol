@@ -222,7 +222,7 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={asset(catalog.coverImage)} alt="" className="absolute inset-0 h-full w-full object-cover" style={{ opacity: 0.9 }} />
                 <div className="absolute inset-x-0 bottom-0 h-3/5" style={{ background: 'linear-gradient(to top,rgba(0,0,0,0.85) 0%,transparent 100%)' }} />
-                <div className="relative z-10 flex h-full flex-col justify-end p-6 pb-8">
+                <div className="book-cover-content relative z-10 flex h-full flex-col justify-end p-6 pb-8">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={asset(catalog.logoImage)} alt="" className="mb-auto h-16 w-16 object-contain drop-shadow-lg" />
                   <p className="text-[10px] font-bold uppercase tracking-[0.25em] opacity-60">Menú Digital</p>
@@ -238,7 +238,7 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
 
             {/* SECCIONES */}
             {pages.map((section, si) => renderPage(si + 1,
-              <div className="h-full overflow-y-auto overscroll-contain bg-orange-50 p-4 pb-10">
+              <div className="notebook-menu-page relative h-full overflow-y-auto overscroll-contain bg-orange-50 p-4 pb-10">
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-orange-600">{catalog.name}</p>
                 <h2 className="mb-3 mt-1 font-serif text-xl font-bold text-stone-900">{section.name}</h2>
                 <div className="space-y-3">
@@ -252,7 +252,7 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
 
             {/* CONTRAPORTADA */}
             {renderPage(lastPage,
-              <div className="flex h-full flex-col items-center justify-center bg-stone-900 p-8 text-center text-white">
+              <div className="notebook-back-page flex h-full flex-col items-center justify-center bg-stone-900 p-8 text-center text-white">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={asset(catalog.logoImage)} alt="" className="h-20 w-20 object-contain" />
                 <h2 className="mt-5 font-serif text-2xl">Gracias por visitarnos</h2>

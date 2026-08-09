@@ -16,6 +16,10 @@ export type CatalogOverride = {
   phone?: string;
   address?: string;
   minimumOrder?: number;
+  location?: Catalog['location'];
+  deliveryBaseFee?: number;
+  deliveryRatePerKm?: number;
+  deliveryMaxKm?: number;
   businessHours?: Catalog['businessHours'];
   sections?: AdminSection[];
   coverImageData?: string;  // base64

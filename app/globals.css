@@ -17,15 +17,16 @@ button, input, textarea { font: inherit; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(ellipse at center, #2d0f05 0%, #0e0401 100%);
+  background: #1a0a04;
+  padding: 12px;
 }
 
 /* Marco exterior tipo encuadernado */
 .book-frame-fullscreen {
   position: relative;
   /* Ocupa el máximo espacio disponible respetando el aspect-ratio */
-  width: min(100vw - 16px, (100vh - 48px) * 0.68);
-  height: min(100vh - 48px, (100vw - 16px) / 0.68);
+  width: min(100%, calc((100dvh - 24px) * 0.68));
+  height: min(calc(100dvh - 24px), calc(100% / 0.68));
   padding: 8px 8px 8px 20px;
   border-radius: 6px 14px 14px 6px;
   background: linear-gradient(90deg,
@@ -37,6 +38,72 @@ button, input, textarea { font: inherit; }
     -5px 6px 0 #150603,
     0 20px 50px rgba(0,0,0,0.7),
     inset 0 0 0 1px rgba(255,220,160,0.08);
+}
+
+@media (max-width: 640px) {
+  .book-fullscreen {
+    height: 100svh;
+    height: 100dvh;
+    padding: 0;
+    align-items: stretch;
+    background: #5a2a12;
+  }
+
+  .book-frame-fullscreen {
+    width: 100%;
+    height: 100%;
+    padding: 5px 5px 5px 15px;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .book-frame-fullscreen::before {
+    top: 8px;
+    bottom: 8px;
+    left: 10px;
+  }
+
+  .notebook-stage-fullscreen {
+    border-radius: 1px 5px 5px 1px;
+  }
+
+  .notebook-spine { width: 5px; }
+  .book-dots { bottom: calc(10px + env(safe-area-inset-bottom)); }
+
+  .book-cover-content {
+    padding: 22px 22px calc(28px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .book-cover-content > img {
+    height: 56px;
+    width: 56px;
+  }
+
+  .book-cover-content h1 { font-size: 1.9rem; }
+
+  .notebook-menu-page {
+    padding: 20px 14px calc(38px + env(safe-area-inset-bottom)) 26px !important;
+    background-color: #fff9ed !important;
+    background-image: linear-gradient(to bottom, transparent 0, transparent 29px, rgba(189, 133, 100, 0.18) 30px) !important;
+    background-size: 100% 30px !important;
+  }
+
+  .notebook-menu-page::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 20px;
+    width: 1px;
+    background: rgba(202, 69, 55, 0.28);
+    pointer-events: none;
+  }
+
+  .notebook-menu-page > * { position: relative; }
+
+  .notebook-back-page {
+    padding-bottom: calc(32px + env(safe-area-inset-bottom)) !important;
+  }
 }
 
 /* Lomo decorativo */
