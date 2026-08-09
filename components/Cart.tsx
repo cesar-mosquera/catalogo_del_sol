@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import type { Catalog } from '@/lib/catalog-types';
 import { useCart, type CartItem } from '@/store/cart';
@@ -95,12 +95,23 @@ export function Cart({ catalog }: { catalog: Catalog }) {
 
   const count = items.reduce((n, i) => n + i.quantity, 0);
 
+  const [isBumping, setIsBumping] = useState(false);
+  const prevCount = useRef(count);
+  useEffect(() => {
+    if (count > prevCount.current) {
+      setIsBumping(true);
+      const timer = setTimeout(() => setIsBumping(false), 300);
+      return () => clearTimeout(timer);
+    }
+    prevCount.current = count;
+  }, [count]);
+
   return (
     <>
       {/* Botón flotante carrito */}
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-5 right-5 z-30 flex items-center gap-2 rounded-full bg-stone-900 px-5 py-3 font-bold text-white shadow-xl"
+        className={`fixed bottom-5 right-5 z-30 flex items-center gap-2 rounded-full bg-stone-900 px-5 py-3 font-bold text-white shadow-xl transition-transform duration-200 ${isBumping ? 'scale-125' : 'scale-100'}`}
       >
         🛒 {count}
       </button>
@@ -129,9 +140,12 @@ export function Cart({ catalog }: { catalog: Catalog }) {
                   <span className="whitespace-nowrap text-sm font-semibold">
                     ${(item.price * item.quantity).toFixed(2)}
                     <button
-                      className="ml-2 text-orange-600 font-bold"
+                      className={`ml-3 font-bold transition-colors ${item.quantity > 1 ? 'text-orange-600 hover:text-orange-700' : 'text-red-500 hover:text-red-600'}`}
                       onClick={() => remove(catalog.slug, item.id)}
-                    >−</button>
+                      title={item.quantity > 1 ? 'Reducir cantidad' : 'Eliminar'}
+                    >
+                      {item.quantity > 1 ? '−' : '🗑️'}
+                    </button>
                   </span>
                 </div>
               )) : (

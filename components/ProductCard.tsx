@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import type { Product } from '@/lib/catalog-types';
 import { asset } from '@/lib/asset';
 import { useCart } from '@/store/cart';
@@ -15,6 +16,13 @@ export function ProductCard({
 }) {
   const add = useCart((state) => state.add);
   const src = asset(product.image);
+  const [added, setAdded] = useState(false);
+
+  const handleAdd = () => {
+    add(catalogSlug, product);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1200); // 1.2s de feedback
+  };
 
   return (
     <article className={`overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-orange-100`}>
@@ -37,10 +45,14 @@ export function ProductCard({
         )}
         <p className="text-sm text-stone-600">{product.description}</p>
         <button
-          onClick={() => add(catalogSlug, product)}
-          className="mt-auto rounded-xl bg-orange-600 px-3 py-2 text-sm font-semibold text-white hover:bg-orange-700"
+          onClick={handleAdd}
+          className={`mt-auto rounded-xl px-3 py-2 text-sm font-semibold transition-colors duration-300 ${
+            added 
+              ? 'bg-green-600 text-white' 
+              : 'bg-orange-600 text-white hover:bg-orange-700'
+          }`}
         >
-          Agregar al pedido
+          {added ? '✅ Agregado' : 'Agregar al pedido'}
         </button>
       </div>
     </article>
