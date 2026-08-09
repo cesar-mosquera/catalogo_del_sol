@@ -64,7 +64,7 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
     const angle = f.dir === 'next'
       ? -(f.progress * 180)       // 0 → -180
       : -180 + f.progress * 180;  // -180 → 0
-    const origin = f.dir === 'next' ? 'left center' : 'right center';
+    const origin = 'left center';
     const shadow = f.progress > 0.05 && f.progress < 0.95
       ? `${f.dir === 'next' ? '-' : ''}${Math.round(Math.sin(f.progress * Math.PI) * 18)}px 0 ${Math.round(Math.sin(f.progress * Math.PI) * 30)}px rgba(0,0,0,0.3)`
       : 'none';
