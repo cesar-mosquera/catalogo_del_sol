@@ -43,6 +43,8 @@ type AdminState = {
   addSection: (slug: string, sectionName: string) => void;
   renameSection: (slug: string, oldName: string, newName: string) => void;
   deleteSection: (slug: string, sectionName: string) => void;
+  moveSection: (slug: string, sectionName: string, dir: 'up' | 'down') => void;
+  moveProduct: (slug: string, sectionName: string, productId: string, dir: 'up' | 'down') => void;
   // Reset
   resetCatalog: (slug: string) => void;
 };
@@ -138,6 +140,44 @@ export const useAdmin = create<AdminState>()(
         set((state) => {
           const override = getOrInit(state, slug);
           const sections = (override.sections ?? []).filter((sec) => sec.name !== sectionName);
+          return { overrides: { ...state.overrides, [slug]: { ...override, sections } } };
+        }),
+
+      moveSection: (slug, sectionName, dir) =>
+        set((state) => {
+          const override = getOrInit(state, slug);
+          if (!override.sections) return state;
+          const idx = override.sections.findIndex((s) => s.name === sectionName);
+          if (idx < 0) return state;
+          const newIdx = dir === 'up' ? idx - 1 : idx + 1;
+          if (newIdx < 0 || newIdx >= override.sections.length) return state;
+          
+          const newSections = [...override.sections];
+          const temp = newSections[idx];
+          newSections[idx] = newSections[newIdx];
+          newSections[newIdx] = temp;
+          
+          return { overrides: { ...state.overrides, [slug]: { ...override, sections: newSections } } };
+        }),
+
+      moveProduct: (slug, sectionName, productId, dir) =>
+        set((state) => {
+          const override = getOrInit(state, slug);
+          if (!override.sections) return state;
+          const sections = override.sections.map((sec) => {
+            if (sec.name !== sectionName) return sec;
+            const idx = sec.products.findIndex((p) => p.id === productId);
+            if (idx < 0) return sec;
+            const newIdx = dir === 'up' ? idx - 1 : idx + 1;
+            if (newIdx < 0 || newIdx >= sec.products.length) return sec;
+            
+            const newProducts = [...sec.products];
+            const temp = newProducts[idx];
+            newProducts[idx] = newProducts[newIdx];
+            newProducts[newIdx] = temp;
+            
+            return { ...sec, products: newProducts };
+          });
           return { overrides: { ...state.overrides, [slug]: { ...override, sections } } };
         }),
 

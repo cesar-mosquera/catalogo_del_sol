@@ -246,6 +246,8 @@ export default function AdminPage() {
   const addSection   = useAdmin((s) => s.addSection);
   const renameSection= useAdmin((s) => s.renameSection);
   const deleteSection = useAdmin((s) => s.deleteSection);
+  const moveSection  = useAdmin((s) => s.moveSection);
+  const moveProduct  = useAdmin((s) => s.moveProduct);
   const resetCatalog = useAdmin((s) => s.resetCatalog);
 
   // Secciones actuales (overrides o base)
@@ -377,7 +379,10 @@ export default function AdminPage() {
                 key={section.name}
                 title={section.name}
                 action={
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => moveSection(slug, section.name, 'up')} className="text-stone-400 hover:text-orange-500 font-bold px-1" title="Subir sección">↑</button>
+                    <button onClick={() => moveSection(slug, section.name, 'down')} className="text-stone-400 hover:text-orange-500 font-bold px-1" title="Bajar sección">↓</button>
+                    <div className="w-px h-4 bg-stone-200 mx-1"></div>
                     <button
                       onClick={() => { const nn = prompt('Nuevo nombre:', section.name); if (nn && nn.trim() && nn !== section.name) renameSection(slug, section.name, nn.trim()); }}
                       className="text-xs font-semibold text-blue-500 hover:text-blue-600"
@@ -395,23 +400,28 @@ export default function AdminPage() {
               >
                 <div className="space-y-2">
                   {section.products.map((product) => (
-                    <button
-                      key={product.id}
-                      onClick={() => setEditingProduct({ product, section: section.name })}
-                      className="w-full flex items-center gap-3 rounded-xl border border-stone-100 bg-stone-50 p-3 text-left hover:border-orange-200 transition-colors"
-                    >
-                      {product.image ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={product.image} alt="" className="h-12 w-12 rounded-lg object-cover flex-shrink-0" />
-                      ) : (
-                        <div className="h-12 w-12 rounded-lg bg-orange-100 flex items-center justify-center text-xl flex-shrink-0">🍽</div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-stone-900 truncate">{product.name}</p>
-                        <p className="text-sm text-orange-600">${product.price.toFixed(2)}</p>
+                    <div key={product.id} className="flex items-center gap-2">
+                      <div className="flex flex-col gap-1">
+                        <button onClick={() => moveProduct(slug, section.name, product.id, 'up')} className="text-stone-300 hover:text-orange-500 text-[10px] leading-none px-1">▲</button>
+                        <button onClick={() => moveProduct(slug, section.name, product.id, 'down')} className="text-stone-300 hover:text-orange-500 text-[10px] leading-none px-1">▼</button>
                       </div>
-                      <span className="text-stone-400 text-xs">✏</span>
-                    </button>
+                      <button
+                        onClick={() => setEditingProduct({ product, section: section.name })}
+                        className="flex-1 flex items-center gap-3 rounded-xl border border-stone-100 bg-stone-50 p-3 text-left hover:border-orange-200 transition-colors min-w-0"
+                      >
+                        {product.image ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={asset(product.image)} alt="" className="h-12 w-12 rounded-lg object-cover flex-shrink-0" />
+                        ) : (
+                          <div className="h-12 w-12 rounded-lg bg-orange-100 flex items-center justify-center text-xl flex-shrink-0">🍽</div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-stone-900 truncate">{product.name}</p>
+                          <p className="text-sm text-orange-600">${product.price.toFixed(2)}</p>
+                        </div>
+                        <span className="text-stone-400 text-xs">✏</span>
+                      </button>
+                    </div>
                   ))}
                 </div>
                 <button
