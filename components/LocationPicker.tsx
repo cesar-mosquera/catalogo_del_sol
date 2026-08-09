@@ -127,9 +127,10 @@ export function LocationPicker({ restaurantLocation, onSelect, onClose }: Locati
       },
       (err) => {
         setLoading(false);
-        setGpsError(err.code === 1 ? 'Permiso denegado. Mueve el pin o usa el buscador.' : 'No se pudo obtener ubicación. Usa el buscador arriba.');
+        setGpsError(err.code === 1 ? 'Permiso denegado. Mueve el pin o usa el buscador.' : 'Señal débil. Usa el buscador arriba o mueve el pin.');
       },
-      { enableHighAccuracy: true, timeout: 10000 }
+      // Usar enableHighAccuracy: false ayuda a que no falle dentro de casas (usa WiFi/Antenas)
+      { enableHighAccuracy: false, timeout: 15000, maximumAge: 10000 }
     );
   };
 
