@@ -74,18 +74,29 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
 
   /* ── Inline style para la página que gira ─────── */
   const movingStyle = (f: FlipState): React.CSSProperties => {
+    // Para 'next', gira de 0 a -180.
+    // Para 'prev', el rango de -180 a -90 queda fuera de la pantalla (a la izquierda del lomo).
+    // Para que emerja al instante y no haya lag táctil, mapeamos el progreso a -90 -> 0.
     const angle = f.dir === 'next'
-      ? -(f.progress * 180)       // 0 → -180
-      : -180 + f.progress * 180;  // -180 → 0
+      ? -(f.progress * 180)
+      : -90 + (f.progress * 90);
+    
     const origin = 'left center';
-    const shadow = f.progress > 0.05 && f.progress < 0.95
-      ? `${f.dir === 'next' ? '-' : ''}${Math.round(Math.sin(f.progress * Math.PI) * 18)}px 0 ${Math.round(Math.sin(f.progress * Math.PI) * 30)}px rgba(0,0,0,0.3)`
-      : 'none';
+    
+    // Cálculo de sombra más fluido
+    const p = f.progress;
+    const shadowSize = Math.round(Math.sin(p * Math.PI) * 30);
+    const shadowX = f.dir === 'next' 
+      ? `-${Math.round(Math.sin(p * Math.PI) * 18)}px`
+      : `${Math.round(Math.sin(p * Math.PI) * 18)}px`;
+    
+    const shadow = `inset 0 0 0 1px rgba(255,255,255,0.1), ${shadowX} 0 ${shadowSize}px rgba(0,0,0,0.25)`;
+
     return {
       transform: `rotateY(${angle}deg)`,
       transformOrigin: origin,
       boxShadow: shadow,
-      transition: f.phase !== 'drag' ? 'transform 0.35s cubic-bezier(0.25,0.8,0.35,1)' : 'none',
+      transition: f.phase !== 'drag' ? 'transform 0.4s cubic-bezier(0.25,0.8,0.35,1), box-shadow 0.4s ease' : 'none',
     };
   };
 
