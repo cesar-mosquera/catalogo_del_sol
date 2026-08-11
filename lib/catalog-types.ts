@@ -7,6 +7,7 @@ export type Product = {
   description: string;
   image: string;
   badge?: string;
+  demoUrl?: string;
 };
 
 export type Catalog = {

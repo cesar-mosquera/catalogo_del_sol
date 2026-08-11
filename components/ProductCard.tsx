@@ -44,16 +44,28 @@ export function ProductCard({
           </span>
         )}
         <p className="text-sm text-stone-600">{product.description}</p>
-        <button
-          onClick={handleAdd}
-          className={`mt-auto rounded-xl px-3 py-2 text-sm font-semibold transition-colors duration-300 ${
-            added 
-              ? 'bg-green-600 text-white' 
-              : 'bg-orange-600 text-white hover:bg-orange-700'
-          }`}
-        >
-          {added ? '✅ Agregado' : 'Agregar al pedido'}
-        </button>
+        <div className="mt-auto flex items-center gap-2">
+          {product.demoUrl && (
+            <a
+              href={product.demoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 rounded-xl bg-stone-100 px-3 py-2 text-center text-sm font-semibold text-stone-700 transition-colors hover:bg-stone-200"
+            >
+              👀 Ver Demo
+            </a>
+          )}
+          <button
+            onClick={handleAdd}
+            className={`flex-1 rounded-xl px-3 py-2 text-sm font-semibold transition-colors duration-300 ${
+              added 
+                ? 'bg-green-600 text-white' 
+                : 'bg-orange-600 text-white hover:bg-orange-700'
+            }`}
+          >
+            {added ? '✅ Agregado' : 'Agregar'}
+          </button>
+        </div>
       </div>
     </article>
   );
