@@ -6,8 +6,8 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
 export const metadata: Metadata = {
   ...(siteUrl ? { metadataBase: new URL(siteUrl) } : {}),
-  title: 'Catálogos digitales',
-  description: 'Catálogos digitales interactivos para negocios.',
+  title: 'Catálogos Digitales | Menú digital con panel de administración',
+  description: 'Creo catálogos digitales para restaurantes: carrito de pedidos, confirmación por WhatsApp, mapa de envío y panel de administración.',
   manifest: `${BASE_PATH}/manifest.json`,
 };
 
