@@ -9,7 +9,7 @@ export const servicios: Catalog = {
   address: 'Atención 100% remota',
   coverImage: '/img/cover.webp',
   logoImage: '/img/logo.webp',
-  template: 'minimal',
+  template: 'premium',
   minimumOrder: 0,
   businessHours: { timezone: 'America/Guayaquil', open: 8, close: 20, days: [0, 1, 2, 3, 4, 5, 6] },
   deliveryBaseFee: 0,

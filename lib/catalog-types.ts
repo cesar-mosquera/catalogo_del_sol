@@ -1,4 +1,4 @@
-export type TemplateName = 'book' | 'list' | 'minimal';
+export type TemplateName = 'book' | 'list' | 'minimal' | 'premium';
 
 export type Product = {
   id: string;

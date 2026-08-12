@@ -6,6 +6,7 @@ import { Cart } from './Cart';
 import { BookTemplate } from './templates/BookTemplate';
 import { ListTemplate } from './templates/ListTemplate';
 import { MinimalTemplate } from './templates/MinimalTemplate';
+import { PremiumServicesTemplate } from './templates/PremiumServicesTemplate';
 
 export function CatalogView({ catalog }: { catalog: Catalog }) {
   // Fusiona datos estáticos con lo que el admin guardó en localStorage
@@ -15,6 +16,8 @@ export function CatalogView({ catalog }: { catalog: Catalog }) {
     ? <BookTemplate catalog={merged} />
     : merged.template === 'list'
     ? <ListTemplate catalog={merged} />
+    : merged.template === 'premium'
+    ? <PremiumServicesTemplate catalog={merged} />
     : <MinimalTemplate catalog={merged} />;
 
   return <>{content}<Cart catalog={merged} /></>;
