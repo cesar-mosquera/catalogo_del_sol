@@ -1,11 +1,29 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#fffbeb"/>
-      <stop offset="1" stop-color="#fcd34d"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fdf3df"/>
+      <stop offset="1" stop-color="#f5da9c"/>
     </linearGradient>
+    <radialGradient id="croi" cx="0.5" cy="0.4" r="0.9">
+      <stop offset="0" stop-color="#f6c564"/>
+      <stop offset="1" stop-color="#c9852e"/>
+    </radialGradient>
   </defs>
-  <rect width="400" height="300" fill="url(#g)"/>
-  <circle cx="200" cy="150" r="90" fill="#ffffff" opacity="0.35"/>
-  <text x="200" y="205" font-size="130" text-anchor="middle">🥐</text>
+  <rect width="400" height="300" fill="url(#bg)"/>
+  <ellipse cx="202" cy="272" rx="104" ry="12" fill="#945f1e" opacity="0.2"/>
+  <path d="M140 174
+           C116 92 168 72 202 86
+           C236 72 288 92 264 174
+           C250 200 210 206 170 194
+           C154 190 140 190 140 174 Z" fill="url(#croi)"/>
+  <path d="M146 160
+           C134 118 162 100 190 106
+           C184 130 172 148 152 158 Z" fill="#e2a647"/>
+  <path d="M258 160
+           C270 118 242 100 214 106
+           C220 130 232 148 252 158 Z" fill="#e2a647"/>
+  <path d="M202 86 C212 90 220 100 224 112 C210 108 204 100 202 86 Z" fill="#de9f3e"/>
+  <path d="M160 150 q20 -18 38 -6 q-4 14 -18 18 q-12 2 -20 -12z" fill="#f0b54f" opacity="0.65"/>
+  <path d="M262 150 q-22 -20 -42 -8 q4 16 20 20 q12 2 22 -12z" fill="#f0b54f" opacity="0.65"/>
+  <path d="M150 172 c16 10 40 12 56 8 c12 -3 22 0 28 6 c-18 12 -52 16 -84 0 z" fill="#b5731f" opacity="0.4"/>
 </svg>

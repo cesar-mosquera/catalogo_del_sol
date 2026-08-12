@@ -15,7 +15,7 @@ export const demoLista: Catalog = {
   location: { lat: -2.1710, lng: -79.9224 },
   deliveryBaseFee: 1.50,
   deliveryRatePerKm: 0.25,
-  deliveryMaxKm: 10,
+  deliveryMaxKm: 0, // 0 = sin límite de radio: el cliente elige dónde y siempre puede pedir
   sections: [
     { name: 'Hamburguesas', products: [
       { id: 'burger-classic', name: 'Classic Burger', price: 5, description: 'Carne 150g, queso cheddar, lechuga y tomate.', image: '/img/demo/burger-classic.svg', badge: 'Clásica' },

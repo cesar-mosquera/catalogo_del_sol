@@ -15,7 +15,7 @@ export const demoMinimal: Catalog = {
   location: { lat: -2.1710, lng: -79.9224 },
   deliveryBaseFee: 1.00,
   deliveryRatePerKm: 0.50,
-  deliveryMaxKm: 5,
+  deliveryMaxKm: 0, // 0 = sin límite de radio: el cliente elige dónde y siempre puede pedir
   sections: [
     { name: 'Café Caliente', products: [
       { id: 'espresso', name: 'Espresso', price: 1.5, description: 'Café negro intenso y aromático.', image: '/img/demo/espresso.svg' },

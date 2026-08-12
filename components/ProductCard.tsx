@@ -15,6 +15,8 @@ export function ProductCard({
   catalogSlug: string;
 }) {
   const add = useCart((state) => state.add);
+  const remove = useCart((state) => state.remove);
+  const quantity = useCart((s) => s.carts[catalogSlug]?.find(i => i.id === product.id)?.quantity ?? 0);
   const src = asset(product.image);
   const [added, setAdded] = useState(false);
 
@@ -55,16 +57,36 @@ export function ProductCard({
               👀 Ver Demo
             </a>
           )}
-          <button
-            onClick={handleAdd}
-            className={`flex-1 rounded-xl px-3 py-2 text-sm font-semibold transition-colors duration-300 ${
-              added 
-                ? 'bg-green-600 text-white' 
-                : 'bg-orange-600 text-white hover:bg-orange-700'
-            }`}
-          >
-            {added ? '✅ Agregado' : 'Agregar'}
-          </button>
+          {quantity > 0 ? (
+            <div className="flex flex-1 items-center justify-between gap-1 rounded-xl bg-orange-600 px-1.5 py-1 text-white shadow-sm">
+              <button
+                onClick={() => remove(catalogSlug, product.id)}
+                aria-label="Restar"
+                className="grid h-8 w-8 place-items-center rounded-lg text-lg font-bold transition-colors hover:bg-white/20 active:scale-90"
+              >
+                −
+              </button>
+              <span className="min-w-6 text-center text-sm font-black">{quantity}</span>
+              <button
+                onClick={handleAdd}
+                aria-label="Sumar"
+                className="grid h-8 w-8 place-items-center rounded-lg text-lg font-bold transition-colors hover:bg-white/20 active:scale-90"
+              >
+                +
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={handleAdd}
+              className={`flex-1 rounded-xl px-3 py-2 text-sm font-semibold transition-colors duration-300 ${
+                added
+                  ? 'bg-green-600 text-white'
+                  : 'bg-orange-600 text-white hover:bg-orange-700'
+              }`}
+            >
+              {added ? '✅ Agregado' : '🛒 Agregar'}
+            </button>
+          )}
         </div>
       </div>
     </article>

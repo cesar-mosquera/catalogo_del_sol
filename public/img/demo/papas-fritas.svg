@@ -1,11 +1,31 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#fef9c3"/>
-      <stop offset="1" stop-color="#fde047"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff6e0"/>
+      <stop offset="1" stop-color="#ffe0a3"/>
+    </linearGradient>
+    <linearGradient id="fry" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f7d05a"/>
+      <stop offset="1" stop-color="#e0a83f"/>
     </linearGradient>
   </defs>
-  <rect width="400" height="300" fill="url(#g)"/>
-  <circle cx="200" cy="150" r="90" fill="#ffffff" opacity="0.35"/>
-  <text x="200" y="205" font-size="130" text-anchor="middle">🍟</text>
+  <rect width="400" height="300" fill="url(#bg)"/>
+  <ellipse cx="202" cy="272" rx="104" ry="13" fill="#b8772e" opacity="0.2"/>
+  <g>
+    <rect x="152" y="128" width="12" height="86" rx="6" fill="url(#fry)"/>
+    <rect x="170" y="112" width="12" height="104" rx="6" fill="url(#fry)"/>
+    <rect x="188" y="102" width="13" height="116" rx="6" fill="url(#fry)"/>
+    <rect x="207" y="108" width="12" height="110" rx="6" fill="url(#fry)"/>
+    <rect x="225" y="98" width="12" height="120" rx="6" fill="url(#fry)"/>
+    <rect x="243" y="118" width="12" height="100" rx="6" fill="url(#fry)"/>
+    <rect x="163" y="124" width="12" height="94" rx="6" fill="#eec44e" transform="rotate(5 169 170)"/>
+    <rect x="207" y="86" width="12" height="132" rx="6" fill="#eec44e"/>
+    <rect x="237" y="96" width="12" height="122" rx="6" fill="#eec44e" transform="rotate(-6 243 158)"/>
+  </g>
+  <path d="M136 250 L172 168 h94 l36 82 z" fill="#d73a2f"/>
+  <path d="M136 250 h160 v-10 h-160 z" fill="#f7f1e4"/>
+  <path d="M136 250 h160 l-10 -14 h-140 z" fill="#b52e24"/>
+  <path d="M166 172 h106 l30 70 h-142 z" fill="#e8442c"/>
+  <rect x="156" y="146" width="8" height="40" rx="4" fill="#c93a24"/>
+  <rect x="242" y="146" width="8" height="40" rx="4" fill="#c93a24"/>
 </svg>
