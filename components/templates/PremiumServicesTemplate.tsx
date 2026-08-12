@@ -74,16 +74,18 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
             )}
           </div>
         </div>
-
-        {product.badge && (
-          <span className="absolute top-4 right-4 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-lg shadow-orange-500/30">
-            {product.badge}
-          </span>
-        )}
       </div>
 
       <div className="flex flex-col flex-1 p-6 relative z-10">
-        <h3 className="text-2xl font-black text-slate-900 tracking-tight">{product.name}</h3>
+        <div className="flex justify-between items-start gap-4">
+          <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-tight">{product.name}</h3>
+          {product.badge && (
+            <span className="flex-shrink-0 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-md">
+              {product.badge}
+            </span>
+          )}
+        </div>
+        
         <div className="mt-2 flex items-baseline gap-2">
           <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-slate-900 to-slate-600">
             ${product.price.toFixed(0)}
@@ -187,24 +189,39 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-300/30 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
       <div className="absolute -bottom-32 left-20 w-[500px] h-[500px] bg-pink-300/30 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-4000"></div>
 
-      {/* Hero Header */}
-      <header className="relative z-10 pt-32 pb-24 text-center px-5 animate-fade-in-up">
-        <div className="mx-auto max-w-4xl flex flex-col items-center">
-          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/40 backdrop-blur-md px-5 py-2 shadow-sm">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange-400 opacity-75"></span>
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-orange-500"></span>
-            </span>
-            <span className="text-xs font-black uppercase tracking-widest text-slate-800">
-              {catalog.tagline}
-            </span>
+      <header className="relative z-10">
+        {/* Main Content Container */}
+        <div className="relative z-10 mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+          
+          {/* Header Section with 3D Illustration */}
+          <div className="mb-20 flex flex-col lg:flex-row items-center justify-between gap-12 text-center lg:text-left">
+            <div className="flex-1 max-w-2xl">
+              <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/40 backdrop-blur-md px-5 py-2 shadow-sm">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange-400 opacity-75"></span>
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-orange-500"></span>
+                </span>
+                <span className="text-xs font-black uppercase tracking-widest text-slate-800">
+                  {catalog.tagline}
+                </span>
+              </div>
+              <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-slate-900 leading-[1.1]">
+                {catalog.name}
+              </h1>
+              <p className="mt-6 text-lg md:text-xl font-medium text-slate-600 leading-relaxed mx-auto lg:mx-0 max-w-2xl">
+                {catalog.description}
+              </p>
+            </div>
+            
+            <div className="flex-1 w-full max-w-lg relative animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+              <div className="absolute inset-0 bg-gradient-to-tr from-orange-400/30 to-pink-500/30 blur-[80px] rounded-full scale-75"></div>
+              <img 
+                src="/img/hero-mockup.webp" 
+                alt="Catálogo Digital Interactivo" 
+                className="relative z-10 w-full h-auto drop-shadow-2xl transition-transform duration-700 hover:scale-[1.03] hover:rotate-1" 
+              />
+            </div>
           </div>
-          <h1 className="font-serif text-5xl font-black tracking-tight text-slate-900 md:text-7xl lg:text-8xl leading-tight">
-            {catalog.name}
-          </h1>
-          <p className="mx-auto mt-8 max-w-2xl text-lg font-medium leading-relaxed text-slate-600 md:text-xl">
-            {catalog.description}
-          </p>
         </div>
       </header>
 
