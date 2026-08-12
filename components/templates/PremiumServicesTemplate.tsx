@@ -82,6 +82,85 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
   );
 }
 
+function TemplateShowcaseCard({ product }: { product: Product }) {
+  return (
+    <div className="group relative flex flex-col overflow-hidden rounded-[2rem] bg-white shadow-lg border border-stone-200 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
+      <div className="absolute inset-0 bg-gradient-to-br from-stone-50 to-stone-200/50 opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
+      
+      {/* Aspecto de "Navegador web" o Mockup para la demo */}
+      <div className="relative h-48 w-full bg-stone-100 border-b border-stone-200 overflow-hidden flex items-center justify-center p-6">
+        <div className="absolute top-3 left-4 flex gap-1.5">
+          <div className="h-2.5 w-2.5 rounded-full bg-red-400"></div>
+          <div className="h-2.5 w-2.5 rounded-full bg-amber-400"></div>
+          <div className="h-2.5 w-2.5 rounded-full bg-green-400"></div>
+        </div>
+        <div className="text-6xl group-hover:scale-110 transition-transform duration-500">
+          {product.id === 'demo-libro' ? '📖' : product.id === 'demo-lista' ? '🍔' : '☕'}
+        </div>
+        {product.badge && (
+          <span className="absolute bottom-4 right-4 rounded-full bg-white px-3 py-1 text-[10px] font-black uppercase tracking-widest text-stone-800 shadow-sm">
+            {product.badge}
+          </span>
+        )}
+      </div>
+
+      <div className="relative z-10 flex flex-1 flex-col p-6">
+        <h3 className="text-xl font-bold text-stone-900">{product.name}</h3>
+        <p className="mt-3 flex-1 text-sm text-stone-600 leading-relaxed">{product.description}</p>
+        
+        {product.demoUrl && (
+          <a
+            href={product.demoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-stone-900 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-stone-800 shadow-md"
+          >
+            <span>▶</span> Ver demostración en vivo
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function AddonServiceCard({ product, catalogSlug }: { product: Product; catalogSlug: string }) {
+  const add = useCart((state) => state.add);
+  const [added, setAdded] = useState(false);
+
+  const handleAdd = () => {
+    add(catalogSlug, product);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1200);
+  };
+
+  return (
+    <div className="flex items-center justify-between gap-4 rounded-2xl bg-white p-5 shadow-sm border border-stone-200 transition-all hover:border-orange-300 hover:shadow-md">
+      <div className="flex-1">
+        <div className="flex items-center gap-2">
+          <h4 className="font-bold text-stone-900">{product.name}</h4>
+          {product.badge && (
+            <span className="rounded-md bg-stone-100 px-2 py-0.5 text-[9px] font-bold uppercase text-stone-500">
+              {product.badge}
+            </span>
+          )}
+        </div>
+        <p className="mt-1 text-xs text-stone-500 line-clamp-2">{product.description}</p>
+      </div>
+      <div className="text-right flex flex-col items-end gap-2">
+        <div className="font-black text-orange-600">${product.price.toFixed(0)}</div>
+        <button
+          onClick={handleAdd}
+          className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all ${
+            added ? 'bg-green-500 text-white' : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+          }`}
+        >
+          {added ? '✓ Añadido' : '+ Agregar'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
   return (
     <div className="min-h-screen bg-stone-100 text-stone-800 selection:bg-orange-500/30 font-sans">
@@ -111,24 +190,43 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
 
       {/* Sections */}
       <main className="mx-auto max-w-7xl px-5 py-24">
-        <div className="space-y-32">
-          {catalog.sections.map((section) => (
-            <section key={section.name} className="relative">
-              <div className="mb-14 flex items-center justify-center gap-6">
-                <div className="h-px w-16 bg-gradient-to-r from-transparent to-stone-300"></div>
-                <h2 className="text-xl font-bold uppercase tracking-[0.2em] text-stone-900">
-                  {section.name}
-                </h2>
-                <div className="h-px w-16 bg-gradient-to-l from-transparent to-stone-300"></div>
-              </div>
-              
-              <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 justify-center">
-                {section.products.map((product) => (
-                  <PremiumServiceCard key={product.id} product={product} catalogSlug={catalog.slug} />
-                ))}
-              </div>
-            </section>
-          ))}
+        <div className="space-y-24">
+          {catalog.sections.map((section) => {
+            const isTemplates = section.name.toLowerCase().includes('plantilla');
+            const isAddons = section.name.toLowerCase().includes('servicio') || section.name.toLowerCase().includes('suscripcion');
+
+            return (
+              <section key={section.name} className="relative">
+                <div className="mb-12 flex items-center justify-center gap-6">
+                  <div className="h-px w-12 bg-gradient-to-r from-transparent to-stone-300"></div>
+                  <h2 className="text-2xl font-black uppercase tracking-[0.15em] text-stone-800">
+                    {section.name}
+                  </h2>
+                  <div className="h-px w-12 bg-gradient-to-l from-transparent to-stone-300"></div>
+                </div>
+                
+                {isTemplates ? (
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {section.products.map((product) => (
+                      <TemplateShowcaseCard key={product.id} product={product} />
+                    ))}
+                  </div>
+                ) : isAddons ? (
+                  <div className="grid gap-4 md:grid-cols-2 max-w-4xl mx-auto">
+                    {section.products.map((product) => (
+                      <AddonServiceCard key={product.id} product={product} catalogSlug={catalog.slug} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 justify-center">
+                    {section.products.map((product) => (
+                      <PremiumServiceCard key={product.id} product={product} catalogSlug={catalog.slug} />
+                    ))}
+                  </div>
+                )}
+              </section>
+            );
+          })}
         </div>
       </main>
       
