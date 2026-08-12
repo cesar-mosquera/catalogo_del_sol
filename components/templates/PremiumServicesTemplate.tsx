@@ -163,11 +163,11 @@ function AddonServiceCard({ product, catalogSlug }: { product: Product; catalogS
 
 export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
   return (
-    <div className="min-h-screen bg-stone-100 text-stone-800 selection:bg-orange-500/30 font-sans">
+    <div className="min-h-screen bg-stone-200 text-stone-800 selection:bg-orange-500/30 font-sans">
       {/* Hero Header */}
-      <header className="relative overflow-hidden border-b border-stone-200 bg-stone-100/80 pb-24 pt-32 text-center backdrop-blur-sm">
+      <header className="relative overflow-hidden border-b border-stone-300 bg-stone-200/80 pb-24 pt-32 text-center backdrop-blur-sm">
         {/* Animated gradient background */}
-        <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-orange-200/50 via-stone-100 to-stone-100"></div>
+        <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-orange-200/60 via-stone-200 to-stone-200"></div>
         
         <div className="relative z-10 mx-auto max-w-4xl px-5 flex flex-col items-center">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-4 py-1.5 shadow-sm">
@@ -231,8 +231,8 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
       </main>
       
       {/* Footer minimalista */}
-      <footer className="border-t border-stone-200 bg-stone-100 py-12 text-center">
-        <p className="text-xs font-semibold uppercase tracking-widest text-stone-400">
+      <footer className="border-t border-stone-300 bg-stone-200 py-12 text-center">
+        <p className="text-xs font-semibold uppercase tracking-widest text-stone-500">
           Powered by Catálogos Digitales
         </p>
       </footer>

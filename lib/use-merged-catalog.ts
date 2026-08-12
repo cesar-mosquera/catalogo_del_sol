@@ -31,7 +31,20 @@ export function useMergedCatalog(base: Catalog): Catalog {
       businessHours: override.businessHours ?? base.businessHours,
       coverImage:   override.coverImageData ?? base.coverImage,
       logoImage:    override.logoImageData  ?? base.logoImage,
-      sections:     override.sections      ?? base.sections,
+      sections:     override.sections ? override.sections.map(oSec => {
+        const bSec = base.sections.find(s => s.name === oSec.name);
+        return {
+          ...oSec,
+          products: oSec.products.map(oProd => {
+            const bProd = bSec?.products.find(p => p.id === oProd.id);
+            return {
+              ...oProd,
+              demoUrl: bProd?.demoUrl ?? oProd.demoUrl,
+              badge: bProd?.badge ?? oProd.badge,
+            };
+          })
+        };
+      }) : base.sections,
     };
   }, [base, override]);
 }
