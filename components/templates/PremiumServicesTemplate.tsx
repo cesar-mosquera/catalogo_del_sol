@@ -15,7 +15,8 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
   };
 
   const isPopular = !!product.badge && product.badge.toLowerCase().includes('vendido');
-  const mockupType = product.id.includes('basico') ? 'lista' : product.id.includes('pro') ? 'libro' : 'minimal';
+  const mockupType = product.id.includes('basico') ? 'lista' : product.id.includes('pro') ? 'libro' : 'admin';
+  const mockupImageSrc = `/img/mockup-${mockupType}.webp`;
 
   return (
     <div className={`group relative flex flex-col overflow-hidden rounded-[2.5rem] transition-all duration-700 hover:-translate-y-4 ${
@@ -30,50 +31,15 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
       )}
       
       {/* Interactive Mockup Area (Integrated Demo) */}
-      <div className="relative h-48 w-full overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-4 flex items-end justify-center border-b border-white/50">
-        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_50%_0%,rgba(120,119,198,0.3),rgba(255,255,255,0))] transition-opacity duration-700 group-hover:opacity-60"></div>
+      <div className="relative h-56 w-full overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-4 flex items-end justify-center border-b border-white/50">
+        <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_50%_0%,rgba(120,119,198,0.5),rgba(255,255,255,0))] transition-opacity duration-700 group-hover:opacity-80"></div>
         
-        {/* Mobile Phone Mockup */}
-        <div className="relative z-10 w-32 h-[120%] rounded-t-[1.5rem] border-[5px] border-b-0 border-slate-800 bg-white shadow-2xl transition-all duration-700 transform translate-y-6 group-hover:translate-y-2 group-hover:scale-105 group-hover:rotate-2 flex flex-col overflow-hidden">
-          <div className="w-10 h-3 bg-slate-800 absolute top-0 left-1/2 -translate-x-1/2 rounded-b-lg z-20"></div>
-          
-          <div className="flex-1 w-full bg-slate-50 relative mt-4 p-2 flex flex-col gap-2">
-            {mockupType === 'libro' && (
-              <div className="flex flex-col h-full gap-2 mt-1">
-                <div className="w-full h-1/2 bg-gradient-to-br from-orange-800 to-orange-950 rounded-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] flex items-center justify-center">
-                  <div className="w-5 h-5 rounded-full bg-white/20"></div>
-                </div>
-                <div className="w-full h-1/2 bg-[#f8ead6] rounded-md p-1.5 flex flex-col gap-1 shadow-inner relative">
-                  <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-stone-300 shadow-md"></div>
-                  <div className="w-full h-1.5 bg-stone-300 rounded-full mt-1 ml-1.5"></div>
-                  <div className="w-3/4 h-1.5 bg-stone-300 rounded-full ml-1.5"></div>
-                </div>
-              </div>
-            )}
-            {mockupType === 'lista' && (
-              <div className="flex flex-col gap-1.5 w-full mt-1">
-                {[1, 2, 3].map(i => (
-                  <div key={i} className="flex gap-1.5 items-center bg-white p-1 rounded-md shadow-sm border border-slate-100">
-                    <div className="w-5 h-5 bg-orange-100 rounded flex-shrink-0"></div>
-                    <div className="flex flex-col gap-1 flex-1">
-                      <div className="w-full h-1 bg-slate-200 rounded-full"></div>
-                      <div className="w-1/2 h-1 bg-slate-100 rounded-full"></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-            {mockupType === 'minimal' && (
-              <div className="flex flex-wrap gap-1.5 w-full mt-1 justify-between">
-                {[1, 2, 3, 4].map(i => (
-                  <div key={i} className="w-[46%] aspect-square bg-slate-200 rounded-md overflow-hidden relative">
-                    <div className="absolute bottom-1 left-1 w-3/4 h-1 bg-white/80 rounded-full"></div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+        {/* 3D High-End Mockup Image */}
+        <img 
+          src={mockupImageSrc} 
+          alt={`Demo ${product.name}`} 
+          className="relative z-10 w-auto h-[140%] object-contain drop-shadow-2xl transition-all duration-700 transform translate-y-8 group-hover:translate-y-2 group-hover:scale-[1.15] group-hover:rotate-2"
+        />
       </div>
 
       <div className="flex flex-col flex-1 p-6 relative z-10">
