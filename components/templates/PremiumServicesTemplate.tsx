@@ -87,15 +87,44 @@ function TemplateShowcaseCard({ product }: { product: Product }) {
           {/* Notch */}
           <div className="w-14 h-4 bg-slate-800 absolute top-0 left-1/2 -translate-x-1/2 rounded-b-xl z-20"></div>
           
-          {/* Fake App Content */}
-          <div className="flex-1 w-full bg-slate-50 relative mt-5 p-3 flex flex-col gap-3">
-             <div className="w-full h-16 rounded-xl bg-gradient-to-r from-orange-200 to-pink-200 animate-pulse"></div>
-             <div className="w-3/4 h-3 rounded-full bg-slate-200"></div>
-             <div className="w-1/2 h-3 rounded-full bg-slate-200"></div>
-             <div className="mt-auto flex gap-2">
-               <div className="w-full h-10 rounded-lg bg-indigo-100"></div>
-               <div className="w-full h-10 rounded-lg bg-indigo-100"></div>
-             </div>
+          {/* Fake App Content adaptado al tipo de plantilla */}
+          <div className="flex-1 w-full bg-slate-50 relative mt-5 p-2 flex flex-col gap-2">
+            {product.id === 'demo-libro' && (
+              <div className="flex flex-col h-full gap-2 mt-2">
+                <div className="w-full h-1/2 bg-gradient-to-br from-orange-800 to-orange-950 rounded-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] flex items-center justify-center">
+                  <div className="w-6 h-6 rounded-full bg-white/20"></div>
+                </div>
+                <div className="w-full h-1/2 bg-[#f8ead6] rounded-md p-2 flex flex-col gap-1.5 shadow-inner relative">
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-stone-300 shadow-md"></div>
+                  <div className="w-full h-2 bg-stone-300 rounded-full mt-1 ml-2"></div>
+                  <div className="w-3/4 h-2 bg-stone-300 rounded-full ml-2"></div>
+                </div>
+              </div>
+            )}
+
+            {product.id === 'demo-lista' && (
+              <div className="flex flex-col gap-2 w-full mt-2">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="flex gap-2 items-center bg-white p-1.5 rounded-lg shadow-sm border border-slate-100">
+                    <div className="w-7 h-7 bg-orange-100 rounded-md flex-shrink-0"></div>
+                    <div className="flex flex-col gap-1 flex-1">
+                      <div className="w-full h-1.5 bg-slate-200 rounded-full"></div>
+                      <div className="w-1/2 h-1 bg-slate-100 rounded-full"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {product.id === 'demo-minimal' && (
+              <div className="flex flex-wrap gap-2 w-full mt-2 justify-between">
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} className="w-[45%] aspect-square bg-slate-200 rounded-lg overflow-hidden relative">
+                    <div className="absolute bottom-1 left-1 w-3/4 h-1 bg-white/80 rounded-full"></div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -243,36 +272,37 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                 Preguntas Frecuentes
               </h2>
               <div className="mx-auto mt-6 h-1 w-20 rounded-full bg-gradient-to-r from-orange-400 to-pink-500"></div>
+              <p className="mt-4 text-slate-600 font-medium">Resolvemos tus dudas en lenguaje claro, sin términos informáticos.</p>
             </div>
             
             <div className="mx-auto max-w-4xl flex flex-col gap-4">
               <details className="group rounded-[2rem] bg-white/60 backdrop-blur-md border border-white p-6 shadow-sm hover:shadow-lg transition-all cursor-pointer">
                 <summary className="text-xl font-bold text-slate-900 flex justify-between items-center outline-none list-none">
-                  ¿Qué incluye exactamente el pago único?
+                  ¿Me cobran comisiones por cada pedido que me hagan?
                   <span className="transition-transform group-open:rotate-180 text-orange-500 text-2xl font-light">↓</span>
                 </summary>
                 <p className="mt-4 text-slate-600 leading-relaxed font-medium">
-                  Te entregamos tu catálogo completamente configurado, con el diseño premium seleccionado y tu menú integrado. También incluye el carrito de compras que envía los pedidos directamente a tu WhatsApp. ¡Todo es tuyo de por vida sin pagar mensualidades!
+                  ¡Para nada! A diferencia de aplicaciones de delivery que te cobran hasta el 30%, aquí los pedidos llegan directo a tu WhatsApp. Todas las ganancias son tuyas y no intervenimos en tus pagos.
                 </p>
               </details>
               
               <details className="group rounded-[2rem] bg-white/60 backdrop-blur-md border border-white p-6 shadow-sm hover:shadow-lg transition-all cursor-pointer">
                 <summary className="text-xl font-bold text-slate-900 flex justify-between items-center outline-none list-none">
-                  ¿Mis clientes tienen que descargar alguna App?
+                  No sé nada de computadoras, ¿cómo le hago para cambiar los precios?
                   <span className="transition-transform group-open:rotate-180 text-orange-500 text-2xl font-light">↓</span>
                 </summary>
                 <p className="mt-4 text-slate-600 leading-relaxed font-medium">
-                  No. Tu catálogo funciona directamente desde cualquier navegador web usando el link de tu negocio. Sin embargo, si eliges el Plan Pro, tus clientes tendrán la opción de instalar el menú en la pantalla de inicio de sus celulares como si fuera una App real (PWA) con un solo toque.
+                  Tienes dos opciones muy sencillas: si eliges el <strong>Catálogo Administrable</strong>, te damos una pantalla especial en tu celular que funciona igual que publicar en Facebook (sólo escribes el precio nuevo y guardas). O si prefieres, puedes contratar nuestro servicio de actualización por $10 y nosotros lo hacemos todo por ti.
                 </p>
               </details>
 
               <details className="group rounded-[2rem] bg-white/60 backdrop-blur-md border border-white p-6 shadow-sm hover:shadow-lg transition-all cursor-pointer">
                 <summary className="text-xl font-bold text-slate-900 flex justify-between items-center outline-none list-none">
-                  ¿Qué pasa si en el futuro necesito cambiar precios o platos?
+                  ¿Qué es eso de que &quot;se instala como aplicación&quot;?
                   <span className="transition-transform group-open:rotate-180 text-orange-500 text-2xl font-light">↓</span>
                 </summary>
                 <p className="mt-4 text-slate-600 leading-relaxed font-medium">
-                  Si adquieres un Plan Estático, puedes solicitarnos una Modificación de Menú (servicio de $10) cada vez que requieras una actualización. Si prefieres cambiar todo tú mismo a cualquier hora, te recomendamos elegir el <strong>Plan Administrable (Con Panel)</strong>.
+                  Es una función espectacular del Plan Avanzado. Cuando tus clientes abran el enlace de tu restaurante, el celular les preguntará si desean añadirlo a su pantalla. Si dicen que sí, el logo de tu negocio quedará instalado junto a su app de WhatsApp o Facebook, listo para pedir comida con un solo toque.
                 </p>
               </details>
             </div>
