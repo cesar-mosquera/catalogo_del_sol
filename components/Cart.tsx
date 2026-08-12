@@ -58,7 +58,9 @@ export function Cart({ catalog }: { catalog: Catalog }) {
   const minimumMet   = subtotal >= catalog.minimumOrder;
   const maxKm        = catalog.deliveryMaxKm || 0;
   const tooFar       = quote ? !quote.isAvailable : false;
-  const hasLocation  = requiresLocation ? clientLoc !== null : true;
+  
+  // Si el catálogo requiere envío pero olvidaron configurar las coordenadas, permitimos continuar sin mapa.
+  const hasLocation  = (requiresLocation && catalog.location) ? clientLoc !== null : true;
   const open_        = catalog.alwaysOpen || isOpen(catalog);
 
   const onLocationSelected = (loc: LatLng, km: number) => {
@@ -74,8 +76,8 @@ export function Cart({ catalog }: { catalog: Catalog }) {
       .map((i) => `• ${i.quantity} × ${i.name} — $${(i.quantity * i.price).toFixed(2)}`)
       .join('\n');
 
-    const locLine = requiresLocation ? `📍 https://maps.google.com/?q=${clientLoc!.lat},${clientLoc!.lng}\n` : '';
-    const distLine = requiresLocation ? `*📏 Distancia: ${distKm!.toFixed(2)} km · Envío: $${deliveryFee!.toFixed(2)}*\n` : '';
+    const locLine = (requiresLocation && clientLoc) ? `📍 https://maps.google.com/?q=${clientLoc.lat},${clientLoc.lng}\n` : '';
+    const distLine = (requiresLocation && distKm !== null) ? `*📏 Distancia: ${distKm.toFixed(2)} km · Envío: $${deliveryFee.toFixed(2)}*\n` : '';
     const notesLine = notes.trim() ? `📝 Indicaciones: ${notes.trim()}` : '';
 
     const message =
@@ -179,11 +181,11 @@ export function Cart({ catalog }: { catalog: Catalog }) {
                   >
                     <span className="text-2xl">📍</span>
                     <div className="flex-1 text-left">
-                      {hasLocation ? (
+                      {clientLoc ? (
                         <>
                           <p className="text-xs font-bold text-green-700">Ubicación seleccionada ✓</p>
                           <p className="text-xs text-stone-500 mt-0.5">
-                            {distKm!.toFixed(2)} km del local · Envío: ${deliveryFee!.toFixed(2)}
+                            {distKm !== null ? `${distKm.toFixed(2)} km del local · ` : ''}Envío: ${deliveryFee.toFixed(2)}
                           </p>
                         </>
                       ) : (
@@ -193,7 +195,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
                         </>
                       )}
                     </div>
-                    <span className="text-stone-400 text-sm">{hasLocation ? '✏' : '→'}</span>
+                    <span className="text-stone-400 text-sm">{clientLoc ? '✏' : '→'}</span>
                   </button>
 
                   {tooFar && maxKm > 0 && (
@@ -204,10 +206,10 @@ export function Cart({ catalog }: { catalog: Catalog }) {
                     </div>
                   )}
 
-                  {hasLocation && !tooFar && (
+                  {clientLoc && !tooFar && (
                     <div className="bg-green-50 px-3 py-2 border-t border-green-100 flex justify-between text-xs">
                       <span className="text-stone-500">Costo de envío</span>
-                      <span className="font-bold text-green-700">${deliveryFee!.toFixed(2)}</span>
+                      <span className="font-bold text-green-700">${deliveryFee.toFixed(2)}</span>
                     </div>
                   )}
                 </div>
@@ -223,7 +225,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
               />
 
               {/* Total */}
-              {hasLocation && !tooFar && (
+              {(!requiresLocation || clientLoc) && !tooFar && (
                 <div className="flex justify-between font-bold text-base border-t pt-2">
                   <span>{requiresLocation ? 'Total con envío' : 'Total'}</span>
                   <span className="text-orange-600">${total.toFixed(2)}</span>
