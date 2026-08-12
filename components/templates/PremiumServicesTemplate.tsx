@@ -17,10 +17,10 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
   const isPopular = !!product.badge;
 
   return (
-    <div className={`relative flex flex-col overflow-hidden rounded-[2rem] border bg-white/70 p-8 backdrop-blur-xl shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(234,88,12,0.15)] ${
+    <div className={`relative flex flex-col overflow-hidden rounded-[2rem] border bg-white p-8 shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(234,88,12,0.15)] ${
       isPopular 
-        ? 'border-orange-400/50 shadow-orange-900/10 scale-[1.02]' 
-        : 'border-orange-900/5 shadow-orange-900/5 hover:border-orange-500/30'
+        ? 'border-orange-400/50 shadow-orange-900/10 scale-[1.02] z-10' 
+        : 'border-stone-200 shadow-stone-200 hover:border-orange-500/30'
     }`}>
       {/* Subtle Glow Effect */}
       <div className={`absolute -right-20 -top-20 h-48 w-48 rounded-full blur-3xl transition-opacity duration-500 group-hover:bg-orange-500/30 ${
@@ -82,11 +82,11 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
 
 export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
   return (
-    <div className="min-h-screen bg-[#fdf8f0] text-stone-800 selection:bg-orange-500/30 font-sans">
+    <div className="min-h-screen bg-stone-100 text-stone-800 selection:bg-orange-500/30 font-sans">
       {/* Hero Header */}
-      <header className="relative overflow-hidden border-b border-orange-900/10 bg-[#fdf8f0]/80 pb-24 pt-32 text-center backdrop-blur-sm">
+      <header className="relative overflow-hidden border-b border-stone-200 bg-stone-100/80 pb-24 pt-32 text-center backdrop-blur-sm">
         {/* Animated gradient background */}
-        <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-orange-100 via-[#fdf8f0] to-[#fdf8f0]"></div>
+        <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-orange-200/50 via-stone-100 to-stone-100"></div>
         
         <div className="relative z-10 mx-auto max-w-4xl px-5 flex flex-col items-center">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-4 py-1.5 shadow-sm">
@@ -131,7 +131,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
       </main>
       
       {/* Footer minimalista */}
-      <footer className="border-t border-stone-900/5 bg-[#fdf8f0] py-12 text-center">
+      <footer className="border-t border-stone-200 bg-stone-100 py-12 text-center">
         <p className="text-xs font-semibold uppercase tracking-widest text-stone-400">
           Powered by Catálogos Digitales
         </p>
