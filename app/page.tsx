@@ -24,10 +24,30 @@ const features: { icon: string; title: string; text: string }[] = [
 ];
 
 /* ───────────────────────── PLANTILLAS ─────────────────────── */
-const templates: { id: string; name: string; tag: string; desc: string; demo: string }[] = [
-  { id: 'book', name: 'Libro', tag: 'El más vistoso', desc: 'Un menú con giro de páginas 3D, portada con foto y lomo de cuaderno. Ideal para parrillas y restaurantes con identidad.', demo: DEMO_PATH },
-  { id: 'list', name: 'Lista', tag: 'Clásico y completo', desc: 'Secciones en cuadrícula con fotos y precios ordenados. Perfecto para menús con muchos productos.', demo: DEMO_PATH },
-  { id: 'minimal', name: 'Minimal', tag: 'Elegante', desc: 'Tipografía limpia y sin distracciones, enfocada en el plato. Ideal para cafeterías y negocios gourmet.', demo: DEMO_PATH },
+const templates: {
+  id: string; name: string; tag: string; desc: string; demo: string; image: string; tags: string[];
+}[] = [
+  {
+    id: 'book', name: 'Libro', tag: 'El más vistoso',
+    desc: 'Un menú con giro de páginas 3D, portada con foto y lomo de cuaderno. Ideal para parrillas y restaurantes con identidad.',
+    demo: DEMO_PATH,
+    image: '/img/mockup-libro.webp',
+    tags: ['Carrito de pedidos', 'Pedido por WhatsApp', 'Mapa de envío', 'App instalable'],
+  },
+  {
+    id: 'list', name: 'Lista', tag: 'Clásico y completo',
+    desc: 'Secciones en cuadrícula con fotos y precios ordenados. Perfecto para menús con muchos productos.',
+    demo: `${BASE_PATH}/menu/demo-lista`,
+    image: '/img/mockup-lista.webp',
+    tags: ['Carrito de pedidos', 'Pedido por WhatsApp', 'Mapa de envío'],
+  },
+  {
+    id: 'minimal', name: 'Minimal', tag: 'Elegante',
+    desc: 'Tipografía limpia y sin distracciones, enfocada en el plato. Ideal para cafeterías y negocios gourmet.',
+    demo: `${BASE_PATH}/menu/demo-minimal`,
+    image: '/img/mockup-admin.webp',
+    tags: ['Carrito de pedidos', 'Pedido por WhatsApp', 'Panel admin'],
+  },
 ];
 
 /* ─────────────────────────── PLANES ───────────────────────── */
@@ -207,8 +227,9 @@ export default function LandingPage() {
               Un diseño para cada tipo de negocio
             </h2>
             <p className="mt-3 text-stone-400">
-              Elige la base y la ajusto a colores, fotos y textos de tu negocio. Aquí ves la
-              muestra con un catálogo real funcionando.
+              Elige la base y la ajusto a colores, fotos y textos de tu negocio. Las tres son
+              <span className="font-bold text-orange-400"> demos interactivas</span>: al entrar puedes probar el carrito,
+              el pedido por WhatsApp y el mapa de envío.
             </p>
           </div>
           <div className="mt-10 grid gap-5 md:grid-cols-3">

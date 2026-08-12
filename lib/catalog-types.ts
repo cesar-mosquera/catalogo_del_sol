@@ -8,7 +8,18 @@ export type Product = {
   image: string;
   badge?: string;
   demoUrl?: string;
+  deliveryDays?: string;
 };
+
+export type FaqItem = { q: string; a: string };
+
+export type ComparisonRow = {
+  feature: string;
+  includedIn: string[];
+  note?: string;
+};
+
+export type HandoffItem = { icon: string; title: string; text: string };
 
 export type Catalog = {
   slug: string;
@@ -30,4 +41,15 @@ export type Catalog = {
   deliveryMaxKm?: number;                            // radio máximo de entrega
   requiresShipping?: boolean;                        // si es falso, desactiva pedir ubicación en el carrito
   alwaysOpen?: boolean;                              // si es verdadero, ignora el horario comercial
+  // ── Contenido orientado a resolver dudas del cliente (catálogos de servicios) ──
+  faq?: FaqItem[];
+  comparison?: ComparisonRow[];
+  handoff?: HandoffItem[];                           // "¿Qué necesito entregarte?"
+  process?: { title: string; text: string }[];       // proceso post-compra
+  payment?: string[];                                // formas de pago aceptadas
+  guarantee?: string;                                // garantía / reembolso
+  recurringCosts?: string[];                         // costos mensuales / anuales
+  upgradePolicy?: string;                            // cambiar de plan después
+  businessTypes?: string[];                          // tipos de negocio a los que sirve
+  checkoutNote?: string;                             // microcopy al enviar pedido por WhatsApp
 };

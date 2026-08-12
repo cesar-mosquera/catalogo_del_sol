@@ -79,13 +79,15 @@ export function Cart({ catalog }: { catalog: Catalog }) {
     const locLine = (requiresLocation && clientLoc) ? `📍 https://maps.google.com/?q=${clientLoc.lat},${clientLoc.lng}\n` : '';
     const distLine = (requiresLocation && distKm !== null) ? `*📏 Distancia: ${distKm.toFixed(2)} km · Envío: $${deliveryFee.toFixed(2)}*\n` : '';
     const notesLine = notes.trim() ? `📝 Indicaciones: ${notes.trim()}` : '';
+    const checkoutLine = catalog.checkoutNote ? `\n*ℹ️ ${catalog.checkoutNote}*\n` : '';
 
     const message =
       `Hola, quiero hacer un pedido en *${catalog.name}*:\n\n` +
       `${detail}\n\n` +
       `*Subtotal: $${subtotal.toFixed(2)}*\n` +
       distLine +
-      `*Total${requiresLocation ? ' con envío' : ''}: $${total.toFixed(2)}*\n\n` +
+      `*Total${requiresLocation ? ' con envío' : ''}: $${total.toFixed(2)}*\n` +
+      checkoutLine +
       locLine + notesLine;
 
     window.open(`https://wa.me/${catalog.phone}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
