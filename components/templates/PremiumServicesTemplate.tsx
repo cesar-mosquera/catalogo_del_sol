@@ -27,11 +27,13 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
         isPopular ? 'bg-orange-500/15' : 'bg-orange-500/5'
       }`}></div>
       
-      {product.badge && (
-        <span className="absolute right-5 top-5 rounded-full bg-orange-100 px-3.5 py-1.5 text-[10px] font-black uppercase tracking-widest text-orange-600 ring-1 ring-orange-500/20">
-          {product.badge}
-        </span>
-      )}
+      <div className="mb-4 min-h-[24px]">
+        {product.badge && (
+          <span className="inline-block rounded-full bg-orange-100 px-3.5 py-1.5 text-[10px] font-black uppercase tracking-widest text-orange-600 ring-1 ring-orange-500/20">
+            {product.badge}
+          </span>
+        )}
+      </div>
       
       <h3 className="text-2xl font-bold text-stone-900 tracking-tight">{product.name}</h3>
       <div className="mt-4 flex items-baseline gap-2">
