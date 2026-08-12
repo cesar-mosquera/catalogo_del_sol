@@ -2,11 +2,11 @@ import type { Catalog } from '@/lib/catalog-types';
 
 export const demoMinimal: Catalog = {
   slug: 'demo-minimal',
-  name: 'Café & Aroma (Demo Minimal)',
+  name: 'Café & Aroma',
   tagline: 'Panadería y cafetería de especialidad',
-  description: 'Ejemplo de la plantilla "Minimal". Ideal para negocios elegantes, cafeterías y repostería.',
+  description: 'Demo única de la plantilla "Minimal". Un menú elegante para cafeterías, panaderías y repostería.',
   phone: '593999999999',
-  address: 'Demo Address',
+  address: 'Centro Comercial, Guayaquil',
   coverImage: '/img/cover.webp',
   logoImage: '/img/logo.webp',
   template: 'minimal',
@@ -18,12 +18,14 @@ export const demoMinimal: Catalog = {
   deliveryMaxKm: 5,
   sections: [
     { name: 'Café Caliente', products: [
-      { id: 'espresso', name: 'Espresso', price: 1.5, description: 'Café negro intenso y aromático.', image: '/img/seco.webp' },
-      { id: 'capuchino', name: 'Capuchino', price: 2.5, description: 'Café espresso con leche espumada y canela.', image: '/img/seco.webp', badge: 'Más pedido' },
+      { id: 'espresso', name: 'Espresso', price: 1.5, description: 'Café negro intenso y aromático.', image: '/img/demo/espresso.svg' },
+      { id: 'capuchino', name: 'Capuchino', price: 2.5, description: 'Espresso con leche espumada y canela.', image: '/img/demo/capuchino.svg', badge: 'Más pedido' },
+      { id: 'latte', name: 'Latte Vainilla', price: 3, description: 'Suave, cremoso y con un toque dulce.', image: '/img/demo/latte.svg' },
     ] },
     { name: 'Postres', products: [
-      { id: 'cheesecake', name: 'Cheesecake de Fresa', price: 3.5, description: 'Tarta de queso horneada con mermelada casera.', image: '/img/choclo.webp' },
-      { id: 'croissant', name: 'Croissant de Mantequilla', price: 1.5, description: 'Crujiente y recién horneado.', image: '/img/choclo.webp' },
+      { id: 'cheesecake', name: 'Cheesecake de Fresa', price: 3.5, description: 'Tarta de queso horneada con mermelada casera.', image: '/img/demo/cheesecake.svg' },
+      { id: 'croissant', name: 'Croissant de Mantequilla', price: 1.5, description: 'Crujiente y recién horneado.', image: '/img/demo/croissant.svg' },
+      { id: 'tiramisu', name: 'Tiramisú', price: 3, description: 'Capas de bizcocho, café y mascarpone.', image: '/img/demo/tiramisu.svg', badge: 'Chef' },
     ] }
   ],
 };

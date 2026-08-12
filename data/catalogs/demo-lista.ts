@@ -2,11 +2,11 @@ import type { Catalog } from '@/lib/catalog-types';
 
 export const demoLista: Catalog = {
   slug: 'demo-lista',
-  name: 'Burger Station (Demo Lista)',
+  name: 'Burger Station',
   tagline: 'Las mejores hamburguesas de la ciudad',
-  description: 'Ejemplo de la plantilla "Lista". Ideal para menús largos, pizzerías y comida rápida.',
+  description: 'Demo única de la plantilla "Lista". Un menú completo para hamburgueserías, pizzerías y comida rápida.',
   phone: '593999999999',
-  address: 'Demo Address',
+  address: 'Av. Principal 123, Guayaquil',
   coverImage: '/img/cover.webp',
   logoImage: '/img/logo.webp',
   template: 'list',
@@ -18,13 +18,15 @@ export const demoLista: Catalog = {
   deliveryMaxKm: 10,
   sections: [
     { name: 'Hamburguesas', products: [
-      { id: 'burger-classic', name: 'Classic Burger', price: 5, description: 'Carne 150g, queso cheddar, lechuga y tomate.', image: '/img/chuleta.webp' },
-      { id: 'burger-bacon', name: 'Bacon Station', price: 6.5, description: 'Doble queso, tocino crujiente y salsa BBQ.', image: '/img/chuleta.webp', badge: 'Recomendada' },
-      { id: 'burger-veggie', name: 'Veggie Burger', price: 5.5, description: 'Hamburguesa de lentejas con vegetales frescos.', image: '/img/chuleta.webp' },
+      { id: 'burger-classic', name: 'Classic Burger', price: 5, description: 'Carne 150g, queso cheddar, lechuga y tomate.', image: '/img/demo/burger-classic.svg', badge: 'Clásica' },
+      { id: 'burger-bacon', name: 'Bacon Station', price: 6.5, description: 'Doble queso, tocino crujiente y salsa BBQ.', image: '/img/demo/burger-bacon.svg', badge: 'Recomendada' },
+      { id: 'burger-veggie', name: 'Veggie Burger', price: 5.5, description: 'Hamburguesa de lentejas con vegetales frescos.', image: '/img/demo/burger-veggie.svg' },
     ] },
     { name: 'Snacks & Bebidas', products: [
-      { id: 'papas-fritas', name: 'Papas Fritas', price: 2.5, description: 'Papas crujientes con salsa de ajo.', image: '/img/choclo.webp' },
-      { id: 'soda', name: 'Gaseosa', price: 1.5, description: 'Bebida carbonatada 500ml.', image: '/img/choclo.webp' },
+      { id: 'papas-fritas', name: 'Papas Fritas', price: 2.5, description: 'Papas crujientes con salsa de ajo.', image: '/img/demo/papas-fritas.svg' },
+      { id: 'aros-cebolla', name: 'Aros de Cebolla', price: 3, description: 'Anillos dorados con mayonesa de la casa.', image: '/img/demo/aros-cebolla.svg' },
+      { id: 'gaseosa', name: 'Gaseosa 500ml', price: 1.5, description: 'Bebida bien fría de tu sabor favorito.', image: '/img/demo/gaseosa.svg' },
+      { id: 'malteada', name: 'Malteada de Vainilla', price: 3.5, description: 'Espesa y cremosa, con toque de canela.', image: '/img/demo/malteada.svg', badge: 'Nueva' },
     ] }
   ],
 };
