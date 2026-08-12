@@ -14,112 +14,59 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
     setTimeout(() => setAdded(false), 1200);
   };
 
-  const isPopular = !!product.badge;
+  const isPopular = !!product.badge && product.badge.toLowerCase().includes('vendido');
+  const mockupType = product.id.includes('basico') ? 'lista' : product.id.includes('pro') ? 'libro' : 'minimal';
 
   return (
-    <div className={`relative flex flex-col overflow-hidden rounded-[2.5rem] p-8 transition-all duration-500 hover:-translate-y-3 ${
+    <div className={`group relative flex flex-col overflow-hidden rounded-[2.5rem] transition-all duration-700 hover:-translate-y-4 ${
       isPopular 
-        ? 'bg-white/80 backdrop-blur-3xl border border-white shadow-[0_20px_60px_-15px_rgba(249,115,22,0.3)] scale-[1.03] z-10' 
-        : 'bg-white/40 backdrop-blur-xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:bg-white/60 hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)]'
+        ? 'bg-white/80 backdrop-blur-3xl border border-white shadow-[0_30px_60px_-15px_rgba(249,115,22,0.3)] scale-[1.03] z-10' 
+        : 'bg-white/50 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:bg-white/80 hover:shadow-[0_20px_40px_rgb(0,0,0,0.1)]'
     }`}>
+      
       {/* Decorative Glow inside popular card */}
       {isPopular && (
         <div className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-gradient-to-br from-orange-400/20 to-pink-400/20 blur-3xl transition-transform duration-700 hover:scale-150"></div>
       )}
       
-      <div className="mb-6 min-h-[28px] relative z-10">
-        {product.badge && (
-          <span className="inline-block rounded-full bg-gradient-to-r from-orange-500 to-pink-500 px-4 py-1.5 text-[11px] font-black uppercase tracking-[0.2em] text-white shadow-lg shadow-orange-500/30">
-            {product.badge}
-          </span>
-        )}
-      </div>
-      
-      <h3 className="relative z-10 text-3xl font-black text-slate-900 tracking-tight">{product.name}</h3>
-      <div className="relative z-10 mt-3 flex items-baseline gap-2">
-        <span className="text-6xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-slate-900 to-slate-600">
-          ${product.price.toFixed(0)}
-        </span>
-        <span className="text-sm font-bold uppercase tracking-widest text-slate-400">USD</span>
-      </div>
-      
-      <ul className="relative z-10 mt-10 mb-12 flex flex-1 flex-col gap-5">
-        {product.description.split(/\.\s+/).filter(Boolean).map((line, i) => (
-          <li key={i} className="flex items-start gap-4 text-sm font-medium leading-relaxed text-slate-700">
-            <div className="mt-1 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-pink-500 text-[10px] font-bold text-white shadow-sm">
-              ✓
-            </div>
-            <span>{line.replace(/\.$/, '')}</span>
-          </li>
-        ))}
-      </ul>
-
-      <div className="mt-auto relative z-10">
-        <button
-          onClick={handleAdd}
-          className={`group flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-4 text-sm font-black uppercase tracking-widest transition-all active:scale-95 ${
-            added 
-              ? 'bg-green-500 text-white shadow-lg shadow-green-500/30' 
-              : isPopular
-                ? 'bg-slate-900 text-white hover:bg-slate-800 shadow-xl shadow-slate-900/20'
-                : 'bg-white border-2 border-slate-200 text-slate-900 hover:border-slate-900 hover:shadow-lg'
-          }`}
-        >
-          {added ? '✅ Añadido' : '🛒 Seleccionar'}
-          {!added && <span className="transition-transform group-hover:translate-x-1">→</span>}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function TemplateShowcaseCard({ product }: { product: Product }) {
-  return (
-    <div className="group relative flex flex-col overflow-hidden rounded-[2.5rem] bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-700 hover:-translate-y-4 hover:shadow-[0_30px_60px_-15px_rgba(79,70,229,0.2)] cursor-pointer">
-      
-      {/* Interactive Mockup Area */}
-      <div className="relative h-64 w-full overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-6 flex items-end justify-center">
-        {/* Animated Background Mesh */}
-        <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_50%_0%,rgba(120,119,198,0.3),rgba(255,255,255,0))] transition-opacity duration-700 group-hover:opacity-100"></div>
+      {/* Interactive Mockup Area (Integrated Demo) */}
+      <div className="relative h-48 w-full overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-4 flex items-end justify-center border-b border-white/50">
+        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_50%_0%,rgba(120,119,198,0.3),rgba(255,255,255,0))] transition-opacity duration-700 group-hover:opacity-60"></div>
         
         {/* Mobile Phone Mockup */}
-        <div className="relative z-10 w-36 h-[110%] rounded-t-[2rem] border-[6px] border-b-0 border-slate-800 bg-white shadow-2xl transition-all duration-700 transform translate-y-8 group-hover:translate-y-4 group-hover:scale-105 group-hover:rotate-3 flex flex-col overflow-hidden">
-          {/* Notch */}
-          <div className="w-14 h-4 bg-slate-800 absolute top-0 left-1/2 -translate-x-1/2 rounded-b-xl z-20"></div>
+        <div className="relative z-10 w-32 h-[120%] rounded-t-[1.5rem] border-[5px] border-b-0 border-slate-800 bg-white shadow-2xl transition-all duration-700 transform translate-y-6 group-hover:translate-y-2 group-hover:scale-105 group-hover:rotate-2 flex flex-col overflow-hidden">
+          <div className="w-10 h-3 bg-slate-800 absolute top-0 left-1/2 -translate-x-1/2 rounded-b-lg z-20"></div>
           
-          {/* Fake App Content adaptado al tipo de plantilla */}
-          <div className="flex-1 w-full bg-slate-50 relative mt-5 p-2 flex flex-col gap-2">
-            {product.id === 'demo-libro' && (
-              <div className="flex flex-col h-full gap-2 mt-2">
+          <div className="flex-1 w-full bg-slate-50 relative mt-4 p-2 flex flex-col gap-2">
+            {mockupType === 'libro' && (
+              <div className="flex flex-col h-full gap-2 mt-1">
                 <div className="w-full h-1/2 bg-gradient-to-br from-orange-800 to-orange-950 rounded-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] flex items-center justify-center">
-                  <div className="w-6 h-6 rounded-full bg-white/20"></div>
+                  <div className="w-5 h-5 rounded-full bg-white/20"></div>
                 </div>
-                <div className="w-full h-1/2 bg-[#f8ead6] rounded-md p-2 flex flex-col gap-1.5 shadow-inner relative">
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-stone-300 shadow-md"></div>
-                  <div className="w-full h-2 bg-stone-300 rounded-full mt-1 ml-2"></div>
-                  <div className="w-3/4 h-2 bg-stone-300 rounded-full ml-2"></div>
+                <div className="w-full h-1/2 bg-[#f8ead6] rounded-md p-1.5 flex flex-col gap-1 shadow-inner relative">
+                  <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-stone-300 shadow-md"></div>
+                  <div className="w-full h-1.5 bg-stone-300 rounded-full mt-1 ml-1.5"></div>
+                  <div className="w-3/4 h-1.5 bg-stone-300 rounded-full ml-1.5"></div>
                 </div>
               </div>
             )}
-
-            {product.id === 'demo-lista' && (
-              <div className="flex flex-col gap-2 w-full mt-2">
+            {mockupType === 'lista' && (
+              <div className="flex flex-col gap-1.5 w-full mt-1">
                 {[1, 2, 3].map(i => (
-                  <div key={i} className="flex gap-2 items-center bg-white p-1.5 rounded-lg shadow-sm border border-slate-100">
-                    <div className="w-7 h-7 bg-orange-100 rounded-md flex-shrink-0"></div>
+                  <div key={i} className="flex gap-1.5 items-center bg-white p-1 rounded-md shadow-sm border border-slate-100">
+                    <div className="w-5 h-5 bg-orange-100 rounded flex-shrink-0"></div>
                     <div className="flex flex-col gap-1 flex-1">
-                      <div className="w-full h-1.5 bg-slate-200 rounded-full"></div>
+                      <div className="w-full h-1 bg-slate-200 rounded-full"></div>
                       <div className="w-1/2 h-1 bg-slate-100 rounded-full"></div>
                     </div>
                   </div>
                 ))}
               </div>
             )}
-
-            {product.id === 'demo-minimal' && (
-              <div className="flex flex-wrap gap-2 w-full mt-2 justify-between">
+            {mockupType === 'minimal' && (
+              <div className="flex flex-wrap gap-1.5 w-full mt-1 justify-between">
                 {[1, 2, 3, 4].map(i => (
-                  <div key={i} className="w-[45%] aspect-square bg-slate-200 rounded-lg overflow-hidden relative">
+                  <div key={i} className="w-[46%] aspect-square bg-slate-200 rounded-md overflow-hidden relative">
                     <div className="absolute bottom-1 left-1 w-3/4 h-1 bg-white/80 rounded-full"></div>
                   </div>
                 ))}
@@ -128,32 +75,67 @@ function TemplateShowcaseCard({ product }: { product: Product }) {
           </div>
         </div>
 
-        {/* Floating Emoji */}
-        <div className="absolute top-6 left-6 text-4xl transition-transform duration-700 group-hover:scale-125 group-hover:-rotate-12 drop-shadow-md">
-          {product.id === 'demo-libro' ? '🍔' : product.id === 'demo-lista' ? '🍕' : '☕'}
-        </div>
-        
         {product.badge && (
-          <span className="absolute top-6 right-6 rounded-full bg-white/90 backdrop-blur px-3 py-1 text-[10px] font-black uppercase tracking-widest text-indigo-600 shadow-sm">
+          <span className="absolute top-4 right-4 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-lg shadow-orange-500/30">
             {product.badge}
           </span>
         )}
       </div>
 
-      <div className="relative z-10 flex flex-1 flex-col p-8">
-        <h3 className="text-2xl font-black text-slate-900">{product.name}</h3>
-        <p className="mt-4 flex-1 text-sm font-medium text-slate-600 leading-relaxed">{product.description}</p>
+      <div className="flex flex-col flex-1 p-6 relative z-10">
+        <h3 className="text-2xl font-black text-slate-900 tracking-tight">{product.name}</h3>
+        <div className="mt-2 flex items-baseline gap-2">
+          <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-slate-900 to-slate-600">
+            ${product.price.toFixed(0)}
+          </span>
+          <span className="text-xs font-bold uppercase tracking-widest text-slate-400">USD (Pago Único)</span>
+        </div>
         
-        {product.demoUrl && (
-          <a
-            href={product.demoUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-8 flex w-full items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-5 py-4 text-sm font-black uppercase tracking-widest text-white transition-all hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/30 active:scale-95"
+        <ul className="mt-6 mb-8 flex flex-1 flex-col gap-3">
+          {product.description.split(/\.\s+/).filter(Boolean).map((line, i) => (
+            <li key={i} className="flex items-start gap-3 text-sm font-medium leading-relaxed text-slate-700">
+              <div className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-pink-500 text-[9px] font-bold text-white shadow-sm">
+                ✓
+              </div>
+              <span>{line.replace(/\.$/, '')}</span>
+            </li>
+          ))}
+        </ul>
+
+        <div className="mt-auto flex flex-col gap-2 relative z-10">
+          {product.demoUrl && (
+            <a
+              href={product.demoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-indigo-100 bg-indigo-50/50 px-5 py-3 text-xs font-black uppercase tracking-widest text-indigo-700 transition-colors hover:bg-indigo-100 hover:border-indigo-200"
+            >
+              <span>👀</span> Probar Demostración
+            </a>
+          )}
+          {product.id === 'plan-admin' && (
+            <a
+              href="/admin"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-stone-200 bg-white px-5 py-3 text-xs font-black uppercase tracking-widest text-stone-700 transition-colors hover:bg-stone-100 hover:border-stone-300"
+            >
+              <span>⚙️</span> Probar Panel Admin
+            </a>
+          )}
+          <button
+            onClick={handleAdd}
+            className={`flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-xs font-black uppercase tracking-widest transition-all active:scale-95 ${
+              added 
+                ? 'bg-green-500 text-white shadow-lg shadow-green-500/30' 
+                : isPopular
+                  ? 'bg-slate-900 text-white hover:bg-slate-800 shadow-xl shadow-slate-900/20'
+                  : 'bg-orange-500 text-white hover:bg-orange-600 shadow-lg shadow-orange-500/20'
+            }`}
           >
-            <span>✨</span> Probar ahora
-          </a>
-        )}
+            {added ? '✅ ¡Añadido!' : '🛒 Comprar Ahora'}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -242,13 +224,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                   <div className="mx-auto mt-6 h-1 w-20 rounded-full bg-gradient-to-r from-orange-400 to-pink-500"></div>
                 </div>
                 
-                {isTemplates ? (
-                  <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                    {section.products.map((product) => (
-                      <TemplateShowcaseCard key={product.id} product={product} />
-                    ))}
-                  </div>
-                ) : isAddons ? (
+                {isAddons ? (
                   <div className="grid gap-6 md:grid-cols-2 max-w-5xl mx-auto">
                     {section.products.map((product) => (
                       <AddonServiceCard key={product.id} product={product} catalogSlug={catalog.slug} />
