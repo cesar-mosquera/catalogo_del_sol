@@ -28,4 +28,5 @@ export type Catalog = {
   deliveryRatePerKm?: number;                        // costo por km (ej: 0.50)
   deliveryBaseFee?: number;                          // tarifa base de envío
   deliveryMaxKm?: number;                            // radio máximo de entrega
+  requiresShipping?: boolean;                        // si es falso, desactiva pedir ubicación en el carrito
 };

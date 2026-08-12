@@ -12,6 +12,7 @@ export const servicios: Catalog = {
   template: 'premium',
   minimumOrder: 0,
   businessHours: { timezone: 'America/Guayaquil', open: 8, close: 20, days: [0, 1, 2, 3, 4, 5, 6] },
+  requiresShipping: false,
   deliveryBaseFee: 0,
   deliveryRatePerKm: 0,
   deliveryMaxKm: 0,

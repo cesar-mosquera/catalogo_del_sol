@@ -50,14 +50,15 @@ export function Cart({ catalog }: { catalog: Catalog }) {
   const [clientLoc,  setClientLoc]  = useState<LatLng | null>(null);
   const [distKm,     setDistKm]     = useState<number | null>(null);
 
+  const requiresLocation = catalog.requiresShipping ?? true;
   const subtotal     = useMemo(() => items.reduce((s, i) => s + i.price * i.quantity, 0), [items]);
-  const quote        = clientLoc ? quoteDelivery(catalog, clientLoc) : null;
-  const deliveryFee  = quote?.fee ?? null;
-  const total        = subtotal + (deliveryFee ?? 0);
+  const quote        = (requiresLocation && clientLoc) ? quoteDelivery(catalog, clientLoc) : null;
+  const deliveryFee  = requiresLocation ? (quote?.fee ?? 0) : 0;
+  const total        = subtotal + deliveryFee;
   const minimumMet   = subtotal >= catalog.minimumOrder;
   const maxKm        = catalog.deliveryMaxKm || 0;
   const tooFar       = quote ? !quote.isAvailable : false;
-  const hasLocation  = clientLoc !== null;
+  const hasLocation  = requiresLocation ? clientLoc !== null : true;
   const open_        = isOpen(catalog);
 
   const onLocationSelected = (loc: LatLng, km: number) => {
@@ -73,17 +74,17 @@ export function Cart({ catalog }: { catalog: Catalog }) {
       .map((i) => `• ${i.quantity} × ${i.name} — $${(i.quantity * i.price).toFixed(2)}`)
       .join('\n');
 
-    const locLine = `📍 https://maps.google.com/?q=${clientLoc!.lat},${clientLoc!.lng}`;
-    const distLine = `📏 Distancia: ${distKm!.toFixed(2)} km · Envío: $${deliveryFee!.toFixed(2)}`;
-    const notesLine = notes.trim() ? `\n📝 Indicaciones: ${notes.trim()}` : '';
+    const locLine = requiresLocation ? `📍 https://maps.google.com/?q=${clientLoc!.lat},${clientLoc!.lng}\n` : '';
+    const distLine = requiresLocation ? `*📏 Distancia: ${distKm!.toFixed(2)} km · Envío: $${deliveryFee!.toFixed(2)}*\n` : '';
+    const notesLine = notes.trim() ? `📝 Indicaciones: ${notes.trim()}` : '';
 
     const message =
       `Hola, quiero hacer un pedido en *${catalog.name}*:\n\n` +
       `${detail}\n\n` +
       `*Subtotal: $${subtotal.toFixed(2)}*\n` +
-      `*${distLine}*\n` +
-      `*Total con envío: $${total.toFixed(2)}*\n\n` +
-      `${locLine}${notesLine}`;
+      distLine +
+      `*Total${requiresLocation ? ' con envío' : ''}: $${total.toFixed(2)}*\n\n` +
+      locLine + notesLine;
 
     window.open(`https://wa.me/${catalog.phone}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
     clear(catalog.slug);
@@ -170,51 +171,53 @@ export function Cart({ catalog }: { catalog: Catalog }) {
               )}
 
               {/* Sección de ubicación */}
-              <div className="rounded-xl border border-stone-200 overflow-hidden">
-                <button
-                  onClick={() => setShowMap(true)}
-                  className="w-full flex items-center gap-3 p-3 hover:bg-stone-50 transition-colors"
-                >
-                  <span className="text-2xl">📍</span>
-                  <div className="flex-1 text-left">
-                    {hasLocation ? (
-                      <>
-                        <p className="text-xs font-bold text-green-700">Ubicación seleccionada ✓</p>
-                        <p className="text-xs text-stone-500 mt-0.5">
-                          {distKm!.toFixed(2)} km del local · Envío: ${deliveryFee!.toFixed(2)}
-                        </p>
-                      </>
-                    ) : (
-                      <>
-                        <p className="text-xs font-bold text-stone-700">Selecciona tu ubicación</p>
-                        <p className="text-xs text-stone-400">GPS o pin en el mapa</p>
-                      </>
-                    )}
-                  </div>
-                  <span className="text-stone-400 text-sm">{hasLocation ? '✏' : '→'}</span>
-                </button>
+              {requiresLocation && (
+                <div className="rounded-xl border border-stone-200 overflow-hidden">
+                  <button
+                    onClick={() => setShowMap(true)}
+                    className="w-full flex items-center gap-3 p-3 hover:bg-stone-50 transition-colors"
+                  >
+                    <span className="text-2xl">📍</span>
+                    <div className="flex-1 text-left">
+                      {hasLocation ? (
+                        <>
+                          <p className="text-xs font-bold text-green-700">Ubicación seleccionada ✓</p>
+                          <p className="text-xs text-stone-500 mt-0.5">
+                            {distKm!.toFixed(2)} km del local · Envío: ${deliveryFee!.toFixed(2)}
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-xs font-bold text-stone-700">Selecciona tu ubicación</p>
+                          <p className="text-xs text-stone-400">GPS o pin en el mapa</p>
+                        </>
+                      )}
+                    </div>
+                    <span className="text-stone-400 text-sm">{hasLocation ? '✏' : '→'}</span>
+                  </button>
 
-                {tooFar && maxKm > 0 && (
-                  <div className="bg-red-50 px-3 py-2 border-t border-red-100">
-                    <p className="text-xs text-red-700">
-                      ⚠ Fuera del radio de entrega ({maxKm} km). Tu ubicación está a {distKm!.toFixed(1)} km.
-                    </p>
-                  </div>
-                )}
+                  {tooFar && maxKm > 0 && (
+                    <div className="bg-red-50 px-3 py-2 border-t border-red-100">
+                      <p className="text-xs text-red-700">
+                        ⚠ Fuera del radio de entrega ({maxKm} km). Tu ubicación está a {distKm!.toFixed(1)} km.
+                      </p>
+                    </div>
+                  )}
 
-                {hasLocation && !tooFar && (
-                  <div className="bg-green-50 px-3 py-2 border-t border-green-100 flex justify-between text-xs">
-                    <span className="text-stone-500">Costo de envío</span>
-                    <span className="font-bold text-green-700">${deliveryFee!.toFixed(2)}</span>
-                  </div>
-                )}
-              </div>
+                  {hasLocation && !tooFar && (
+                    <div className="bg-green-50 px-3 py-2 border-t border-green-100 flex justify-between text-xs">
+                      <span className="text-stone-500">Costo de envío</span>
+                      <span className="font-bold text-green-700">${deliveryFee!.toFixed(2)}</span>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Notas adicionales */}
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Indicaciones adicionales (timbre, piso, etc.)"
+                placeholder={requiresLocation ? "Indicaciones adicionales (timbre, piso, etc.)" : "Notas, dudas o sobre qué trata tu negocio..."}
                 className="w-full rounded-xl border border-stone-200 px-3 py-2 text-sm outline-none focus:border-orange-400 resize-none"
                 rows={2}
               />
@@ -222,7 +225,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
               {/* Total */}
               {hasLocation && !tooFar && (
                 <div className="flex justify-between font-bold text-base border-t pt-2">
-                  <span>Total con envío</span>
+                  <span>{requiresLocation ? 'Total con envío' : 'Total'}</span>
                   <span className="text-orange-600">${total.toFixed(2)}</span>
                 </div>
               )}
