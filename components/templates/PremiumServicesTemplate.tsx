@@ -141,9 +141,9 @@ function AddonServiceCard({ product, catalogSlug }: { product: Product; catalogS
   };
 
   return (
-    <div className="group flex items-center justify-between gap-6 rounded-[2rem] bg-white/50 backdrop-blur-md p-6 shadow-sm border border-white transition-all duration-500 hover:bg-white hover:border-orange-200 hover:shadow-xl hover:-translate-y-1">
+    <div className="group flex flex-col md:flex-row md:items-center justify-between gap-6 rounded-[2rem] bg-white/50 backdrop-blur-md p-6 shadow-sm border border-white transition-all duration-500 hover:bg-white hover:border-orange-200 hover:shadow-xl hover:-translate-y-1">
       <div className="flex-1">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <h4 className="text-lg font-black text-slate-900">{product.name}</h4>
           {product.badge && (
             <span className="rounded-full bg-indigo-100 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-indigo-700">
@@ -153,7 +153,7 @@ function AddonServiceCard({ product, catalogSlug }: { product: Product; catalogS
         </div>
         <p className="mt-2 text-sm font-medium text-slate-600 leading-relaxed">{product.description}</p>
       </div>
-      <div className="text-right flex flex-col items-end gap-3 border-l border-slate-200 pl-6">
+      <div className="text-left md:text-right flex flex-col items-start md:items-end gap-3 md:border-l md:border-slate-200 md:pl-6 pt-4 md:pt-0 border-t border-slate-200 md:border-t-0 mt-2 md:mt-0">
         <div className="text-2xl font-black text-slate-900">${product.price.toFixed(0)}</div>
         <button
           onClick={handleAdd}
@@ -235,6 +235,49 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
               </section>
             );
           })}
+          
+          {/* FAQ Interactiva Automática */}
+          <section className="relative animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
+            <div className="mb-16 text-center">
+              <h2 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900">
+                Preguntas Frecuentes
+              </h2>
+              <div className="mx-auto mt-6 h-1 w-20 rounded-full bg-gradient-to-r from-orange-400 to-pink-500"></div>
+            </div>
+            
+            <div className="mx-auto max-w-4xl flex flex-col gap-4">
+              <details className="group rounded-[2rem] bg-white/60 backdrop-blur-md border border-white p-6 shadow-sm hover:shadow-lg transition-all cursor-pointer">
+                <summary className="text-xl font-bold text-slate-900 flex justify-between items-center outline-none list-none">
+                  ¿Qué incluye exactamente el pago único?
+                  <span className="transition-transform group-open:rotate-180 text-orange-500 text-2xl font-light">↓</span>
+                </summary>
+                <p className="mt-4 text-slate-600 leading-relaxed font-medium">
+                  Te entregamos tu catálogo completamente configurado, con el diseño premium seleccionado y tu menú integrado. También incluye el carrito de compras que envía los pedidos directamente a tu WhatsApp. ¡Todo es tuyo de por vida sin pagar mensualidades!
+                </p>
+              </details>
+              
+              <details className="group rounded-[2rem] bg-white/60 backdrop-blur-md border border-white p-6 shadow-sm hover:shadow-lg transition-all cursor-pointer">
+                <summary className="text-xl font-bold text-slate-900 flex justify-between items-center outline-none list-none">
+                  ¿Mis clientes tienen que descargar alguna App?
+                  <span className="transition-transform group-open:rotate-180 text-orange-500 text-2xl font-light">↓</span>
+                </summary>
+                <p className="mt-4 text-slate-600 leading-relaxed font-medium">
+                  No. Tu catálogo funciona directamente desde cualquier navegador web usando el link de tu negocio. Sin embargo, si eliges el Plan Pro, tus clientes tendrán la opción de instalar el menú en la pantalla de inicio de sus celulares como si fuera una App real (PWA) con un solo toque.
+                </p>
+              </details>
+
+              <details className="group rounded-[2rem] bg-white/60 backdrop-blur-md border border-white p-6 shadow-sm hover:shadow-lg transition-all cursor-pointer">
+                <summary className="text-xl font-bold text-slate-900 flex justify-between items-center outline-none list-none">
+                  ¿Qué pasa si en el futuro necesito cambiar precios o platos?
+                  <span className="transition-transform group-open:rotate-180 text-orange-500 text-2xl font-light">↓</span>
+                </summary>
+                <p className="mt-4 text-slate-600 leading-relaxed font-medium">
+                  Si adquieres un Plan Estático, puedes solicitarnos una Modificación de Menú (servicio de $10) cada vez que requieras una actualización. Si prefieres cambiar todo tú mismo a cualquier hora, te recomendamos elegir el <strong>Plan Administrable (Con Panel)</strong>.
+                </p>
+              </details>
+            </div>
+          </section>
+
         </div>
       </main>
       
