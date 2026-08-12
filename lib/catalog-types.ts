@@ -29,4 +29,5 @@ export type Catalog = {
   deliveryBaseFee?: number;                          // tarifa base de envío
   deliveryMaxKm?: number;                            // radio máximo de entrega
   requiresShipping?: boolean;                        // si es falso, desactiva pedir ubicación en el carrito
+  alwaysOpen?: boolean;                              // si es verdadero, ignora el horario comercial
 };

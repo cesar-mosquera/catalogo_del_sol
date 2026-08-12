@@ -59,7 +59,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
   const maxKm        = catalog.deliveryMaxKm || 0;
   const tooFar       = quote ? !quote.isAvailable : false;
   const hasLocation  = requiresLocation ? clientLoc !== null : true;
-  const open_        = isOpen(catalog);
+  const open_        = catalog.alwaysOpen || isOpen(catalog);
 
   const onLocationSelected = (loc: LatLng, km: number) => {
     setClientLoc(loc);
@@ -112,7 +112,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
       {/* Botón flotante carrito */}
       <button
         onClick={() => setOpen(true)}
-        className={`fixed bottom-5 right-5 z-30 flex items-center gap-2 rounded-full bg-stone-900 px-5 py-3 font-bold text-white shadow-xl transition-transform duration-200 ${isBumping ? 'scale-125' : 'scale-100'}`}
+        className={`fixed bottom-6 right-6 z-30 flex items-center gap-2 rounded-full bg-stone-900 dark:bg-orange-600 dark:text-stone-50 dark:shadow-orange-900/30 px-6 py-4 font-bold text-white shadow-2xl ring-4 ring-white/20 transition-all duration-300 hover:scale-110 ${isBumping ? 'scale-125' : 'scale-100'}`}
       >
         🛒 {count}
       </button>
@@ -125,20 +125,20 @@ export function Cart({ catalog }: { catalog: Catalog }) {
         >
           <aside
             onClick={(e) => e.stopPropagation()}
-            className="ml-auto flex h-full max-w-md flex-col rounded-3xl bg-white p-5 shadow-2xl overflow-hidden"
+            className="ml-auto flex h-full max-w-md flex-col rounded-l-3xl bg-white p-5 shadow-2xl overflow-hidden dark:bg-stone-900 dark:text-stone-100 transition-colors"
           >
             {/* Cabecera */}
             <div className="flex items-center justify-between flex-shrink-0">
-              <h2 className="text-xl font-bold">Tu pedido</h2>
-              <button onClick={() => setOpen(false)} aria-label="Cerrar" className="text-xl">✕</button>
+              <h2 className="text-xl font-bold">Tu carrito</h2>
+              <button onClick={() => setOpen(false)} aria-label="Cerrar" className="text-xl opacity-60 hover:opacity-100">✕</button>
             </div>
 
             {/* Lista de ítems */}
-            <div className="mt-4 flex-1 overflow-auto space-y-3">
+            <div className="mt-4 flex-1 overflow-auto space-y-3 pr-2">
               {items.length ? items.map((item) => (
-                <div key={item.id} className="flex justify-between gap-3 rounded-xl bg-stone-50 p-3">
-                  <span className="text-sm">{item.quantity} × {item.name}</span>
-                  <span className="whitespace-nowrap text-sm font-semibold">
+                <div key={item.id} className="flex justify-between gap-3 rounded-2xl bg-stone-50 p-4 dark:bg-stone-800/50">
+                  <span className="text-sm font-medium">{item.quantity} × {item.name}</span>
+                  <span className="whitespace-nowrap text-sm font-bold text-orange-600">
                     ${(item.price * item.quantity).toFixed(2)}
                     <button
                       className={`ml-3 font-bold transition-colors ${item.quantity > 1 ? 'text-orange-600 hover:text-orange-700' : 'text-red-500 hover:text-red-600'}`}
@@ -159,7 +159,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
 
               {/* Subtotal */}
               <div className="flex justify-between text-sm">
-                <span className="text-stone-500">Subtotal</span>
+                <span className="text-stone-500 dark:text-stone-400">Subtotal</span>
                 <span className="font-bold">${subtotal.toFixed(2)}</span>
               </div>
 
@@ -217,8 +217,8 @@ export function Cart({ catalog }: { catalog: Catalog }) {
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder={requiresLocation ? "Indicaciones adicionales (timbre, piso, etc.)" : "Notas, dudas o sobre qué trata tu negocio..."}
-                className="w-full rounded-xl border border-stone-200 px-3 py-2 text-sm outline-none focus:border-orange-400 resize-none"
+                placeholder={requiresLocation ? "Indicaciones (timbre, piso, etc.)" : "Notas, requerimientos o mensaje adicional..."}
+                className="w-full rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 resize-none dark:bg-stone-800 dark:border-stone-700 dark:focus:border-orange-500"
                 rows={2}
               />
 
@@ -241,7 +241,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
               <button
                 disabled={!items.length || !minimumMet || !hasLocation || tooFar || !open_}
                 onClick={send}
-                className="w-full rounded-xl bg-green-600 px-4 py-3 font-bold text-white disabled:cursor-not-allowed disabled:bg-stone-300 hover:bg-green-700 transition-colors"
+                className="w-full rounded-2xl bg-green-600 px-5 py-4 text-base font-bold text-white shadow-xl shadow-green-900/20 disabled:cursor-not-allowed disabled:bg-stone-300 disabled:shadow-none hover:bg-green-700 transition-all active:scale-95 dark:disabled:bg-stone-800 dark:disabled:text-stone-500"
               >
                 📲 Enviar pedido por WhatsApp
               </button>
