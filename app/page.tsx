@@ -242,19 +242,29 @@ export default function LandingPage() {
                 <div className="relative aspect-[4/3] overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={asset('/img/cover.webp')}
+                    src={asset(t.image)}
                     alt={`Plantilla ${t.name}`}
                     className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                   <span className="absolute left-3 top-3 rounded-full bg-black/60 px-3 py-1 text-xs font-bold text-orange-300">
                     {t.tag}
                   </span>
+                  <span className="absolute right-3 top-3 rounded-full bg-orange-500/90 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white shadow-lg">
+                    🎮 Demo interactiva
+                  </span>
                 </div>
                 <div className="flex flex-1 flex-col p-5">
                   <h3 className="font-serif text-xl font-bold">{t.name}</h3>
-                  <p className="mt-2 flex-1 text-sm leading-relaxed text-stone-300">{t.desc}</p>
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {t.tags.map((tag) => (
+                      <span key={tag} className="rounded-full bg-orange-100/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-orange-300 ring-1 ring-orange-400/20">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="mt-3 flex-1 text-sm leading-relaxed text-stone-300">{t.desc}</p>
                   <span className="mt-4 text-sm font-bold text-orange-400 group-hover:underline">
-                    Ver plantilla en vivo →
+                    Probar la demo interactiva →
                   </span>
                 </div>
               </a>
