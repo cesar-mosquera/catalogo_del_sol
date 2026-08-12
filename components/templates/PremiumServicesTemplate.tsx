@@ -14,10 +14,18 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
     setTimeout(() => setAdded(false), 1200);
   };
 
+  const isPopular = !!product.badge;
+
   return (
-    <div className="relative flex flex-col overflow-hidden rounded-[2rem] border border-orange-900/5 bg-white/70 p-8 backdrop-blur-xl shadow-xl shadow-orange-900/5 transition-all duration-300 hover:-translate-y-2 hover:border-orange-500/30 hover:shadow-[0_20px_40px_-15px_rgba(234,88,12,0.15)]">
+    <div className={`relative flex flex-col overflow-hidden rounded-[2rem] border bg-white/70 p-8 backdrop-blur-xl shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(234,88,12,0.15)] ${
+      isPopular 
+        ? 'border-orange-400/50 shadow-orange-900/10 scale-[1.02]' 
+        : 'border-orange-900/5 shadow-orange-900/5 hover:border-orange-500/30'
+    }`}>
       {/* Subtle Glow Effect */}
-      <div className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-orange-500/10 blur-3xl transition-opacity duration-300 group-hover:bg-orange-500/20"></div>
+      <div className={`absolute -right-20 -top-20 h-48 w-48 rounded-full blur-3xl transition-opacity duration-500 group-hover:bg-orange-500/30 ${
+        isPopular ? 'bg-orange-500/15' : 'bg-orange-500/5'
+      }`}></div>
       
       {product.badge && (
         <span className="absolute right-5 top-5 rounded-full bg-orange-100 px-3.5 py-1.5 text-[10px] font-black uppercase tracking-widest text-orange-600 ring-1 ring-orange-500/20">
@@ -33,9 +41,16 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
         <span className="text-xs font-bold uppercase tracking-widest text-stone-400">USD</span>
       </div>
       
-      <p className="mt-6 mb-10 flex-1 text-sm leading-relaxed text-stone-600">
-        {product.description}
-      </p>
+      <ul className="mt-8 mb-10 flex flex-1 flex-col gap-4">
+        {product.description.split(/\.\s+/).filter(Boolean).map((line, i) => (
+          <li key={i} className="flex items-start gap-3 text-sm leading-relaxed text-stone-600">
+            <div className="mt-1 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 text-[10px] font-bold text-orange-600">
+              ✓
+            </div>
+            <span>{line.replace(/\.$/, '')}</span>
+          </li>
+        ))}
+      </ul>
 
       <div className="mt-auto flex flex-col gap-3 relative z-10">
         {product.demoUrl && (
@@ -50,10 +65,12 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
         )}
         <button
           onClick={handleAdd}
-          className={`flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-sm font-black uppercase tracking-wide transition-colors shadow-md ${
+          className={`flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-sm font-black uppercase tracking-wide transition-all active:scale-95 shadow-md ${
             added 
               ? 'bg-green-500 text-white shadow-green-900/20' 
-              : 'bg-orange-600 text-white hover:bg-orange-700 shadow-orange-900/20'
+              : isPopular
+                ? 'bg-orange-600 text-white hover:bg-orange-700 shadow-orange-900/30'
+                : 'bg-stone-900 text-white hover:bg-stone-800 shadow-stone-900/20'
           }`}
         >
           {added ? '✅ ¡Añadido al pedido!' : '🛒 Elegir este plan'}
@@ -71,10 +88,16 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
         {/* Animated gradient background */}
         <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-orange-100 via-[#fdf8f0] to-[#fdf8f0]"></div>
         
-        <div className="relative z-10 mx-auto max-w-4xl px-5">
-          <p className="mb-4 text-xs font-black uppercase tracking-[0.3em] text-orange-600">
-            {catalog.tagline}
-          </p>
+        <div className="relative z-10 mx-auto max-w-4xl px-5 flex flex-col items-center">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-4 py-1.5 shadow-sm">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange-400 opacity-75"></span>
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-orange-500"></span>
+            </span>
+            <span className="text-xs font-bold uppercase tracking-widest text-orange-700">
+              {catalog.tagline}
+            </span>
+          </div>
           <h1 className="font-serif text-5xl font-black tracking-tight text-stone-900 md:text-7xl lg:text-8xl">
             {catalog.name}
           </h1>
