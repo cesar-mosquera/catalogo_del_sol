@@ -39,6 +39,32 @@ export function formatBusinessHours(catalog: Catalog): string {
   return `${pad(Math.floor(open / 60))}:${pad(open % 60)} – ${pad(Math.floor(close / 60))}:${pad(close % 60)}`;
 }
 
+export type DeliveryParams = {
+  baseFee: number;
+  ratePerKm: number;
+  includedKm?: number;
+  maxKm?: number;
+};
+
+export function quoteForDistance(params: DeliveryParams, distanceKm: number): DeliveryQuote {
+  const baseFee = Number((params.baseFee ?? 1).toFixed(2));
+  const ratePerKm = params.ratePerKm ?? 0.5;
+  const includedKm = params.includedKm;
+
+  // Si includedKm está definido: la tarifa base cubre esos km y
+  // luego se cobra ratePerKm solo por el excedente.
+  const fee = includedKm && includedKm > 0
+    ? Number((baseFee + Math.max(0, distanceKm - includedKm) * ratePerKm).toFixed(2))
+    : Number((baseFee + distanceKm * ratePerKm).toFixed(2));
+
+  const maxDistanceKm = params.maxKm;
+
+  // Si es 0 o no está definido, consideramos que no hay límite (ilimitado)
+  const isAvailable = !maxDistanceKm ? true : distanceKm <= maxDistanceKm;
+
+  return { distanceKm, fee, isAvailable };
+}
+
 export function haversineKm(from: DeliveryLocation, to: DeliveryLocation): number {
   const earthRadiusKm = 6371;
   const latitudeDelta = ((to.lat - from.lat) * Math.PI) / 180;
@@ -54,24 +80,13 @@ export function haversineKm(from: DeliveryLocation, to: DeliveryLocation): numbe
 
 export function quoteDelivery(catalog: Catalog, destination: DeliveryLocation): DeliveryQuote | null {
   if (!catalog.location) return null;
-
-  const distanceKm = haversineKm(catalog.location, destination);
-  const baseFee = Number((catalog.deliveryBaseFee ?? 1).toFixed(2));
-  const ratePerKm = catalog.deliveryRatePerKm ?? 0.5;
-  const includedKm = catalog.deliveryIncludedKm;
-
-  // Si deliveryIncludedKm está definido: la tarifa base cubre esos km y
-  // luego se cobra ratePerKm solo por el excedente.
-  const fee = includedKm && includedKm > 0
-    ? Number((baseFee + Math.max(0, distanceKm - includedKm) * ratePerKm).toFixed(2))
-    : Number((baseFee + distanceKm * ratePerKm).toFixed(2));
-
-  const maxDistanceKm = catalog.deliveryMaxKm;
-  
-  // Si es 0 o no está definido, consideramos que no hay límite (ilimitado)
-  const isAvailable = !maxDistanceKm ? true : distanceKm <= maxDistanceKm;
-
-  return { distanceKm, fee, isAvailable };
+  const params: DeliveryParams = {
+    baseFee: catalog.deliveryBaseFee ?? 1,
+    ratePerKm: catalog.deliveryRatePerKm ?? 0.5,
+    includedKm: catalog.deliveryIncludedKm,
+    maxKm: catalog.deliveryMaxKm,
+  };
+  return quoteForDistance(params, haversineKm(catalog.location, destination));
 }
 
 export function isValidLocation(location: DeliveryLocation): boolean {

@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import type { Catalog } from '@/lib/catalog-types';
 import { useCart, type CartItem } from '@/store/cart';
 import type { LatLng } from './LocationPicker';
-import { quoteDelivery, computeIsOpen, formatBusinessHours } from '@/lib/delivery';
+import { quoteForDistance, computeIsOpen, formatBusinessHours, type DeliveryParams } from '@/lib/delivery';
 
 // Leaflet requiere el DOM → carga dinámica sin SSR
 const LocationPicker = dynamic(
@@ -24,7 +24,16 @@ export function Cart({ catalog }: { catalog: Catalog }) {
   const items = useMemo(() => {
     const allProducts = catalog.sections.flatMap(s => s.products);
     return cartState.map(cartItem => {
-      const p = allProducts.find(p => p.id === cartItem.id);
+      let p = allProducts.find(p => p.id === cartItem.id);
+      if (!p) {
+        for (const prod of allProducts) {
+          const variant = prod.variants?.find(v => v.id === cartItem.id);
+          if (variant) {
+            p = { ...prod, id: variant.id, name: `${prod.name} (${variant.name})`, price: variant.price, priceNote: undefined };
+            break;
+          }
+        }
+      }
       if (!p) return null; // El producto fue eliminado del catálogo
       return { ...p, quantity: cartItem.quantity };
     }).filter((i): i is NonNullable<typeof i> => i !== null);
@@ -38,7 +47,14 @@ export function Cart({ catalog }: { catalog: Catalog }) {
 
   const requiresLocation = catalog.requiresShipping ?? true;
   const subtotal     = useMemo(() => items.reduce((s, i) => s + i.price * i.quantity, 0), [items]);
-  const quote        = (requiresLocation && clientLoc) ? quoteDelivery(catalog, clientLoc) : null;
+  const deliveryParams: DeliveryParams = {
+    baseFee: catalog.deliveryBaseFee ?? 1,
+    ratePerKm: catalog.deliveryRatePerKm ?? 0.5,
+    includedKm: catalog.deliveryIncludedKm,
+    maxKm: catalog.deliveryMaxKm,
+  };
+  // La distancia llega directo del mapa (usa la ruta real por calles si hay)
+  const quote        = (requiresLocation && distKm !== null) ? quoteForDistance(deliveryParams, distKm) : null;
   const deliveryFee  = requiresLocation ? (quote?.fee ?? 0) : 0;
   const total        = subtotal + deliveryFee;
   const minimumMet   = subtotal >= catalog.minimumOrder;
@@ -244,6 +260,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
       {showMap && catalog.location && (
         <LocationPicker
           restaurantLocation={catalog.location}
+          deliveryParams={deliveryParams}
           deliveryRadiusKm={catalog.deliveryIncludedKm}
           onSelect={onLocationSelected}
           onClose={() => setShowMap(false)}

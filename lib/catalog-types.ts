@@ -11,6 +11,7 @@ export type Product = {
   deliveryDays?: string;
   // Nota de precio visible en la tarjeta, ej: "MEDIO $5.50 | COMPLETO $6.50"
   priceNote?: string;
+  variants?: { id: string; name: string; price: number }[];
 };
 
 export type FaqItem = { q: string; a: string };
