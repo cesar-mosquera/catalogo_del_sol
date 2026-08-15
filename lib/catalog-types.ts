@@ -11,7 +11,8 @@ export type Product = {
   deliveryDays?: string;
   // Nota de precio visible en la tarjeta, ej: "MEDIO $5.50 | COMPLETO $6.50"
   priceNote?: string;
-  variants?: { id: string; name: string; price: number }[];
+  packagingCount?: number; // Cuántas unidades de empaque usa este producto (para cobros automáticos)
+  variants?: { id: string; name: string; price: number; packagingCount?: number }[];
 };
 
 export type FaqItem = { q: string; a: string };
@@ -70,7 +71,7 @@ export type Catalog = {
   template: TemplateName;
   minimumOrder: number;
   businessHours: { timezone: string; open: number; close: number; days: number[]; openMinute?: number; closeMinute?: number };
-  sections: { name: string; products: Product[]; note?: string }[];
+  sections: { name: string; products: Product[]; note?: string; defaultPackagingCount?: number }[];
   theme?: CatalogTheme;
   backCover?: BackCover;
   // Política de envío del catálogo. Mantenerla en datos permite múltiples locales.

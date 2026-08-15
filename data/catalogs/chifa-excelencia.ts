@@ -164,13 +164,48 @@ export const chifaExcelencia: Catalog = {
 
     /* ════════ MIXTOS ════════ */
     { name: 'Mixtos', note: 'MEDIO / COMPLETO', products: [
-      { id: 'mixto-especial', name: 'Mixto especial', price: 7.20, description: '', variants: [{ id: 'mixto-especial-medio', name: 'Medio', price: 7.20 }, { id: 'mixto-especial-completo', name: 'Completo', price: 8.20 }], image: '', badge: 'Popular' },
-      { id: 'mixto-pollo', name: 'Mixto de pollo', price: 7.80, description: '', variants: [{ id: 'mixto-pollo-medio', name: 'Medio', price: 7.80 }, { id: 'mixto-pollo-completo', name: 'Completo', price: 8.80 }], image: '' },
-      { id: 'mixto-lomo', name: 'Mixto de lomo', price: 7.80, description: '', variants: [{ id: 'mixto-lomo-medio', name: 'Medio', price: 7.80 }, { id: 'mixto-lomo-completo', name: 'Completo', price: 8.80 }], image: '' },
-      { id: 'mixto-chancho', name: 'Mixto de chancho', price: 8.80, description: '', variants: [{ id: 'mixto-chancho-medio', name: 'Medio', price: 8.80 }, { id: 'mixto-chancho-completo', name: 'Completo', price: 9.80 }], image: '' },
-      { id: 'mixto-camaron', name: 'Mixto de camarón', price: 12.80, description: '', variants: [{ id: 'mixto-camaron-medio', name: 'Medio', price: 12.80 }, { id: 'mixto-camaron-completo', name: 'Completo', price: 13.80 }], image: '', badge: 'Mariscos' },
-      { id: 'mixto-mariscos', name: 'Mixto de mariscos', price: 12.80, description: '', variants: [{ id: 'mixto-mariscos-medio', name: 'Medio', price: 12.80 }, { id: 'mixto-mariscos-completo', name: 'Completo', price: 13.80 }], image: '', badge: 'Mariscos' },
-      { id: 'mixto-chancho-tamarindo', name: 'Mixto de chancho tamarindo', price: 8.80, description: '', variants: [{ id: 'mixto-chancho-tamarindo-medio', name: 'Medio', price: 8.80 }, { id: 'mixto-chancho-tamarindo-completo', name: 'Completo', price: 9.80 }], image: '' },
+      { id: 'mixto-especial', name: 'Mixto especial', price: 7.20, description: '', variants: [
+        { id: 'mixto-especial-medio', name: 'Medio (Junto)', price: 7.20 },
+        { id: 'mixto-especial-medio-sep', name: 'Medio (Separado)', price: 7.20, packagingCount: 2 },
+        { id: 'mixto-especial-completo', name: 'Completo (Junto)', price: 8.20 },
+        { id: 'mixto-especial-completo-sep', name: 'Completo (Separado)', price: 8.20, packagingCount: 2 }
+      ], image: '', badge: 'Popular' },
+      { id: 'mixto-pollo', name: 'Mixto de pollo', price: 7.80, description: '', variants: [
+        { id: 'mixto-pollo-medio', name: 'Medio (Junto)', price: 7.80 },
+        { id: 'mixto-pollo-medio-sep', name: 'Medio (Separado)', price: 7.80, packagingCount: 2 },
+        { id: 'mixto-pollo-completo', name: 'Completo (Junto)', price: 8.80 },
+        { id: 'mixto-pollo-completo-sep', name: 'Completo (Separado)', price: 8.80, packagingCount: 2 }
+      ], image: '' },
+      { id: 'mixto-lomo', name: 'Mixto de lomo', price: 7.80, description: '', variants: [
+        { id: 'mixto-lomo-medio', name: 'Medio (Junto)', price: 7.80 },
+        { id: 'mixto-lomo-medio-sep', name: 'Medio (Separado)', price: 7.80, packagingCount: 2 },
+        { id: 'mixto-lomo-completo', name: 'Completo (Junto)', price: 8.80 },
+        { id: 'mixto-lomo-completo-sep', name: 'Completo (Separado)', price: 8.80, packagingCount: 2 }
+      ], image: '' },
+      { id: 'mixto-chancho', name: 'Mixto de chancho', price: 8.80, description: '', variants: [
+        { id: 'mixto-chancho-medio', name: 'Medio (Junto)', price: 8.80 },
+        { id: 'mixto-chancho-medio-sep', name: 'Medio (Separado)', price: 8.80, packagingCount: 2 },
+        { id: 'mixto-chancho-completo', name: 'Completo (Junto)', price: 9.80 },
+        { id: 'mixto-chancho-completo-sep', name: 'Completo (Separado)', price: 9.80, packagingCount: 2 }
+      ], image: '' },
+      { id: 'mixto-camaron', name: 'Mixto de camarón', price: 12.80, description: '', variants: [
+        { id: 'mixto-camaron-medio', name: 'Medio (Junto)', price: 12.80 },
+        { id: 'mixto-camaron-medio-sep', name: 'Medio (Separado)', price: 12.80, packagingCount: 2 },
+        { id: 'mixto-camaron-completo', name: 'Completo (Junto)', price: 13.80 },
+        { id: 'mixto-camaron-completo-sep', name: 'Completo (Separado)', price: 13.80, packagingCount: 2 }
+      ], image: '', badge: 'Mariscos' },
+      { id: 'mixto-mariscos', name: 'Mixto de mariscos', price: 12.80, description: '', variants: [
+        { id: 'mixto-mariscos-medio', name: 'Medio (Junto)', price: 12.80 },
+        { id: 'mixto-mariscos-medio-sep', name: 'Medio (Separado)', price: 12.80, packagingCount: 2 },
+        { id: 'mixto-mariscos-completo', name: 'Completo (Junto)', price: 13.80 },
+        { id: 'mixto-mariscos-completo-sep', name: 'Completo (Separado)', price: 13.80, packagingCount: 2 }
+      ], image: '', badge: 'Mariscos' },
+      { id: 'mixto-chancho-tamarindo', name: 'Mixto de chancho tamarindo', price: 8.80, description: '', variants: [
+        { id: 'mixto-chancho-tamarindo-medio', name: 'Medio (Junto)', price: 8.80 },
+        { id: 'mixto-chancho-tamarindo-medio-sep', name: 'Medio (Separado)', price: 8.80, packagingCount: 2 },
+        { id: 'mixto-chancho-tamarindo-completo', name: 'Completo (Junto)', price: 9.80 },
+        { id: 'mixto-chancho-tamarindo-completo-sep', name: 'Completo (Separado)', price: 9.80, packagingCount: 2 }
+      ], image: '' },
     ] },
 
     /* ════════ SALTEADOS CON CHAMPIÑONES ════════ */
@@ -271,9 +306,9 @@ export const chifaExcelencia: Catalog = {
     ] },
 
     /* ════════ BEBIDAS ════════ */
-    { name: 'Bebidas', note: '', products: [
+    { name: 'Bebidas', note: '', defaultPackagingCount: 0, products: [
       { id: 'cola-mediana', name: 'Cola mediana', price: 0.90, description: '', image: '' },
-      { id: 'cola-1lt', name: 'Cola de 1 litro', price: 2.80, description: '', image: '' },
+      { id: 'cola-1lt', name: 'Cola de 1 litro', price: 2.80, description: '', image: '/img/cola-1-libro.webp' },
       { id: 'cola-3lt', name: 'Cola de 3 litros', price: 4.00, description: '', image: '/img/coca-3-litros.webp' },
       { id: 'vaso-naranja', name: 'Vaso de naranja', price: 2.80, description: '', image: '' },
       { id: 'vaso-limonada', name: 'Vaso de limonada', price: 2.20, description: '', image: '' },

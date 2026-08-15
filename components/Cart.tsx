@@ -22,16 +22,28 @@ export function Cart({ catalog }: { catalog: Catalog }) {
 
   // Hidratar ítems del carrito con los datos más recientes del catálogo (evita precios desactualizados)
   const items = useMemo(() => {
-    const allProducts = catalog.sections.flatMap(s => s.products);
+    const allSections = catalog.sections;
     return cartState.map(cartItem => {
-      let p = allProducts.find(p => p.id === cartItem.id);
-      if (!p) {
-        for (const prod of allProducts) {
-          const variant = prod.variants?.find(v => v.id === cartItem.id);
-          if (variant) {
-            p = { ...prod, id: variant.id, name: `${prod.name} (${variant.name})`, price: variant.price, priceNote: undefined };
-            break;
-          }
+      let p: (Product & { packagingCount?: number }) | null = null;
+      
+      for (const section of allSections) {
+        const prod = section.products.find(pr => pr.id === cartItem.id);
+        if (prod) {
+          p = { ...prod, packagingCount: prod.packagingCount ?? section.defaultPackagingCount ?? (catalog.packaging ? 1 : 0) };
+          break;
+        }
+        const prodWithVariant = section.products.find(pr => pr.variants?.some(v => v.id === cartItem.id));
+        if (prodWithVariant) {
+          const variant = prodWithVariant.variants!.find(v => v.id === cartItem.id)!;
+          p = { 
+            ...prodWithVariant, 
+            id: variant.id, 
+            name: `${prodWithVariant.name} (${variant.name})`, 
+            price: variant.price, 
+            packagingCount: variant.packagingCount ?? prodWithVariant.packagingCount ?? section.defaultPackagingCount ?? (catalog.packaging ? 1 : 0), 
+            priceNote: undefined 
+          };
+          break;
         }
       }
       if (!p) return null; // El producto fue eliminado del catálogo
@@ -44,7 +56,8 @@ export function Cart({ catalog }: { catalog: Catalog }) {
   const [notes,      setNotes]      = useState('');
   const [clientLoc,  setClientLoc]  = useState<LatLng | null>(null);
   const [distKm,     setDistKm]     = useState<number | null>(null);
-  const [packagingQty, setPackagingQty] = useState(0);
+
+  const packagingQty = useMemo(() => items.reduce((sum, item) => sum + (item.packagingCount ?? 0) * item.quantity, 0), [items]);
 
   const requiresLocation = catalog.requiresShipping ?? true;
   const subtotal     = useMemo(() => items.reduce((s, i) => s + i.price * i.quantity, 0), [items]);
@@ -173,24 +186,18 @@ export function Cart({ catalog }: { catalog: Catalog }) {
             {/* Footer con resumen y ubicación */}
             <div className="flex-shrink-0 border-t pt-4 space-y-3 mt-2">
 
-              {/* Selector de empaque (tarrinas) */}
-              {catalog.packaging && (
+              {/* Selector de empaque (automático) */}
+              {catalog.packaging && packagingQty > 0 && (
                 <div className="flex items-center justify-between rounded-xl border border-stone-200 p-3 bg-stone-50 dark:bg-stone-800/40">
                   <div>
                     <p className="text-sm font-bold">{catalog.packaging.label}</p>
                     <p className="text-xs text-stone-500">+${catalog.packaging.price.toFixed(2)} c/u</p>
                   </div>
-                  <div className="flex items-center gap-3 bg-stone-200/50 dark:bg-stone-900 rounded-lg p-1">
-                    <button 
-                      onClick={() => setPackagingQty(Math.max(0, packagingQty - 1))}
-                      disabled={packagingQty === 0}
-                      className="h-8 w-8 rounded bg-white text-stone-700 shadow-sm disabled:opacity-40 transition-opacity dark:bg-stone-700 dark:text-stone-300"
-                    >−</button>
-                    <span className="w-4 text-center text-sm font-bold">{packagingQty}</span>
-                    <button 
-                      onClick={() => setPackagingQty(packagingQty + 1)}
-                      className="h-8 w-8 rounded bg-white text-stone-700 shadow-sm dark:bg-stone-700 dark:text-stone-300"
-                    >+</button>
+                  <div className="flex items-center gap-2 px-2">
+                    <span className="text-stone-600 dark:text-stone-400 font-medium text-xs">Automático:</span>
+                    <span className="text-sm font-bold bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 px-3 py-1.5 rounded-md shadow-sm text-stone-700 dark:text-stone-200">
+                      {packagingQty} envases
+                    </span>
                   </div>
                 </div>
               )}

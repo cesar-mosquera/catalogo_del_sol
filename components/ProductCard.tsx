@@ -72,7 +72,7 @@ export function ProductCard({
         <img
           src={src}
           alt={product.name}
-          className={compact ? 'h-32 w-full object-cover' : 'h-40 w-full object-cover'}
+          className="w-full h-auto"
         />
       ) : (
         <div
