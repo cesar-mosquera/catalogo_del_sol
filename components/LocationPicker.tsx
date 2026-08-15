@@ -180,10 +180,35 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
     );
   };
 
-  /* ── Carga Leaflet dinámicamente (solo en cliente) ── */
+  /* ── Medición del contenedor: Leaflet solo se crea cuando hay tamaño real.
+     El ResizeObserver reajusta el mapa en cada cambio de layout (panel, teclado,
+     orientación) sin recrearlo. ── */
+  const containerBoxRef = useRef<{ w: number; h: number }>({ w: 0, h: 0 });
   useEffect(() => {
-    if (!mapRef.current || leafletRef.current) return;
+    if (!mapRef.current) return;
+    const measure = () => {
+      const rect = mapRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const box = { w: rect.width, h: rect.height };
+      containerBoxRef.current = box;
+      // Si el mapa ya existe, simplemente recalcula su tamaño (evita distorsión)
+      leafletRef.current?.map?.invalidateSize(false);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(mapRef.current);
+    // Re-mide cuando el documento/ventana termina de renderizar
+    window.addEventListener('resize', measure);
+    document.readyState !== 'complete' && window.addEventListener('load', measure);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', measure);
+      window.removeEventListener('load', measure);
+    };
+  }, []);
 
+  /* ── Carga Leaflet dinámicamente (solo en cliente, con tamaño real) ── */
+  const setupMap = () => {
     // Carga CSS de Leaflet
     if (!document.getElementById('leaflet-css')) {
       const link = document.createElement('link');
@@ -213,13 +238,6 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
         fadeAnimation: true,
         zoomAnimation: true,
       });
-
-      // Leaflet calcula su tamaño al montar; si el contenedor aún no estuvo
-      // medido (flex/overlay), el mapa queda gris — lo corregimos al instante
-      // y en cada cambio de tamaño del contenedor.
-      requestAnimationFrame(() => map.invalidateSize());
-      roRef.current = new ResizeObserver(() => map.invalidateSize());
-      if (mapRef.current) roRef.current.observe(mapRef.current);
 
       applyBasemap();
 
@@ -298,15 +316,34 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
       leafletRef.current = { map, marker };
       setMapReady(true);
     });
+  };
 
+  /* ── Disparo de setupMap: espera tamaño real del contenedor (sin recrear en resize) ── */
+  useEffect(() => {
+    if (!mapRef.current || leafletRef.current) return;
+    const tryInit = () => {
+      const box = containerBoxRef.current;
+      if (box.w < 50 || box.h < 50) return false;
+      setupMap();
+      return true;
+    };
+    if (tryInit()) return;
+
+    const started = Date.now();
+    const id = window.setInterval(() => {
+      if (tryInit() || Date.now() - started > 2000) window.clearInterval(id);
+    }, 60);
+    return () => window.clearInterval(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [restaurantLocation]);
+
+  /* ── Limpieza al desmontar ── */
+  useEffect(() => {
     return () => {
-      roRef.current?.disconnect();
-      roRef.current = null;
       leafletRef.current?.map.remove();
       leafletRef.current = null;
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [restaurantLocation]);
+  }, []);
 
   /* ── Cambio de capa del mapa (Calles / Satélite) ── */
   useEffect(() => {
@@ -461,7 +498,7 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
       </div>
 
       {/* Mapa */}
-      <div className="relative flex-1 min-h-0">
+      <div className="relative min-h-0 flex-1 overflow-hidden">
         <div ref={mapRef} className="absolute inset-0" />
         {/* Overlay de carga mientras Leaflet y las capas se montan */}
         {!mapReady && (
