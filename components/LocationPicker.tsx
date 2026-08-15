@@ -19,6 +19,9 @@ export function LocationPicker({ restaurantLocation, onSelect, onClose, delivery
   const leafletMod  = useRef<typeof import('leaflet') | null>(null);
   const routeRef   = useRef<L.Polyline | null>(null);
   const circleRef  = useRef<L.Circle | null>(null);
+  const tileRef    = useRef<L.TileLayer | null>(null);
+  const [basemap, setBasemap] = useState<'street' | 'satellite'>('street');
+  const basemapRef = useRef(basemap);
   const [picked, setPicked]   = useState<LatLng | null>(null);
   const [distKm, setDistKm]   = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
@@ -28,6 +31,13 @@ export function LocationPicker({ restaurantLocation, onSelect, onClose, delivery
   const [searchError, setSearchError] = useState('');
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
+
+  useEffect(() => { basemapRef.current = basemap; }, [basemap]);
+
+  const TILE_URLS = {
+    street: 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+    satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+  } as const;
 
   const setLocation = (loc: LatLng, zoom = 16) => {
     const dist = haversineKm(restaurantLocation, loc);
@@ -79,14 +89,19 @@ export function LocationPicker({ restaurantLocation, onSelect, onClose, delivery
 
       const map = L.map(mapRef.current!, {
         center: [restaurantLocation.lat, restaurantLocation.lng],
-        zoom: 14,
+        zoom: 15,
         zoomControl: true,
       });
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap',
-        maxZoom: 19,
-      }).addTo(map);
+      tileRef.current = L.tileLayer(
+        basemapRef.current === 'satellite' ? TILE_URLS.satellite : TILE_URLS.street,
+        {
+          attribution: basemapRef.current === 'satellite'
+            ? '© Esri, Maxar, Earthstar Geographics'
+            : '© OpenStreetMap contributors © CARTO',
+          maxZoom: 19,
+        }
+      ).addTo(map);
 
       // Marcador del restaurante (no movible)
       const restaurantIcon = L.divIcon({
@@ -140,6 +155,21 @@ export function LocationPicker({ restaurantLocation, onSelect, onClose, delivery
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [restaurantLocation]);
+
+  /* ── Cambio de capa del mapa (Calles / Satélite) ── */
+  useEffect(() => {
+    const L = leafletMod.current;
+    const map = leafletRef.current?.map;
+    if (!L || !map) return;
+    if (tileRef.current) tileRef.current.remove();
+    tileRef.current = L.tileLayer(basemap === 'satellite' ? TILE_URLS.satellite : TILE_URLS.street, {
+      attribution: basemap === 'satellite'
+        ? '© Esri, Maxar, Earthstar Geographics'
+        : '© OpenStreetMap contributors © CARTO',
+      maxZoom: 19,
+    }).addTo(map);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [basemap]);
 
   /* ── GPS automático ── */
   const useGPS = () => {
@@ -209,7 +239,21 @@ export function LocationPicker({ restaurantLocation, onSelect, onClose, delivery
           <h2 className="font-bold text-base">Ubicación de entrega</h2>
           <p className="text-xs text-stone-400">Busca, usa GPS o mueve el pin verde</p>
         </div>
-        <button onClick={onClose} className="text-2xl leading-none">✕</button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setBasemap('street')}
+            className={`rounded-lg px-2 py-1 text-xs font-bold ${basemap === 'street' ? 'bg-orange-600 text-white' : 'bg-stone-700 text-stone-300'}`}
+          >
+            Calles
+          </button>
+          <button
+            onClick={() => setBasemap('satellite')}
+            className={`rounded-lg px-2 py-1 text-xs font-bold ${basemap === 'satellite' ? 'bg-orange-600 text-white' : 'bg-stone-700 text-stone-300'}`}
+          >
+            Satélite
+          </button>
+          <button onClick={onClose} className="text-2xl leading-none ml-1">✕</button>
+        </div>
       </div>
 
       <form onSubmit={searchAddress} className="flex gap-2 border-b border-stone-200 bg-white p-3">
