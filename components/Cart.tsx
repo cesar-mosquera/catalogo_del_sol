@@ -56,7 +56,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
   };
 
   const send = () => {
-    if (!items.length || !minimumMet || !hasLocation || tooFar || !open_) return;
+    if (!items.length || !hasLocation) return;
 
     const detail = items
       .map((i) => `• ${i.quantity} × ${i.name} — $${(i.quantity * i.price).toFixed(2)}`)
@@ -222,14 +222,14 @@ export function Cart({ catalog }: { catalog: Catalog }) {
 
               {/* Estado del negocio */}
               {!open_ && (
-                <p className="text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2 text-center">
-                  🔴 El negocio está cerrado. Horario: {formatBusinessHours(catalog)}
+                <p className="text-xs text-amber-700 bg-amber-50 rounded-lg px-3 py-2 text-center">
+                  🔴 El negocio está cerrado. Horario: {formatBusinessHours(catalog)}. Aún puedes enviar tu pedido; lo confirmaremos al abrir.
                 </p>
               )}
 
               {/* Botón enviar */}
               <button
-                disabled={!items.length || !minimumMet || !hasLocation || tooFar || !open_}
+                disabled={!items.length || !hasLocation}
                 onClick={send}
                 className="w-full rounded-2xl bg-green-600 px-5 py-4 text-base font-bold text-white shadow-xl shadow-green-900/20 disabled:cursor-not-allowed disabled:bg-stone-300 disabled:shadow-none hover:bg-green-700 transition-all active:scale-95 dark:disabled:bg-stone-800 dark:disabled:text-stone-500"
               >

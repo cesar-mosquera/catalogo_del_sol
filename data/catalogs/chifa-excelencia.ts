@@ -13,8 +13,8 @@ export const chifaExcelencia: Catalog = {
   template: 'list',
   minimumOrder: 0,
   businessHours: { timezone: 'America/Guayaquil', open: 11, close: 22, openMinute: 30, closeMinute: 30, days: [0, 1, 2, 3, 4, 5, 6] },
-  // Ubicación del local: Av. Maldonado y S57, Sector Guamani (Guayaquil)
-  location: { lat: -2.2144, lng: -79.8797 },
+  // Ubicación del local: Av. Pedro Vicente Maldonado y calle S57, Sector Guamaní (Quito, Pichincha)
+  location: { lat: -0.34889, lng: -78.55472 },
   requiresShipping: true,
   deliveryBaseFee: 2.00,     // tarifa base $2.00
   deliveryIncludedKm: 2.9,   // los primeros 2.9 km van en la base
