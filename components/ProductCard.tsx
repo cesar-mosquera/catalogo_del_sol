@@ -54,6 +54,11 @@ export function ProductCard({
     setTimeout(() => setAdded(false), 1200); // 1.2s de feedback
   };
 
+  const handleRemove = () => {
+    setAdded(false); // quitar no debe mostrar el check verde
+    remove(catalogSlug, selectedVariantId);
+  };
+
   return (
     <article className={`overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ${t.ring} flex flex-col h-full`}>
       {/* Imagen: next/image se usaría para optimizar rutas estáticas si tuvieran un loader configurado */}
@@ -133,15 +138,15 @@ export function ProductCard({
               </a>
             )}
             {quantity > 0 ? (
-              <div className={`flex flex-1 items-center justify-between gap-1 rounded-xl px-1.5 py-1 text-white shadow-sm ${t.accent}`}>
+              <div className={`flex flex-1 items-center justify-between gap-1 rounded-xl px-1.5 py-1 text-white shadow-sm transition-colors duration-300 ${added ? 'bg-green-600' : t.accent}`}>
                 <button
-                  onClick={() => remove(catalogSlug, selectedVariantId)}
+                  onClick={handleRemove}
                   aria-label="Restar"
                   className="grid h-8 w-8 place-items-center rounded-lg text-lg font-bold transition-colors hover:bg-white/20 active:scale-90"
                 >
                   −
                 </button>
-                <span className="min-w-6 text-center text-sm font-black">{quantity}</span>
+                <span className="min-w-6 text-center text-sm font-black">{added ? '✓' : quantity}</span>
                 <button
                   onClick={handleAdd}
                   aria-label="Sumar"
