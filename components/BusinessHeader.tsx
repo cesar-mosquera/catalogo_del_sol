@@ -19,7 +19,7 @@ function computeIsOpen(catalog: Catalog): boolean {
     && hour < catalog.businessHours.close;
 }
 
-export function BusinessHeader({ catalog }: { catalog: Catalog }) {
+export function BusinessHeader({ catalog, clean = false }: { catalog: Catalog; clean?: boolean }) {
   const [open, setOpen] = useState(() => computeIsOpen(catalog));
 
   // Actualiza el estado "abierto/cerrado" en vivo (cada minuto)
@@ -30,6 +30,22 @@ export function BusinessHeader({ catalog }: { catalog: Catalog }) {
   }, [catalog]);
 
   const hours = `${catalog.businessHours.open}:00 – ${catalog.businessHours.close}:00`;
+
+  // Modo "solo imagen": muestra la portada completa, sin texto superpuesto
+  if (clean) {
+    return (
+      <header className="overflow-hidden rounded-[2.2rem] shadow-2xl">
+        {catalog.coverImage ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img src={asset(catalog.coverImage)} alt={catalog.name} className="block w-full h-auto" />
+        ) : (
+          <div className="grid aspect-[3/4] w-full place-items-center bg-stone-900">
+            <span className="text-xs font-bold uppercase tracking-[0.25em] text-white/40">{catalog.name}</span>
+          </div>
+        )}
+      </header>
+    );
+  }
 
   return (
     <header className="relative overflow-hidden rounded-[2.2rem] text-white shadow-2xl">

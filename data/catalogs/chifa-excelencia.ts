@@ -53,7 +53,7 @@ export const chifaExcelencia: Catalog = {
   sections: [
     /* ════════ LOS COMBOS (págs. 3–6 del PDF) ════════ */
     { name: 'Los Combos', note: 'Todos los combos incluyen wantán frito y limonada (o cola)', products: [
-      { id: 'combo-1', name: 'COMBO #1', price: 6.80, description: '½ Chaulafán especial, Tortilla de huevo (o huevo frito), Wantán frito, Limonada (o cola).', image: '' },
+      { id: 'combo-1', name: 'COMBO #1', price: 6.80, description: '½ Chaulafán especial, Tortilla de huevo (o huevo frito), Wantán frito, Limonada (o cola).', image: '/img/combo-1.webp' },
       { id: 'combo-2', name: 'COMBO #2', price: 6.80, description: '½ Chaulafán especial, Papas fritas, Wantán frito, Limonada (o cola).', image: '' },
       { id: 'combo-3', name: 'COMBO #3', price: 7.50, description: 'Consomé de pollo (o sopa wantán), ½ Chaulafán especial, Wantán frito, Limonada (o cola).', image: '' },
       { id: 'combo-4', name: 'COMBO #4', price: 7.50, description: 'Consomé de pollo (o sopa wantán), ½ Tallarín especial, Wantán frito, Limonada (o cola).', image: '' },

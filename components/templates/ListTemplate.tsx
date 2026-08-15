@@ -10,7 +10,7 @@ export function ListTemplate({ catalog }: { catalog: Catalog }) {
       className="mx-auto max-w-4xl space-y-12 px-4 py-6"
       style={{ backgroundColor: theme?.pageBg, minHeight: '100vh', color: theme?.pageText }}
     >
-      <BusinessHeader catalog={catalog} />
+      <BusinessHeader catalog={catalog} clean={!!catalog.theme} />
 
       {/* Página informativa: imagen que sigue a la portada */}
       {catalog.infoImage && (
