@@ -30,11 +30,12 @@ export function ProductCard({
   const add = useCart((state) => state.add);
   const remove = useCart((state) => state.remove);
   
-  const [selectedVariantId, setSelectedVariantId] = useState(product.variants?.[0]?.id ?? product.id);
+  const [selectedVariantId, setSelectedVariantId] = useState(product.variants ? '' : product.id);
   const quantity = useCart((s) => s.carts[catalogSlug]?.find(i => i.id === selectedVariantId)?.quantity ?? 0);
   
   const src = product.image ? asset(product.image) : '';
   const [added, setAdded] = useState(false);
+  const [error, setError] = useState(false);
 
   const t = { ...DEFAULT_THEME, ...theme };
 
@@ -42,6 +43,12 @@ export function ProductCard({
   const displayPrice = currentVariant ? currentVariant.price : product.price;
 
   const handleAdd = () => {
+    if (product.variants && !selectedVariantId) {
+      setError(true);
+      setTimeout(() => setError(false), 2000);
+      return;
+    }
+    setError(false);
     add(catalogSlug, { ...product, id: selectedVariantId });
     setAdded(true);
     setTimeout(() => setAdded(false), 1200); // 1.2s de feedback
@@ -96,9 +103,15 @@ export function ProductCard({
             <div>
               <select
                 value={selectedVariantId}
-                onChange={(e) => setSelectedVariantId(e.target.value)}
-                className="w-full rounded-lg border border-stone-200 bg-stone-50 px-3 py-1.5 text-sm font-semibold text-stone-700 outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors"
+                onChange={(e) => {
+                  setSelectedVariantId(e.target.value);
+                  setError(false);
+                }}
+                className={`w-full rounded-lg border bg-stone-50 px-3 py-1.5 text-sm font-semibold outline-none focus:ring-1 transition-colors ${
+                  error ? 'border-red-500 ring-1 ring-red-500 text-red-700' : 'border-stone-200 text-stone-700 focus:border-orange-500 focus:ring-orange-500'
+                }`}
               >
+                <option value="" disabled>Seleccionar opción...</option>
                 {product.variants.map(v => (
                   <option key={v.id} value={v.id}>
                     {v.name} - ${v.price.toFixed(2)}
@@ -150,6 +163,7 @@ export function ProductCard({
             </button>
           )}
         </div>
+      </div>
       </div>
     </article>
   );

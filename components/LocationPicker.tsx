@@ -354,8 +354,6 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
     if (picked && routeKm !== null) onSelect(picked, routeKm);
   };
 
-  const distanceToShow = routeKm ?? distKm;
-
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-white">
       {/* Header */}
