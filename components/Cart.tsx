@@ -44,6 +44,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
   const [notes,      setNotes]      = useState('');
   const [clientLoc,  setClientLoc]  = useState<LatLng | null>(null);
   const [distKm,     setDistKm]     = useState<number | null>(null);
+  const [packagingQty, setPackagingQty] = useState(0);
 
   const requiresLocation = catalog.requiresShipping ?? true;
   const subtotal     = useMemo(() => items.reduce((s, i) => s + i.price * i.quantity, 0), [items]);
@@ -56,7 +57,8 @@ export function Cart({ catalog }: { catalog: Catalog }) {
   // La distancia llega directo del mapa (usa la ruta real por calles si hay)
   const quote        = (requiresLocation && distKm !== null) ? quoteForDistance(deliveryParams, distKm) : null;
   const deliveryFee  = requiresLocation ? (quote?.fee ?? 0) : 0;
-  const total        = subtotal + deliveryFee;
+  const packagingFeeTotal = catalog.packaging ? packagingQty * catalog.packaging.price : 0;
+  const total        = subtotal + deliveryFee + packagingFeeTotal;
   const minimumMet   = subtotal >= catalog.minimumOrder;
   const maxKm        = catalog.deliveryMaxKm || 0;
   const tooFar       = quote ? !quote.isAvailable : false;
@@ -81,6 +83,9 @@ export function Cart({ catalog }: { catalog: Catalog }) {
     const locLine = (requiresLocation && clientLoc)
       ? `📍 Entregar en: https://maps.google.com/maps?q=${clientLoc.lat},${clientLoc.lng}\n`
       : '';
+    const packagingLine = catalog.packaging && packagingQty > 0
+      ? `📦 ${catalog.packaging.label} (${packagingQty} × $${catalog.packaging.price.toFixed(2)}): $${packagingFeeTotal.toFixed(2)}\n`
+      : '';
     const distLine = (requiresLocation && distKm !== null)
       ? `*🛵 Envío (${distKm.toFixed(2)} km por calles): $${deliveryFee.toFixed(2)}*\n`
       : '';
@@ -91,6 +96,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
       `Hola, quiero hacer un pedido en *${catalog.name}*:\n\n` +
       `${detail}\n\n` +
       `*Subtotal: $${subtotal.toFixed(2)}*\n` +
+      packagingLine +
       distLine +
       `*Total${requiresLocation ? ' con envío' : ''}: $${total.toFixed(2)}*\n` +
       checkoutLine +
@@ -167,11 +173,40 @@ export function Cart({ catalog }: { catalog: Catalog }) {
             {/* Footer con resumen y ubicación */}
             <div className="flex-shrink-0 border-t pt-4 space-y-3 mt-2">
 
+              {/* Selector de empaque (tarrinas) */}
+              {catalog.packaging && (
+                <div className="flex items-center justify-between rounded-xl border border-stone-200 p-3 bg-stone-50 dark:bg-stone-800/40">
+                  <div>
+                    <p className="text-sm font-bold">{catalog.packaging.label}</p>
+                    <p className="text-xs text-stone-500">+${catalog.packaging.price.toFixed(2)} c/u</p>
+                  </div>
+                  <div className="flex items-center gap-3 bg-stone-200/50 dark:bg-stone-900 rounded-lg p-1">
+                    <button 
+                      onClick={() => setPackagingQty(Math.max(0, packagingQty - 1))}
+                      disabled={packagingQty === 0}
+                      className="h-8 w-8 rounded bg-white text-stone-700 shadow-sm disabled:opacity-40 transition-opacity dark:bg-stone-700 dark:text-stone-300"
+                    >−</button>
+                    <span className="w-4 text-center text-sm font-bold">{packagingQty}</span>
+                    <button 
+                      onClick={() => setPackagingQty(packagingQty + 1)}
+                      className="h-8 w-8 rounded bg-white text-stone-700 shadow-sm dark:bg-stone-700 dark:text-stone-300"
+                    >+</button>
+                  </div>
+                </div>
+              )}
+
               {/* Subtotal */}
               <div className="flex justify-between text-sm">
                 <span className="text-stone-500 dark:text-stone-400">Subtotal</span>
                 <span className="font-bold">${subtotal.toFixed(2)}</span>
               </div>
+
+              {catalog.packaging && packagingQty > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-stone-500 dark:text-stone-400">Envases ({packagingQty})</span>
+                  <span className="font-bold text-stone-600 dark:text-stone-300">+${packagingFeeTotal.toFixed(2)}</span>
+                </div>
+              )}
 
               {/* Mínimo */}
               {!minimumMet && items.length > 0 && (

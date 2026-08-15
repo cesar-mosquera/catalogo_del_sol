@@ -81,6 +81,8 @@ export type Catalog = {
   deliveryMaxKm?: number;                            // radio máximo de entrega
   requiresShipping?: boolean;                        // si es falso, desactiva pedir ubicación en el carrito
   alwaysOpen?: boolean;                              // si es verdadero, ignora el horario comercial
+  // ── Costos adicionales (opcional) ──
+  packaging?: { label: string; price: number };      // ej: tarrinas para llevar, cajas de regalo
   // ── Contenido orientado a resolver dudas del cliente (catálogos de servicios) ──
   faq?: FaqItem[];
   comparison?: ComparisonRow[];

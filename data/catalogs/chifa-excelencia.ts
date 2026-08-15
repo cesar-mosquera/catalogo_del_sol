@@ -21,7 +21,8 @@ export const chifaExcelencia: Catalog = {
   deliveryIncludedKm: 2.9,   // los primeros 2.9 km van en la base
   deliveryRatePerKm: 0.50,   // $0.50 por km adicional después de 2.9 km
   deliveryMaxKm: 0,          // 0 = sin límite de radio
-  checkoutNote: 'Los pedidos se confirman por WhatsApp. Para llevar tiene un costo de 0,30 ctv. por cada tarrina.',
+  packaging: { label: 'Tarrinas (Para llevar)', price: 0.30 },
+  checkoutNote: 'Los pedidos se confirman por WhatsApp.',
 
   /* ── Paleta extraída del PDF ── */
   theme: {
