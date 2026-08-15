@@ -13,9 +13,9 @@ export const chifaExcelencia: Catalog = {
   template: 'list',
   minimumOrder: 0,
   businessHours: { timezone: 'America/Guayaquil', open: 11, close: 22, openMinute: 30, closeMinute: 30, days: [0, 1, 2, 3, 4, 5, 6] },
-  // Ubicación del local (según dueño): dos cuadras al norte de la Av. Pedro Vicente Maldonado,
-// sector Guamaní, sur de Quito (frente al barrio junto a la estación Guamaní de la Ecovía)
-  location: { lat: -0.33698, lng: -78.54911 },
+  // Ubicación exacta del local según Google Maps (MC8X+3R Quito)
+  // Av. Pedro Vicente Maldonado, sector Guamaní, sur de Quito
+  location: { lat: -0.3348695, lng: -78.550437 },
   requiresShipping: true,
   deliveryBaseFee: 2.00,     // tarifa base $2.00
   deliveryIncludedKm: 2.9,   // los primeros 2.9 km van en la base

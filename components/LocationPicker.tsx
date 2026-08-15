@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { haversineKm, isValidLocation, quoteForDistance, type DeliveryLocation, type DeliveryParams } from '@/lib/delivery';
+import 'leaflet/dist/leaflet.css';
 
 export type LatLng = DeliveryLocation;
 
@@ -19,6 +20,9 @@ type Suggestion = { label: string; lat: number; lng: number };
 
 const STRAIGHT_COLOR = '#f59e0b';
 const ROUTE_COLOR = '#ea580c';
+
+// Precarga Leaflet a nivel de módulo: el CDN de imágenes es solo para la marca; el JS ya viene del bundle.
+const leafletPromise = import('leaflet');
 
 export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, onClose, deliveryRadiusKm }: LocationPickerProps) {
   const mapRef    = useRef<HTMLDivElement>(null);
@@ -57,6 +61,10 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
   } as const;
   const SATELLITE_LABELS = 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}';
 
+  // Token para descartar respuestas fuera de orden: la ruta/dirección de un
+  // clic anterior no puede pisar la ubicación elegida más reciente (evita cobros erróneos).
+  const pickSeq = useRef(0);
+
   const applyBasemap = () => {
     const L = leafletMod.current;
     const map = leafletRef.current?.map;
@@ -83,11 +91,14 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
     const url =
       `https://router.project-osrm.org/route/v1/driving/${from.lng},${from.lat};${loc.lng},${loc.lat}` +
       `?overview=full&steps=false&geometries=geojson&alternatives=true`;
+    const seq = pickSeq.current;
     const L = leafletMod.current;
     const map = leafletRef.current?.map;
     try {
       const res = await fetch(url);
       const data = await res.json();
+      // Esta respuesta ya no corresponde a la ubicación elegida → se descarta
+      if (seq !== pickSeq.current) return;
       const routes = data?.routes;
       if (!Array.isArray(routes) || routes.length === 0 || !Array.isArray(routes[0].geometry?.coordinates)) throw new Error('no-route');
       // El cobro se hace por la ruta MÁS LARGA posible (no la más corta ni en línea recta)
@@ -104,6 +115,7 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
         }).addTo(map);
       }
     } catch {
+      if (seq !== pickSeq.current) return;
       setRouteState('error');
       setRouteKm(null);
     }
@@ -122,24 +134,28 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
 
   /* ── Geolocalización inversa (dirección del punto) ── */
   const fetchAddress = async (loc: LatLng) => {
+    const seq = pickSeq.current;
     try {
       const res = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${loc.lat}&lon=${loc.lng}&zoom=17&addressdetails=1&accept-language=es`
       );
       const data = await res.json();
+      if (seq !== pickSeq.current) return;
       setAddress(data?.display_name || null);
     } catch {
+      if (seq !== pickSeq.current) return;
       setAddress(null);
     }
   };
 
   const setLocation = (loc: LatLng, zoom = 16) => {
+    pickSeq.current += 1;
     const straightDist = haversineKm(restaurantLocation, loc);
     setPicked(loc);
     setDistKm(straightDist);
     setRouteKm(null);
     setRouteMin(null);
-    setRouteState('idle');
+    setRouteState('loading');
     setAddress(null);
     setLatitude(loc.lat.toFixed(6));
     setLongitude(loc.lng.toFixed(6));
@@ -209,16 +225,8 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
 
   /* ── Carga Leaflet dinámicamente (solo en cliente, con tamaño real) ── */
   const setupMap = () => {
-    // Carga CSS de Leaflet
-    if (!document.getElementById('leaflet-css')) {
-      const link = document.createElement('link');
-      link.id  = 'leaflet-css';
-      link.rel = 'stylesheet';
-      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-      document.head.appendChild(link);
-    }
-
-    import('leaflet').then((L) => {
+    // El CSS de Leaflet se importa de forma estática en el bundle (arriba), sin latencia de CDN.
+    leafletPromise.then((L) => {
       if (!mapRef.current || leafletRef.current) return;
       leafletMod.current = L;
 
@@ -308,7 +316,10 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
         title: 'Tu ubicación — arrastra para mover',
       }).addTo(map);
 
-      const updatePicked = (latlng: L.LatLng) => setLocation({ lat: latlng.lat, lng: latlng.lng });
+      const updatePicked = (latlng: L.LatLng) => {
+        // Al elegir con clic/arrastre conservamos el zoom actual del usuario (solo centra), evita el "agrandón".
+        setLocation({ lat: latlng.lat, lng: latlng.lng }, map.getZoom());
+      };
 
       marker.on('dragend', () => updatePicked(marker.getLatLng()));
       map.on('click', (e) => { marker.setLatLng(e.latlng); updatePicked(e.latlng); });
@@ -321,18 +332,22 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
   /* ── Disparo de setupMap: espera tamaño real del contenedor (sin recrear en resize) ── */
   useEffect(() => {
     if (!mapRef.current || leafletRef.current) return;
+    let created = false;
     const tryInit = () => {
+      if (created || leafletRef.current) return;
       const box = containerBoxRef.current;
-      if (box.w < 50 || box.h < 50) return false;
+      if (box.w < 50 || box.h < 50) return;
+      created = true;
       setupMap();
-      return true;
     };
-    if (tryInit()) return;
+    tryInit();
 
+    // Reintenta mientras el contenedor no tenga tamaño medible; sin límite duro de 2s
     const started = Date.now();
     const id = window.setInterval(() => {
-      if (tryInit() || Date.now() - started > 2000) window.clearInterval(id);
-    }, 60);
+      tryInit();
+      if (created || Date.now() - started > 10000) window.clearInterval(id);
+    }, 80);
     return () => window.clearInterval(id);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [restaurantLocation]);
@@ -601,7 +616,9 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
           {outOfRange
             ? 'Fuera del radio de entrega'
             : routeKm === null
-              ? (picked ? 'Calculando ruta por calles…' : 'Selecciona un punto en el mapa')
+              ? (picked
+                  ? (routeState === 'error' ? 'No se pudo calcular la ruta. Mueve el pin.' : 'Calculando ruta por calles…')
+                  : 'Selecciona un punto en el mapa')
               : 'Confirmar esta ubicación ✓'}
         </button>
       </div>
