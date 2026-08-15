@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
-import type { Catalog } from '@/lib/catalog-types';
+import type { Catalog, Product } from '@/lib/catalog-types';
 import { useCart, type CartItem } from '@/store/cart';
 import type { LatLng } from './LocationPicker';
 import { quoteForDistance, computeIsOpen, formatBusinessHours, type DeliveryParams } from '@/lib/delivery';
@@ -115,12 +115,21 @@ export function Cart({ catalog }: { catalog: Catalog }) {
       checkoutLine +
       locLine + notesLine;
 
-    window.open(`https://wa.me/${catalog.phone}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
-    clear(catalog.slug);
-    setOpen(false);
-    setClientLoc(null);
-    setDistKm(null);
-    setNotes('');
+    const url = `https://wa.me/${catalog.phone}?text=${encodeURIComponent(message)}`;
+    const w = window.open(url, '_blank', 'noopener,noreferrer');
+    
+    if (w === null) {
+      // El navegador bloqueó la ventana emergente, redirigimos en la misma pestaña
+      window.location.href = url;
+      // No limpiamos el carrito aquí por si el usuario regresa atrás
+    } else {
+      // Se abrió correctamente en nueva pestaña, es seguro limpiar el carrito
+      clear(catalog.slug);
+      setOpen(false);
+      setClientLoc(null);
+      setDistKm(null);
+      setNotes('');
+    }
   };
 
   const count = items.reduce((n, i) => n + i.quantity, 0);
