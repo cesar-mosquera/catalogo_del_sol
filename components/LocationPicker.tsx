@@ -250,7 +250,8 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
         zoomAnimation: true,
       });
 
-      applyBasemap();
+      // NO llamamos applyBasemap() aquí porque leafletRef.current aún no está asignado.
+      // Las capas del mapa inicial se añaden directamente con las variables locales (ver abajo).
 
       // Control de escala (km/m)
       L.control.scale({ imperial: false, position: 'bottomleft' }).addTo(map);
@@ -332,6 +333,11 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
       map.on('click', (e) => { marker.setLatLng(e.latlng); updatePicked(e.latlng); });
 
       leafletRef.current = { map, marker };
+
+      // Ahora sí: applyBasemap() puede leer leafletRef.current y leafletMod.current correctamente.
+      // Esto garantiza que el mapa nunca quede vacío al abrirse por primera vez.
+      applyBasemap();
+
       setMapReady(true);
     });
   };
