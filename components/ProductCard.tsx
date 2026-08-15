@@ -29,10 +29,14 @@ export function ProductCard({
 }) {
   const add = useCart((state) => state.add);
   const remove = useCart((state) => state.remove);
-  
+
+  // Si tiene variantes empieza vacío (obligatorio elegir); si no, usa el id del producto
   const [selectedVariantId, setSelectedVariantId] = useState(product.variants ? '' : product.id);
-  const quantity = useCart((s) => s.carts[catalogSlug]?.find(i => i.id === selectedVariantId)?.quantity ?? 0);
-  
+  const quantity = useCart((s) => {
+    const id = selectedVariantId || product.id;
+    return s.carts[catalogSlug]?.find(i => i.id === id)?.quantity ?? 0;
+  });
+
   const src = product.image ? asset(product.image) : '';
   const [added, setAdded] = useState(false);
   const [error, setError] = useState(false);
@@ -43,6 +47,7 @@ export function ProductCard({
   const displayPrice = currentVariant ? currentVariant.price : product.price;
 
   const handleAdd = () => {
+    // Validación obligatoria: debe elegir variante antes de agregar
     if (product.variants && !selectedVariantId) {
       setError(true);
       setTimeout(() => setError(false), 2000);
@@ -51,17 +56,17 @@ export function ProductCard({
     setError(false);
     add(catalogSlug, { ...product, id: selectedVariantId });
     setAdded(true);
-    setTimeout(() => setAdded(false), 1200); // 1.2s de feedback
+    setTimeout(() => setAdded(false), 1200);
   };
 
   const handleRemove = () => {
-    setAdded(false); // quitar no debe mostrar el check verde
-    remove(catalogSlug, selectedVariantId);
+    setAdded(false);
+    remove(catalogSlug, selectedVariantId || product.id);
   };
 
   return (
     <article className={`overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ${t.ring} flex flex-col h-full`}>
-      {/* Imagen: next/image se usaría para optimizar rutas estáticas si tuvieran un loader configurado */}
+      {/* Imagen */}
       {src ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
@@ -84,11 +89,15 @@ export function ProductCard({
           </div>
         </div>
       )}
+
       <div className="flex flex-1 flex-col gap-2 p-4">
+        {/* Nombre y precio */}
         <div className="flex items-start justify-between gap-2">
           <h3 className={`font-bold ${t.name}`}>{product.name}</h3>
           <span className={`whitespace-nowrap font-bold ${t.priceBox} ${t.price}`}>
-            <span className={`${product.priceNote && !product.variants ? 'text-sm' : 'text-base'}`}>${displayPrice.toFixed(2)}</span>
+            <span className={`${product.priceNote && !product.variants ? 'text-sm' : 'text-base'}`}>
+              ${displayPrice.toFixed(2)}
+            </span>
             {product.priceNote && !product.variants && (
               <span className="block text-right font-semibold leading-tight" style={{ fontSize: '9px' }}>
                 {product.priceNote}
@@ -96,14 +105,19 @@ export function ProductCard({
             )}
           </span>
         </div>
+
+        {/* Badge */}
         {product.badge && (
           <span className={`w-fit rounded-full px-2 py-0.5 text-xs font-semibold ${t.badgeBg} ${t.badgeText}`}>
             {product.badge}
           </span>
         )}
+
+        {/* Descripción */}
         <p className="text-sm text-stone-600">{product.description}</p>
-        
+
         <div className="mt-auto flex flex-col gap-3">
+          {/* Selector de variantes (Medio / Completo) — obligatorio */}
           {product.variants && product.variants.length > 0 && (
             <div>
               <select
@@ -113,19 +127,27 @@ export function ProductCard({
                   setError(false);
                 }}
                 className={`w-full rounded-lg border bg-stone-50 px-3 py-1.5 text-sm font-semibold outline-none focus:ring-1 transition-colors ${
-                  error ? 'border-red-500 ring-1 ring-red-500 text-red-700' : 'border-stone-200 text-stone-700 focus:border-orange-500 focus:ring-orange-500'
+                  error
+                    ? 'border-red-500 ring-1 ring-red-500 text-red-700'
+                    : 'border-stone-200 text-stone-700 focus:border-orange-500 focus:ring-orange-500'
                 }`}
               >
                 <option value="" disabled>Seleccionar opción...</option>
                 {product.variants.map(v => (
                   <option key={v.id} value={v.id}>
-                    {v.name} - ${v.price.toFixed(2)}
+                    {v.name} — ${v.price.toFixed(2)}
                   </option>
                 ))}
               </select>
+              {error && (
+                <p className="mt-1 text-xs font-semibold text-red-600">
+                  ⚠ Elige Medio o Completo antes de agregar
+                </p>
+              )}
             </div>
           )}
-          
+
+          {/* Botón demo / carrito */}
           <div className="flex items-center gap-2">
             {product.demoUrl && (
               <a
@@ -155,20 +177,20 @@ export function ProductCard({
                   +
                 </button>
               </div>
-          ) : (
-            <button
-              onClick={handleAdd}
-              className={`flex-1 rounded-xl px-3 py-2 text-sm font-semibold transition-colors duration-100 ${
-                added
-                  ? 'bg-green-600 text-white'
-                  : `${t.accent} ${t.accentHover} text-white`
-              }`}
-            >
-              {added ? '✅ Agregado' : '🛒 Agregar'}
-            </button>
-          )}
+            ) : (
+              <button
+                onClick={handleAdd}
+                className={`flex-1 rounded-xl px-3 py-2 text-sm font-semibold transition-colors duration-100 ${
+                  added
+                    ? 'bg-green-600 text-white'
+                    : `${t.accent} ${t.accentHover} text-white`
+                }`}
+              >
+                {added ? '✅ Agregado' : '🛒 Agregar'}
+              </button>
+            )}
+          </div>
         </div>
-      </div>
       </div>
     </article>
   );

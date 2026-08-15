@@ -79,7 +79,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
       .join('\n');
 
     const locLine = (requiresLocation && clientLoc) ? `📍 https://maps.google.com/?q=${clientLoc.lat},${clientLoc.lng}\n` : '';
-    const distLine = (requiresLocation && distKm !== null) ? `*📏 Distancia: ${distKm.toFixed(2)} km · Envío: $${deliveryFee.toFixed(2)}*\n` : '';
+    const distLine = (requiresLocation && distKm !== null) ? `*🛵 Envío (ruta por calles ${distKm.toFixed(2)} km): $${deliveryFee.toFixed(2)}*\n` : '';
     const notesLine = notes.trim() ? `📝 Indicaciones: ${notes.trim()}` : '';
     const checkoutLine = catalog.checkoutNote ? `\n*ℹ️ ${catalog.checkoutNote}*\n` : '';
 
@@ -210,9 +210,9 @@ export function Cart({ catalog }: { catalog: Catalog }) {
                     </div>
                   )}
 
-                  {clientLoc && !tooFar && (
+                  {clientLoc && !tooFar && distKm !== null && (
                     <div className="bg-green-50 px-3 py-2 border-t border-green-100 flex justify-between text-xs">
-                      <span className="text-stone-500">Costo de envío</span>
+                      <span className="text-stone-500">🛵 Costo de envío ({distKm.toFixed(2)} km)</span>
                       <span className="font-bold text-green-700">${deliveryFee.toFixed(2)}</span>
                     </div>
                   )}
@@ -245,11 +245,11 @@ export function Cart({ catalog }: { catalog: Catalog }) {
 
               {/* Botón enviar */}
               <button
-                disabled={!items.length || !hasLocation}
+                disabled={!items.length || !hasLocation || tooFar}
                 onClick={send}
                 className="w-full rounded-2xl bg-green-600 px-5 py-4 text-base font-bold text-white shadow-xl shadow-green-900/20 disabled:cursor-not-allowed disabled:bg-stone-300 disabled:shadow-none hover:bg-green-700 transition-all active:scale-95 dark:disabled:bg-stone-800 dark:disabled:text-stone-500"
               >
-                📲 Enviar pedido por WhatsApp
+                {tooFar ? '⚠️ Fuera del radio de entrega' : '📲 Enviar pedido por WhatsApp'}
               </button>
             </div>
           </aside>

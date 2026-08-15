@@ -169,8 +169,8 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
   };
 
   // Costo de entrega según la ruta por calles (NUNCA la línea recta ni la ruta corta)
-  const bestKm = routeKm ?? 0;
-  const deliveryQuote = (picked && deliveryParams && routeKm !== null) ? quoteForDistance(deliveryParams, bestKm) : null;
+  // Si la ruta aún no llegó o falló, no se muestra ningún costo (evita cobrar $2 a 0 km)
+  const deliveryQuote = (picked && deliveryParams && routeKm !== null) ? quoteForDistance(deliveryParams, routeKm) : null;
   const deliveryFee = deliveryQuote?.fee ?? null;
   const outOfRange = (deliveryQuote?.isAvailable ?? true) ? false : true;
 
