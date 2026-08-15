@@ -138,7 +138,7 @@ export function ProductCard({
               </a>
             )}
             {quantity > 0 ? (
-              <div className={`flex flex-1 items-center justify-between gap-1 rounded-xl px-1.5 py-1 text-white shadow-sm transition-colors duration-300 ${added ? 'bg-green-600' : t.accent}`}>
+              <div className={`flex flex-1 items-center justify-between gap-1 rounded-xl px-1.5 py-1 text-white shadow-sm transition-colors duration-100 ${added ? 'bg-green-600' : t.accent}`}>
                 <button
                   onClick={handleRemove}
                   aria-label="Restar"
@@ -158,7 +158,7 @@ export function ProductCard({
           ) : (
             <button
               onClick={handleAdd}
-              className={`flex-1 rounded-xl px-3 py-2 text-sm font-semibold transition-colors duration-300 ${
+              className={`flex-1 rounded-xl px-3 py-2 text-sm font-semibold transition-colors duration-100 ${
                 added
                   ? 'bg-green-600 text-white'
                   : `${t.accent} ${t.accentHover} text-white`

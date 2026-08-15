@@ -24,6 +24,7 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
   const mapRef    = useRef<HTMLDivElement>(null);
   const leafletRef = useRef<{ map: L.Map; marker: L.Marker } | null>(null);
   const leafletMod  = useRef<typeof import('leaflet') | null>(null);
+  const roRef      = useRef<ResizeObserver | null>(null);
   const routeRef   = useRef<L.Polyline | null>(null);
   const straightRef = useRef<L.Polyline | null>(null);
   const circleRef  = useRef<L.Circle | null>(null);
@@ -46,6 +47,7 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
   const [manualMode, setManualMode] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
 
   useEffect(() => { basemapRef.current = basemap; }, [basemap]);
 
@@ -207,7 +209,17 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
         center: [restaurantLocation.lat, restaurantLocation.lng],
         zoom: 15,
         zoomControl: true,
+        attributionControl: true,
+        fadeAnimation: true,
+        zoomAnimation: true,
       });
+
+      // Leaflet calcula su tamaño al montar; si el contenedor aún no estuvo
+      // medido (flex/overlay), el mapa queda gris — lo corregimos al instante
+      // y en cada cambio de tamaño del contenedor.
+      requestAnimationFrame(() => map.invalidateSize());
+      roRef.current = new ResizeObserver(() => map.invalidateSize());
+      if (mapRef.current) roRef.current.observe(mapRef.current);
 
       applyBasemap();
 
@@ -217,10 +229,11 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
       // Botón "mi ubicación" sobre el mapa
       const locateBtn = new L.Control({ position: 'topright' });
       locateBtn.onAdd = () => {
-        const btn = L.DomUtil.create('button', 'leaflet-bar');
-        btn.innerHTML = '🎯';
+        const btn = L.DomUtil.create('button', 'leaflet-bar cds-locate-btn');
+        btn.innerHTML =
+          '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>';
         btn.title = 'Usar mi ubicación actual';
-        btn.style.cssText = 'width:30px;height:30px;line-height:30px;font-size:15px;cursor:pointer;border:2px solid rgba(0,0,0,0.2);background:white;border-radius:4px;';
+        btn.style.cssText = 'width:34px;height:34px;display:grid;place-items:center;cursor:pointer;border:none;background:white;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.25);color:#16a34a;';
         btn.addEventListener('click', (e) => {
           L.DomEvent.stopPropagation(e);
           locateUser();
@@ -231,12 +244,16 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
 
       // Marcador del restaurante (no movible)
       const restaurantIcon = L.divIcon({
-        html: '<div style="background:#ea580c;border:3px solid white;border-radius:50%;width:20px;height:20px;box-shadow:0 2px 8px rgba(0,0,0,0.4)"></div>',
-        className: '',
-        iconSize: [20, 20],
-        iconAnchor: [10, 10],
+        html: `
+          <div style="position:relative;width:32px;height:32px;display:flex;align-items:center;justify-content:center">
+            <span style="position:absolute;inset:0;border-radius:50%;background:rgba(234,88,12,0.35);animation:cds-ping 1.5s ease-out infinite"></span>
+            <span style="width:16px;height:16px;border-radius:50%;background:#ea580c;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.45)"></span>
+          </div>`,
+        className: 'cds-marker-restaurant',
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
       });
-      L.marker([restaurantLocation.lat, restaurantLocation.lng], { icon: restaurantIcon })
+      L.marker([restaurantLocation.lat, restaurantLocation.lng], { icon: restaurantIcon, zIndexOffset: 100 })
         .addTo(map)
         .bindPopup('📍 Restaurante')
         .openPopup();
@@ -256,10 +273,16 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
 
       // Marcador del cliente (movible)
       const clientIcon = L.divIcon({
-        html: '<div style="background:#16a34a;border:3px solid white;border-radius:50% 50% 50% 0;width:24px;height:24px;transform:rotate(-45deg);box-shadow:0 2px 8px rgba(0,0,0,0.4)"></div>',
-        className: '',
-        iconSize: [24, 24],
-        iconAnchor: [12, 24],
+        html: `
+          <div style="position:relative;width:30px;height:30px">
+            <svg viewBox="0 0 30 30" width="30" height="30" style="filter:drop-shadow(0 3px 6px rgba(22,163,74,0.5))">
+              <path d="M15 1C8.4 1 3 6.4 3 13c0 8.7 9.3 15.2 11.5 16.4a.9.9 0 0 0 1 0C17.7 28.2 27 21.7 27 13 27 6.4 21.6 1 15 1Z" fill="#16a34a" stroke="#fff" stroke-width="2.5"/>
+              <circle cx="15" cy="13" r="4.5" fill="#fff"/>
+            </svg>
+          </div>`,
+        className: 'cds-marker-client',
+        iconSize: [30, 30],
+        iconAnchor: [15, 29],
       });
       const marker = L.marker([restaurantLocation.lat, restaurantLocation.lng], {
         icon: clientIcon,
@@ -273,9 +296,12 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
       map.on('click', (e) => { marker.setLatLng(e.latlng); updatePicked(e.latlng); });
 
       leafletRef.current = { map, marker };
+      setMapReady(true);
     });
 
     return () => {
+      roRef.current?.disconnect();
+      roRef.current = null;
       leafletRef.current?.map.remove();
       leafletRef.current = null;
     };
@@ -357,51 +383,76 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-white">
       {/* Header */}
-      <div className="flex items-center justify-between bg-stone-900 px-4 py-3 text-white flex-shrink-0">
-        <div>
-          <h2 className="font-bold text-base">Ubicación de entrega</h2>
-          <p className="text-xs text-stone-400">Busca, usa GPS o mueve el pin verde</p>
-        </div>
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => setBasemap('street')}
-            className={`rounded-lg px-2 py-1 text-xs font-bold ${basemap === 'street' ? 'bg-orange-600 text-white' : 'bg-stone-700 text-stone-300'}`}
-          >
-            Calles
-          </button>
-          <button
-            onClick={() => setBasemap('satellite')}
-            className={`rounded-lg px-2 py-1 text-xs font-bold ${basemap === 'satellite' ? 'bg-orange-600 text-white' : 'bg-stone-700 text-stone-300'}`}
-          >
-            Satélite
-          </button>
-          <button onClick={onClose} className="text-2xl leading-none ml-1">✕</button>
+      <div className="flex-shrink-0 bg-gradient-to-r from-stone-900 to-stone-800 px-4 py-3 text-white shadow-lg">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-3">
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-orange-600/20 text-lg">📍</span>
+            <div>
+              <h2 className="font-bold text-base leading-tight">Ubicación de entrega</h2>
+              <p className="text-[11px] text-stone-400">Busca, usa GPS o mueve el pin verde</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="flex overflow-hidden rounded-lg bg-stone-700/60 p-0.5">
+              <button
+                onClick={() => setBasemap('street')}
+                className={`rounded-md px-2.5 py-1 text-xs font-bold transition-colors ${basemap === 'street' ? 'bg-orange-600 text-white shadow' : 'text-stone-300'}`}
+              >
+                Calles
+              </button>
+              <button
+                onClick={() => setBasemap('satellite')}
+                className={`rounded-md px-2.5 py-1 text-xs font-bold transition-colors ${basemap === 'satellite' ? 'bg-orange-600 text-white shadow' : 'text-stone-300'}`}
+              >
+                Satélite
+              </button>
+            </div>
+            <button onClick={onClose} aria-label="Cerrar" className="ml-1 grid h-8 w-8 place-items-center rounded-full bg-stone-700/60 text-stone-200 transition-colors hover:bg-stone-600">
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <path d="M6 6l12 12M18 6L6 18" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
       <div className="relative">
-        <form onSubmit={searchAddress} className="flex gap-2 border-b border-stone-200 bg-white p-3">
-          <input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Dirección, barrio o referencia"
-            className="min-w-0 flex-1 rounded-lg border border-stone-300 px-3 py-2 text-sm outline-none focus:border-orange-500"
-          />
-          <button type="submit" disabled={searching} className="rounded-lg bg-stone-900 px-3 py-2 text-sm font-bold text-white disabled:opacity-60">
-            {searching ? 'Buscando...' : 'Buscar'}
+        <form onSubmit={searchAddress} className="flex gap-2 bg-white p-3">
+          <div className="relative min-w-0 flex-1">
+            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-stone-400">
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <circle cx="11" cy="11" r="7" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+            </span>
+            <input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Dirección, barrio o referencia"
+              className="w-full rounded-xl border border-stone-300 bg-stone-50 py-2.5 pl-9 pr-3 text-sm outline-none transition-colors focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
+            />
+          </div>
+          <button type="submit" disabled={searching} className="rounded-xl bg-stone-900 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-stone-800 disabled:opacity-60">
+            {searching ? 'Buscando…' : 'Buscar'}
           </button>
         </form>
         {/* Sugerencias de autocompletado */}
         {suggestions.length > 0 && (
-          <ul className="absolute left-3 right-14 top-[calc(100%-2px)] z-40 overflow-hidden rounded-lg border border-stone-200 bg-white shadow-xl">
+          <ul className="absolute left-3 right-3 top-[calc(100%-6px)] z-40 overflow-hidden rounded-xl border border-stone-200 bg-white shadow-xl">
             {suggestions.map((s, i) => (
               <li key={`${s.lat}-${s.lng}-${i}`}>
                 <button
                   onClick={() => pickSuggestion(s)}
-                  className="block w-full px-3 py-2 text-left text-sm hover:bg-orange-50"
+                  className="flex w-full items-start gap-2 px-3 py-2.5 text-left text-sm hover:bg-orange-50"
                   type="button"
                 >
-                  {s.label}
+                  <span className="mt-0.5 text-stone-400">
+                    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                      <path d="M12 21s7-5.1 7-11a7 7 0 1 0-14 0c0 5.9 7 11 7 11Z" />
+                      <circle cx="12" cy="10" r="2.5" />
+                    </svg>
+                  </span>
+                  <span className="leading-snug text-stone-700">{s.label}</span>
                 </button>
               </li>
             ))}
@@ -410,17 +461,32 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
       </div>
 
       {/* Mapa */}
-      <div ref={mapRef} className="flex-1" style={{ minHeight: 0 }} />
+      <div className="relative flex-1 min-h-0">
+        <div ref={mapRef} className="absolute inset-0" />
+        {/* Overlay de carga mientras Leaflet y las capas se montan */}
+        {!mapReady && (
+          <div className="pointer-events-none absolute inset-0 z-[500] flex items-center justify-center bg-stone-100">
+            <div className="flex flex-col items-center gap-2 text-stone-500">
+              <div className="h-9 w-9 animate-spin rounded-full border-2 border-stone-300 border-t-orange-600" />
+              <p className="text-xs font-semibold">Cargando mapa…</p>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Panel inferior */}
-      <div className="flex-shrink-0 bg-white p-4 shadow-[0_-4px_20px_rgba(0,0,0,0.1)] space-y-3 max-h-[58vh] overflow-y-auto">
+      <div className="flex-shrink-0 space-y-3 border-t border-stone-200 bg-white p-4 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] max-h-[58vh] overflow-y-auto">
         {/* Botón GPS */}
         <button
           onClick={locateUser}
           disabled={loading}
-          className="w-full flex items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 font-bold text-white hover:bg-blue-700 disabled:opacity-60"
+          className="w-full flex items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 font-bold text-white transition-colors hover:bg-blue-700 disabled:opacity-60"
         >
-          {loading ? '⏳ Obteniendo ubicación…' : '🎯 Usar mi ubicación actual (GPS)'}
+          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+          </svg>
+          {loading ? '⏳ Obteniendo ubicación…' : 'Usar mi ubicación actual (GPS)'}
         </button>
 
         {gpsError && <p className="text-sm text-red-600 text-center">{gpsError}</p>}
@@ -493,7 +559,7 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
         <button
           onClick={confirm}
           disabled={!picked || outOfRange || routeKm === null}
-          className="w-full rounded-xl bg-orange-600 py-3 font-bold text-white hover:bg-orange-700 disabled:bg-stone-300 disabled:cursor-not-allowed"
+          className="w-full rounded-xl bg-orange-600 py-3.5 font-bold text-white shadow-lg shadow-orange-600/25 transition-all hover:bg-orange-700 active:scale-[0.99] disabled:bg-stone-300 disabled:shadow-none disabled:cursor-not-allowed"
         >
           {outOfRange
             ? 'Fuera del radio de entrega'
