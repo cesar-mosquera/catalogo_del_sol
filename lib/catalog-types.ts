@@ -64,6 +64,8 @@ export type Catalog = {
   address: string;
   coverImage: string;
   logoImage: string;
+  // Imagen de página informativa que va justo después de la portada (opcional)
+  infoImage?: string;
   template: TemplateName;
   minimumOrder: number;
   businessHours: { timezone: string; open: number; close: number; days: number[] };

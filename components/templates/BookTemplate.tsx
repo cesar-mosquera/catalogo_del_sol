@@ -60,8 +60,10 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
     });
     return pgs;
   }, [catalog.sections]);
-  const lastPage = pages.length + 1;
-  const total    = lastPage + 1;
+  const hasInfo   = !!catalog.infoImage;
+  const secOffset = hasInfo ? 1 : 0;
+  const lastPage  = pages.length + 1 + secOffset;
+  const total     = lastPage + 1;
 
   const theme = catalog.theme;
   const themed = !!theme;
@@ -306,8 +308,16 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
               </div>
             )}
 
+            {/* PÁGINA INFORMATIVA (va justo después de la portada) */}
+            {hasInfo && renderPage(1,
+              <div className="relative h-full w-full bg-white">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={asset(catalog.infoImage!)} alt="" className="h-full w-full object-contain" />
+              </div>
+            )}
+
             {/* SECCIONES */}
-            {pages.map((page, si) => renderPage(si + 1,
+            {pages.map((page, si) => renderPage(si + 1 + secOffset,
               <div
                 className={`notebook-menu-page relative h-full overflow-hidden p-4 pb-10 flex flex-col ${themed ? 'menu-flat' : ''}`}
                 style={{ backgroundColor: t.pageBg, '--menu-page-bg': t.pageBg } as React.CSSProperties}
