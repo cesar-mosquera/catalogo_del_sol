@@ -44,13 +44,27 @@ export function ProductCard({
   return (
     <article className={`overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ${t.ring}`}>
       {/* Imagen: next/image se usaría para optimizar rutas estáticas si tuvieran un loader configurado */}
-      {src && (
+      {src ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={src}
           alt={product.name}
           className={compact ? 'h-32 w-full object-cover' : 'h-40 w-full object-cover'}
         />
+      ) : (
+        <div
+          className={`grid w-full place-items-center border-b border-dashed ${compact ? 'h-32' : 'h-40'} ${
+            t.priceBox ? 'border-[#e9b873]' : 'border-stone-200'
+          }`}
+          style={{ background: 'linear-gradient(180deg,#ffffff 0%,#f3e5c8 100%)' }}
+        >
+          <div className="flex flex-col items-center gap-1 text-stone-400">
+            <svg viewBox="0 0 24 24" className="h-6 w-6 fill-current opacity-60" aria-hidden="true">
+              <path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm1 2v6.6l3-2.2 3 3 4-4L20 14V7H5Zm4.5 3a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
+            </svg>
+            <p className="text-[9px] font-bold uppercase tracking-[0.2em]">Imagen del plato</p>
+          </div>
+        </div>
       )}
       <div className="flex flex-1 flex-col gap-2 p-4">
         <div className="flex items-start justify-between gap-2">

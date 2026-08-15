@@ -274,10 +274,26 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
                     <div className="absolute inset-x-0 bottom-0 h-3/5" style={{ background: 'linear-gradient(to top,rgba(0,0,0,0.85) 0%,transparent 100%)' }} />
                   </>
                 )}
+                {!catalog.coverImage && (
+                  <div className="absolute left-1/2 top-8 z-[5] grid h-36 w-36 -translate-x-1/2 place-items-center rounded-full border-2 border-dashed border-white/40 bg-white/10">
+                    <div className="flex flex-col items-center gap-1 text-white/50">
+                      <svg viewBox="0 0 24 24" className="h-8 w-8 fill-current" aria-hidden="true">
+                        <path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm1 2v6.6l3-2.2 3 3 4-4L20 14V7H5Zm4.5 3a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
+                      </svg>
+                      <p className="text-[9px] font-bold uppercase tracking-[0.2em]">Foto</p>
+                    </div>
+                  </div>
+                )}
                 <div className="book-cover-content relative z-10 flex h-full flex-col justify-end p-6 pb-8">
-                  {catalog.logoImage && (
+                  {catalog.logoImage ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={asset(catalog.logoImage)} alt="" className="mb-auto h-16 w-16 object-contain drop-shadow-lg" />
+                  ) : (
+                    <div className="mb-auto grid h-16 w-16 place-items-center rounded-full border-2 border-dashed border-white/40 bg-white/10">
+                      <svg viewBox="0 0 24 24" className="h-7 w-7 fill-current text-white/50" aria-hidden="true">
+                        <path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm1 2v6.6l3-2.2 3 3 4-4L20 14V7H5Zm4.5 3a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
+                      </svg>
+                    </div>
                   )}
                   <p className="text-[10px] font-bold uppercase tracking-[0.25em] opacity-60">Menú Digital</p>
                   <h1 className="mt-1 font-serif text-3xl font-bold leading-tight drop-shadow" style={{ color: t.coverTitle }}>{catalog.name}</h1>
