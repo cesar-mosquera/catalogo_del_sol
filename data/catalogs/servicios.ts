@@ -100,7 +100,7 @@ export const servicios: Catalog = {
 
   sections: [
     { name: 'Modelos de Catálogos (Elige tu favorito)', products: [
-      { id: 'plan-basico', name: 'Catálogo Lista Clásica', price: 45, deliveryDays: 'Entrega en 2–3 días', description: 'Diseño práctico y directo al grano. Carrito de pedidos que llega a tu WhatsApp al instante. Pago único, sin mensualidades. Ideal para probar el mundo digital.', image: '', badge: 'Económico', demoUrl: '/menu/demo-lista' },
+      { id: 'plan-basico', name: 'Catálogo Lista Clásica', price: 45, deliveryDays: 'Entrega en 2–3 días', description: 'Diseño práctico y directo al grano. Carrito de pedidos que llega a tu WhatsApp al instante. Pago único, sin mensualidades. Ideal para probar el mundo digital.', image: '', badge: 'Económico', demoUrl: '/menu/chifa-excelencia' },
       { id: 'plan-pro', name: 'Catálogo Libro 3D', price: 90, deliveryDays: 'Entrega en 4–5 días', description: 'Tus clientes sentirán que pasan las páginas de un menú real. Calcula costos de envío por km y se instala como App en celulares. Pago único y sin comisiones.', image: '', badge: 'El más vendido', demoUrl: '/menu/del-sol' },
       { id: 'plan-admin', name: 'Catálogo Administrable', price: 150, deliveryDays: 'Entrega en 5–7 días', description: 'El mismo catálogo premium que ves en la demo (Pinchos Del Sol), con tu logo, fotos y colores. Incluye panel en tu celular para cambiar precios o subir fotos al instante. Incluye mantenimiento de $15/mes con hosting y soporte prioritario.', image: '', badge: 'Control Total', demoUrl: '/menu/del-sol' },
     ] },

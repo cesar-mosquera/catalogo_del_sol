@@ -20,6 +20,7 @@ export function LocationPicker({ restaurantLocation, onSelect, onClose, delivery
   const routeRef   = useRef<L.Polyline | null>(null);
   const circleRef  = useRef<L.Circle | null>(null);
   const tileRef    = useRef<L.TileLayer | null>(null);
+  const labelRef   = useRef<L.TileLayer | null>(null);
   const [basemap, setBasemap] = useState<'street' | 'satellite'>('street');
   const basemapRef = useRef(basemap);
   const [picked, setPicked]   = useState<LatLng | null>(null);
@@ -36,8 +37,29 @@ export function LocationPicker({ restaurantLocation, onSelect, onClose, delivery
 
   const TILE_URLS = {
     street: 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-    satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    satellite: 'https://clarity.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
   } as const;
+  const SATELLITE_LABELS = 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}';
+
+  const applyBasemap = () => {
+    const L = leafletMod.current;
+    const map = leafletRef.current?.map;
+    if (!L || !map) return;
+    if (tileRef.current) tileRef.current.remove();
+    if (labelRef.current) labelRef.current.remove();
+    const isSatellite = basemapRef.current === 'satellite';
+    tileRef.current = L.tileLayer(isSatellite ? TILE_URLS.satellite : TILE_URLS.street, {
+      attribution: isSatellite ? '© Esri, Maxar, Earthstar Geographics' : '© OpenStreetMap contributors © CARTO',
+      maxZoom: 19,
+    }).addTo(map);
+    // Nombres de calles y sectores sobre la imagen satelital (vista híbrida realista)
+    if (isSatellite) {
+      labelRef.current = L.tileLayer(SATELLITE_LABELS, {
+        attribution: '© Esri',
+        maxZoom: 19,
+      }).addTo(map);
+    }
+  };
 
   const setLocation = (loc: LatLng, zoom = 16) => {
     const dist = haversineKm(restaurantLocation, loc);
@@ -93,15 +115,7 @@ export function LocationPicker({ restaurantLocation, onSelect, onClose, delivery
         zoomControl: true,
       });
 
-      tileRef.current = L.tileLayer(
-        basemapRef.current === 'satellite' ? TILE_URLS.satellite : TILE_URLS.street,
-        {
-          attribution: basemapRef.current === 'satellite'
-            ? '© Esri, Maxar, Earthstar Geographics'
-            : '© OpenStreetMap contributors © CARTO',
-          maxZoom: 19,
-        }
-      ).addTo(map);
+      applyBasemap();
 
       // Marcador del restaurante (no movible)
       const restaurantIcon = L.divIcon({
@@ -158,16 +172,7 @@ export function LocationPicker({ restaurantLocation, onSelect, onClose, delivery
 
   /* ── Cambio de capa del mapa (Calles / Satélite) ── */
   useEffect(() => {
-    const L = leafletMod.current;
-    const map = leafletRef.current?.map;
-    if (!L || !map) return;
-    if (tileRef.current) tileRef.current.remove();
-    tileRef.current = L.tileLayer(basemap === 'satellite' ? TILE_URLS.satellite : TILE_URLS.street, {
-      attribution: basemap === 'satellite'
-        ? '© Esri, Maxar, Earthstar Geographics'
-        : '© OpenStreetMap contributors © CARTO',
-      maxZoom: 19,
-    }).addTo(map);
+    applyBasemap();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [basemap]);
 
