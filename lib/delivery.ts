@@ -8,6 +8,37 @@ export type DeliveryQuote = {
   isAvailable: boolean;
 };
 
+/* ───────────────────────────────────────────
+   Horario: soporta horas con minutos
+   (open: 11, openMinute: 30 → 11:30)
+─────────────────────────────────────────── */
+export function businessMinutes(catalog: Catalog): { open: number; close: number } {
+  const { open, close, openMinute = 0, closeMinute = 0 } = catalog.businessHours;
+  return { open: open * 60 + openMinute, close: close * 60 + closeMinute };
+}
+
+export function computeIsOpen(catalog: Catalog, now: Date = new Date()): boolean {
+  if (catalog.alwaysOpen) return true;
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: catalog.businessHours.timezone,
+    weekday: 'short', hour: 'numeric', minute: '2-digit', hour12: false,
+  }).formatToParts(now);
+  const weekday = parts.find((p) => p.type === 'weekday')?.value;
+  const hour    = Number(parts.find((p) => p.type === 'hour')?.value ?? 0) % 24;
+  const minute  = Number(parts.find((p) => p.type === 'minute')?.value ?? 0);
+  const { open, close } = businessMinutes(catalog);
+  const index = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(weekday ?? '');
+  return catalog.businessHours.days.includes(index)
+    && hour * 60 + minute >= open
+    && hour * 60 + minute < close;
+}
+
+export function formatBusinessHours(catalog: Catalog): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const { open, close } = businessMinutes(catalog);
+  return `${pad(Math.floor(open / 60))}:${pad(open % 60)} – ${pad(Math.floor(close / 60))}:${pad(close % 60)}`;
+}
+
 export function haversineKm(from: DeliveryLocation, to: DeliveryLocation): number {
   const earthRadiusKm = 6371;
   const latitudeDelta = ((to.lat - from.lat) * Math.PI) / 180;
@@ -25,7 +56,16 @@ export function quoteDelivery(catalog: Catalog, destination: DeliveryLocation): 
   if (!catalog.location) return null;
 
   const distanceKm = haversineKm(catalog.location, destination);
-  const fee = Number(((catalog.deliveryBaseFee ?? 1) + distanceKm * (catalog.deliveryRatePerKm ?? 0.5)).toFixed(2));
+  const baseFee = Number((catalog.deliveryBaseFee ?? 1).toFixed(2));
+  const ratePerKm = catalog.deliveryRatePerKm ?? 0.5;
+  const includedKm = catalog.deliveryIncludedKm;
+
+  // Si deliveryIncludedKm está definido: la tarifa base cubre esos km y
+  // luego se cobra ratePerKm solo por el excedente.
+  const fee = includedKm && includedKm > 0
+    ? Number((baseFee + Math.max(0, distanceKm - includedKm) * ratePerKm).toFixed(2))
+    : Number((baseFee + distanceKm * ratePerKm).toFixed(2));
+
   const maxDistanceKm = catalog.deliveryMaxKm;
   
   // Si es 0 o no está definido, consideramos que no hay límite (ilimitado)

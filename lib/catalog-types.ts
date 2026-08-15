@@ -68,13 +68,14 @@ export type Catalog = {
   infoImage?: string;
   template: TemplateName;
   minimumOrder: number;
-  businessHours: { timezone: string; open: number; close: number; days: number[] };
+  businessHours: { timezone: string; open: number; close: number; days: number[]; openMinute?: number; closeMinute?: number };
   sections: { name: string; products: Product[]; note?: string }[];
   theme?: CatalogTheme;
   backCover?: BackCover;
   // Política de envío del catálogo. Mantenerla en datos permite múltiples locales.
   location?: { lat: number; lng: number };          // coordenadas del restaurante
   deliveryRatePerKm?: number;                        // costo por km (ej: 0.50)
+  deliveryIncludedKm?: number;                       // km incluidos en la tarifa base (0/ausente = se cobra desde el 1er km)
   deliveryBaseFee?: number;                          // tarifa base de envío
   deliveryMaxKm?: number;                            // radio máximo de entrega
   requiresShipping?: boolean;                        // si es falso, desactiva pedir ubicación en el carrito

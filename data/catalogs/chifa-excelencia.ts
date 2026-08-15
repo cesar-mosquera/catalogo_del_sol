@@ -12,9 +12,14 @@ export const chifaExcelencia: Catalog = {
   logoImage: '',  // pendiente: logo extraído del PDF
   template: 'list',
   minimumOrder: 0,
-  businessHours: { timezone: 'America/Guayaquil', open: 11, close: 23, days: [0, 1, 2, 3, 4, 5, 6] },
-  location: { lat: -2.2137, lng: -79.8942 },
-  requiresShipping: false,
+  businessHours: { timezone: 'America/Guayaquil', open: 11, close: 22, openMinute: 30, closeMinute: 30, days: [0, 1, 2, 3, 4, 5, 6] },
+  // Ubicación del local: Av. Maldonado y S57, Sector Guamani (Guayaquil)
+  location: { lat: -2.2144, lng: -79.8797 },
+  requiresShipping: true,
+  deliveryBaseFee: 2.00,     // tarifa base $2.00
+  deliveryIncludedKm: 2.9,   // los primeros 2.9 km van en la base
+  deliveryRatePerKm: 0.50,   // $0.50 por km adicional después de 2.9 km
+  deliveryMaxKm: 0,          // 0 = sin límite de radio
   checkoutNote: 'Los pedidos se confirman por WhatsApp. Para llevar tiene un costo de 0,30 ctv. por cada tarrina.',
 
   /* ── Paleta extraída del PDF ── */

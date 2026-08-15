@@ -117,7 +117,7 @@ function ProductEditor({
   const [selectedSection, setSelectedSection] = useState(initialSectionName);
 
   const [form, setForm] = useState<Product>({
-    id: product?.id ?? `prod-${Date.now()}`,
+    id: product?.id ?? '',
     name: product?.name ?? '',
     price: product?.price ?? 0,
     description: product?.description ?? '',
@@ -130,7 +130,11 @@ function ProductEditor({
 
   const save = () => {
     if (!form.name.trim()) return;
-    const prod: Product = { ...form, badge: form.badge || undefined };
+    const prod: Product = {
+      ...form,
+      id: form.id || `prod-${Date.now()}`,
+      badge: form.badge || undefined,
+    };
     upsert(catalogSlug, selectedSection, prod);
     onClose();
   };
@@ -205,6 +209,7 @@ function Field({
   // Sync prop -> local if it changes from outside
   useEffect(() => {
     if (type !== 'number' || parseFloat(value) === parseFloat(local) || (value === '' && local === '')) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (value !== local) setLocal(value);
     }
   }, [value, type, local]);

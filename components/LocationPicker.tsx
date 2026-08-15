@@ -9,11 +9,16 @@ interface LocationPickerProps {
   restaurantLocation: LatLng;
   onSelect: (loc: LatLng, distKm: number) => void;
   onClose: () => void;
+  // Radio de la zona de entrega incluida en la tarifa base (en km). Dibuja el círculo en el mapa.
+  deliveryRadiusKm?: number;
 }
 
-export function LocationPicker({ restaurantLocation, onSelect, onClose }: LocationPickerProps) {
+export function LocationPicker({ restaurantLocation, onSelect, onClose, deliveryRadiusKm }: LocationPickerProps) {
   const mapRef    = useRef<HTMLDivElement>(null);
   const leafletRef = useRef<{ map: L.Map; marker: L.Marker } | null>(null);
+  const leafletMod  = useRef<typeof import('leaflet') | null>(null);
+  const routeRef   = useRef<L.Polyline | null>(null);
+  const circleRef  = useRef<L.Circle | null>(null);
   const [picked, setPicked]   = useState<LatLng | null>(null);
   const [distKm, setDistKm]   = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
@@ -33,6 +38,17 @@ export function LocationPicker({ restaurantLocation, onSelect, onClose }: Locati
     if (leafletRef.current) {
       leafletRef.current.marker.setLatLng([loc.lat, loc.lng]);
       leafletRef.current.map.setView([loc.lat, loc.lng], zoom);
+      // Línea gráfica local → cliente
+      const L = leafletMod.current;
+      if (L) {
+        if (!routeRef.current) {
+          routeRef.current = L.polyline([restaurantLocation, loc], {
+            color: '#ea580c', weight: 3, dashArray: '6 6', opacity: 0.8,
+          }).addTo(leafletRef.current.map);
+        } else {
+          routeRef.current.setLatLngs([restaurantLocation, loc]);
+        }
+      }
     }
   };
 
@@ -51,6 +67,7 @@ export function LocationPicker({ restaurantLocation, onSelect, onClose }: Locati
 
     import('leaflet').then((L) => {
       if (!mapRef.current || leafletRef.current) return;
+      leafletMod.current = L;
 
       // Icono por defecto de Leaflet
       delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
@@ -82,6 +99,19 @@ export function LocationPicker({ restaurantLocation, onSelect, onClose }: Locati
         .addTo(map)
         .bindPopup('📍 Restaurante')
         .openPopup();
+
+      // Zona gráfica de entrega (radio incluido en la tarifa base)
+      if (deliveryRadiusKm && deliveryRadiusKm > 0) {
+        circleRef.current = L.circle([restaurantLocation.lat, restaurantLocation.lng], {
+          radius: deliveryRadiusKm * 1000,
+          color: '#ea580c',
+          weight: 1.5,
+          dashArray: '6 6',
+          fillColor: '#f97316',
+          fillOpacity: 0.12,
+          className: 'delivery-zone-circle',
+        }).addTo(map);
+      }
 
       // Marcador del cliente (movible)
       const clientIcon = L.divIcon({
@@ -228,6 +258,12 @@ export function LocationPicker({ restaurantLocation, onSelect, onClose }: Locati
               Lat. {picked.lat.toFixed(5)} · Lng. {picked.lng.toFixed(5)}
             </p>
           </div>
+        )}
+
+        {deliveryRadiusKm && deliveryRadiusKm > 0 && !picked && (
+          <p className="text-xs text-stone-500 text-center">
+            El círculo naranja es la zona con tarifa base de entrega ({deliveryRadiusKm} km).
+          </p>
         )}
 
         <button

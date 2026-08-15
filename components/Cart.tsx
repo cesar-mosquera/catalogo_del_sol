@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import type { Catalog } from '@/lib/catalog-types';
 import { useCart, type CartItem } from '@/store/cart';
 import type { LatLng } from './LocationPicker';
-import { quoteDelivery } from '@/lib/delivery';
+import { quoteDelivery, computeIsOpen, formatBusinessHours } from '@/lib/delivery';
 
 // Leaflet requiere el DOM → carga dinámica sin SSR
 const LocationPicker = dynamic(
@@ -14,20 +14,6 @@ const LocationPicker = dynamic(
 );
 
 const EMPTY_CART: CartItem[] = [];
-
-function isOpen(catalog: Catalog) {
-  const now   = new Date();
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: catalog.businessHours.timezone,
-    weekday: 'short', hour: 'numeric', hour12: false,
-  }).formatToParts(now);
-  const weekday = parts.find((p) => p.type === 'weekday')?.value;
-  const hour    = Number(parts.find((p) => p.type === 'hour')?.value ?? 0) % 24;
-  const index   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].indexOf(weekday ?? '');
-  return catalog.businessHours.days.includes(index)
-    && hour >= catalog.businessHours.open
-    && hour <  catalog.businessHours.close;
-}
 
 export function Cart({ catalog }: { catalog: Catalog }) {
   const cartState = useCart((s) => s.carts[catalog.slug] ?? EMPTY_CART);
@@ -61,7 +47,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
   
   // Si el catálogo requiere envío pero olvidaron configurar las coordenadas, permitimos continuar sin mapa.
   const hasLocation  = (requiresLocation && catalog.location) ? clientLoc !== null : true;
-  const open_        = catalog.alwaysOpen || isOpen(catalog);
+  const open_        = computeIsOpen(catalog);
 
   const onLocationSelected = (loc: LatLng, km: number) => {
     setClientLoc(loc);
@@ -237,7 +223,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
               {/* Estado del negocio */}
               {!open_ && (
                 <p className="text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2 text-center">
-                  🔴 El negocio está cerrado. Horario: {catalog.businessHours.open}:00 – {catalog.businessHours.close}:00
+                  🔴 El negocio está cerrado. Horario: {formatBusinessHours(catalog)}
                 </p>
               )}
 
@@ -258,6 +244,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
       {showMap && catalog.location && (
         <LocationPicker
           restaurantLocation={catalog.location}
+          deliveryRadiusKm={catalog.deliveryIncludedKm}
           onSelect={onLocationSelected}
           onClose={() => setShowMap(false)}
         />

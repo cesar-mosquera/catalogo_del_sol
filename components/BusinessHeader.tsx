@@ -3,33 +3,18 @@
 import { useEffect, useState } from 'react';
 import type { Catalog } from '@/lib/catalog-types';
 import { asset } from '@/lib/asset';
-
-function computeIsOpen(catalog: Catalog): boolean {
-  if (catalog.alwaysOpen) return true;
-  const now = new Date();
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: catalog.businessHours.timezone,
-    weekday: 'short', hour: 'numeric', hour12: false,
-  }).formatToParts(now);
-  const weekday = parts.find((p) => p.type === 'weekday')?.value;
-  const hour = Number(parts.find((p) => p.type === 'hour')?.value ?? 0) % 24;
-  const index = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(weekday ?? '');
-  return catalog.businessHours.days.includes(index)
-    && hour >= catalog.businessHours.open
-    && hour < catalog.businessHours.close;
-}
+import { computeIsOpen, formatBusinessHours } from '@/lib/delivery';
 
 export function BusinessHeader({ catalog, clean = false }: { catalog: Catalog; clean?: boolean }) {
   const [open, setOpen] = useState(() => computeIsOpen(catalog));
 
   // Actualiza el estado "abierto/cerrado" en vivo (cada minuto)
   useEffect(() => {
-    setOpen(computeIsOpen(catalog));
     const id = setInterval(() => setOpen(computeIsOpen(catalog)), 60_000);
     return () => clearInterval(id);
   }, [catalog]);
 
-  const hours = `${catalog.businessHours.open}:00 – ${catalog.businessHours.close}:00`;
+  const hours = formatBusinessHours(catalog);
 
   // Modo "solo imagen": muestra la portada completa, sin texto superpuesto
   if (clean) {
