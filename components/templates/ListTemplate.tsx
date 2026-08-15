@@ -2,15 +2,31 @@ import type { Catalog } from '@/lib/catalog-types';
 import { asset } from '@/lib/asset';
 import { ProductCard } from '@/components/ProductCard';
 import { BusinessHeader } from '@/components/BusinessHeader';
+import { computeIsOpen, formatBusinessHours } from '@/lib/delivery';
 
 export function ListTemplate({ catalog }: { catalog: Catalog }) {
   const theme = catalog.theme;
+  const isOpen = computeIsOpen(catalog);
+  const hours = formatBusinessHours(catalog);
   return (
     <main
       className="mx-auto max-w-4xl space-y-12 px-4 py-6"
       style={{ backgroundColor: theme?.pageBg, minHeight: '100vh', color: theme?.pageText }}
     >
       <BusinessHeader catalog={catalog} clean={!!catalog.theme} />
+
+      {/* Banner de negocio cerrado — visible antes de que el cliente elija platos */}
+      {!isOpen && (
+        <div className="flex items-start gap-3 rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm">
+          <span className="text-lg">🔴</span>
+          <div>
+            <p className="font-bold text-amber-900">Estamos cerrados ahora</p>
+            <p className="text-amber-700 mt-0.5">
+              Horario: {hours}. Puedes hacer tu pedido con anticipación y lo confirmamos al abrir.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Página informativa: imagen que sigue a la portada */}
       {catalog.infoImage && (

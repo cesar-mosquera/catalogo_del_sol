@@ -95,9 +95,18 @@ export function ProductCard({
         <div className="flex items-start justify-between gap-2">
           <h3 className={`font-bold ${t.name}`}>{product.name}</h3>
           <span className={`whitespace-nowrap font-bold ${t.priceBox} ${t.price}`}>
-            <span className={`${product.priceNote && !product.variants ? 'text-sm' : 'text-base'}`}>
-              ${displayPrice.toFixed(2)}
-            </span>
+            {product.variants && !selectedVariantId ? (
+              // Rango de precios visible antes de elegir opción
+              <span className="text-sm text-stone-500">
+                ${Math.min(...product.variants.map(v => v.price)).toFixed(2)}
+                {' – '}
+                ${Math.max(...product.variants.map(v => v.price)).toFixed(2)}
+              </span>
+            ) : (
+              <span className={`${product.priceNote && !product.variants ? 'text-sm' : 'text-base'}`}>
+                ${displayPrice.toFixed(2)}
+              </span>
+            )}
             {product.priceNote && !product.variants && (
               <span className="block text-right font-semibold leading-tight" style={{ fontSize: '9px' }}>
                 {product.priceNote}

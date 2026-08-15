@@ -273,7 +273,7 @@ export const chifaExcelencia: Catalog = {
     { name: 'Bebidas', note: '', products: [
       { id: 'cola-mediana', name: 'Cola mediana', price: 0.90, description: '', image: '' },
       { id: 'cola-1lt', name: 'Cola de 1 litro', price: 2.80, description: '', image: '' },
-      { id: 'cola-3lt', name: 'Cola de 3 litros', price: 4.00, description: '', image: '' },
+      { id: 'cola-3lt', name: 'Cola de 3 litros', price: 4.00, description: '', image: '/img/coca-3-litros.webp' },
       { id: 'vaso-naranja', name: 'Vaso de naranja', price: 2.80, description: '', image: '' },
       { id: 'vaso-limonada', name: 'Vaso de limonada', price: 2.20, description: '', image: '' },
       { id: 'vaso-jugo', name: 'Vaso de jugo', price: 2.80, description: '', image: '' },

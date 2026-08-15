@@ -290,6 +290,11 @@ button, input, textarea { font: inherit; }
   80%, 100% { transform: scale(2.2); opacity: 0; }
 }
 
+@keyframes shimmer {
+  0%   { transform: translateX(-200%); }
+  100% { transform: translateX(400%); }
+}
+
 .leaflet-container {
   font-family: inherit;
   background: #e7e5e4 !important;

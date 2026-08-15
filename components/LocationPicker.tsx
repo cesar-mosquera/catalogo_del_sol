@@ -560,7 +560,14 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
                 <span className="text-stone-600 leading-snug">{address}</span>
               </div>
             )}
-            {routeState === 'loading' && <p className="text-xs text-stone-400">🚗 Calculando ruta por calles…</p>}
+            {routeState === 'loading' && (
+              <div className="space-y-1.5">
+                <p className="text-xs text-stone-500">🚗 Calculando la ruta por calles… (unos segundos)</p>
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-stone-200">
+                  <div className="h-full w-1/3 rounded-full bg-orange-500 animate-[shimmer_1.2s_ease-in-out_infinite]" />
+                </div>
+              </div>
+            )}
             {routeState === 'error' && !outOfRange && (
               <div className="flex items-center justify-between gap-2">
                 <p className="text-xs text-red-600">No se pudo calcular la ruta. Toca para reintentar.</p>
@@ -632,8 +639,10 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
             ? 'Fuera del radio de entrega'
             : routeKm === null
               ? (picked
-                  ? (routeState === 'error' ? 'No se pudo calcular la ruta. Mueve el pin.' : 'Calculando ruta por calles…')
-                  : 'Selecciona un punto en el mapa')
+                  ? (routeState === 'error'
+                      ? 'No se pudo calcular la ruta — mueve el pin'
+                      : '⏳ Calculando ruta… espera un momento')
+                  : 'Selecciona un punto en el mapa o usa GPS')
               : 'Confirmar esta ubicación ✓'}
         </button>
       </div>

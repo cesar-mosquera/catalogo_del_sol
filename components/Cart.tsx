@@ -78,8 +78,12 @@ export function Cart({ catalog }: { catalog: Catalog }) {
       .map((i) => `• ${i.quantity} × ${i.name} — $${(i.quantity * i.price).toFixed(2)}`)
       .join('\n');
 
-    const locLine = (requiresLocation && clientLoc) ? `📍 https://maps.google.com/?q=${clientLoc.lat},${clientLoc.lng}\n` : '';
-    const distLine = (requiresLocation && distKm !== null) ? `*🛵 Envío (ruta por calles ${distKm.toFixed(2)} km): $${deliveryFee.toFixed(2)}*\n` : '';
+    const locLine = (requiresLocation && clientLoc)
+      ? `📍 Entregar en: https://maps.google.com/maps?q=${clientLoc.lat},${clientLoc.lng}\n`
+      : '';
+    const distLine = (requiresLocation && distKm !== null)
+      ? `*🛵 Envío (${distKm.toFixed(2)} km por calles): $${deliveryFee.toFixed(2)}*\n`
+      : '';
     const notesLine = notes.trim() ? `📝 Indicaciones: ${notes.trim()}` : '';
     const checkoutLine = catalog.checkoutNote ? `\n*ℹ️ ${catalog.checkoutNote}*\n` : '';
 
@@ -241,6 +245,18 @@ export function Cart({ catalog }: { catalog: Catalog }) {
                 <p className="text-xs text-amber-700 bg-amber-50 rounded-lg px-3 py-2 text-center">
                   🔴 El negocio está cerrado. Horario: {formatBusinessHours(catalog)}. Aún puedes enviar tu pedido; lo confirmaremos al abrir.
                 </p>
+              )}
+
+              {/* Aviso contextual cuando falta ubicación — el cuello de botella más crítico */}
+              {requiresLocation && !clientLoc && items.length > 0 && (
+                <button
+                  onClick={() => setShowMap(true)}
+                  className="w-full flex items-center gap-2 rounded-xl bg-amber-50 border border-amber-300 px-4 py-3 text-sm font-bold text-amber-800 hover:bg-amber-100 transition-colors text-left"
+                >
+                  <span className="text-lg">👆</span>
+                  <span>Selecciona tu dirección de entrega para continuar</span>
+                  <span className="ml-auto text-amber-500">→</span>
+                </button>
               )}
 
               {/* Botón enviar */}
