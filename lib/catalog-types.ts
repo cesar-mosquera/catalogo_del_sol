@@ -9,9 +9,43 @@ export type Product = {
   badge?: string;
   demoUrl?: string;
   deliveryDays?: string;
+  // Nota de precio visible en la tarjeta, ej: "MEDIO $5.50 | COMPLETO $6.50"
+  priceNote?: string;
 };
 
 export type FaqItem = { q: string; a: string };
+
+// Colores de una tarjeta de producto. Se pasan como clases de Tailwind.
+export type CardTheme = {
+  accent: string;       // botón agregar / contador (bg)
+  accentHover: string;  // hover del botón
+  ring: string;         // borde suave de la tarjeta
+  price: string;        // color del precio
+  priceBox: string;     // fondo de la caja del precio ('' = sin caja)
+  badgeBg: string;
+  badgeText: string;
+  name: string;         // color del nombre del producto
+};
+
+// Paleta opcional de un catálogo para personalizar la plantilla.
+// Los colores van como valores CSS directos (hex/rgba) y se aplican con inline style.
+export type CatalogTheme = {
+  coverBg: string;       // fondo portada / contraportada
+  coverTitle: string;    // color del nombre en portada
+  coverTagline: string;  // color de la frase en portada
+  pageBg: string;        // fondo de las páginas interiores
+  pageText: string;      // texto general de la página
+  heading: string;       // color de títulos de sección
+  headingSplash: string; // fondo decorativo detrás del título
+  card: CardTheme;
+};
+
+export type BackCover = {
+  title?: string;        // ej: "Vuelve Pronto"
+  subtitle?: string;
+  rows?: { label?: string; value: string }[];
+  footer?: string;
+};
 
 export type ComparisonRow = {
   feature: string;
@@ -33,7 +67,9 @@ export type Catalog = {
   template: TemplateName;
   minimumOrder: number;
   businessHours: { timezone: string; open: number; close: number; days: number[] };
-  sections: { name: string; products: Product[] }[];
+  sections: { name: string; products: Product[]; note?: string }[];
+  theme?: CatalogTheme;
+  backCover?: BackCover;
   // Política de envío del catálogo. Mantenerla en datos permite múltiples locales.
   location?: { lat: number; lng: number };          // coordenadas del restaurante
   deliveryRatePerKm?: number;                        // costo por km (ej: 0.50)

@@ -86,9 +86,19 @@ button, input, textarea { font: inherit; }
 
   .notebook-menu-page {
     padding: 20px 14px calc(38px + env(safe-area-inset-bottom)) 26px !important;
-    background-color: #fff9ed !important;
-    background-image: linear-gradient(to bottom, transparent 0, transparent 29px, rgba(189, 133, 100, 0.18) 30px) !important;
+    background-color: var(--menu-page-bg, #fff9ed) !important;
+    background-image: var(--menu-page-lines, linear-gradient(to bottom, transparent 0, transparent 29px, rgba(189, 133, 100, 0.18) 30px)) !important;
     background-size: 100% 30px !important;
+  }
+
+  /* Catálogos temáticos: fondo liso sin rayado de cuaderno */
+  .notebook-menu-page.menu-flat {
+    --menu-page-lines: none;
+    background-size: auto !important;
+  }
+
+  .notebook-menu-page.menu-flat::before {
+    display: none;
   }
 
   .notebook-menu-page::before {

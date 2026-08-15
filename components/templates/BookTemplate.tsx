@@ -5,6 +5,17 @@ import type { Catalog, Product } from '@/lib/catalog-types';
 import { asset } from '@/lib/asset';
 import { ProductCard } from '@/components/ProductCard';
 
+/* Colores por defecto (look clásico naranja/piedra) si el catálogo no trae `theme` */
+const T = {
+  coverBg: '#0c0a09',       // stone-950
+  coverTitle: '#ffffff',
+  coverTagline: '#fed7aa',  // orange-200
+  pageBg: '#fff7ed',        // orange-50
+  pageText: '#1c1917',      // stone-900
+  heading: '#1c1917',
+  headingSplash: 'rgba(254,215,170,0.6)', // orange-200/60
+};
+
 /* ────────────────────────────────────────────────────────── */
 type FlipState = {
   dir: 'next' | 'prev';
@@ -35,14 +46,15 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
   const touchRef  = useRef<{ x: number; y: number; locked: 'h'|'v'|null } | null>(null);
 
   const pages = useMemo(() => {
-    const pgs: { sectionName: string; products: Product[]; isContinued: boolean }[] = [];
+    const pgs: { sectionName: string; products: Product[]; isContinued: boolean; note?: string }[] = [];
     catalog.sections.forEach(sec => {
       const chunkSize = 2; // Máximo 2 productos por página para evitar scroll vertical
       for (let i = 0; i < sec.products.length; i += chunkSize) {
         pgs.push({
           sectionName: sec.name,
           products: sec.products.slice(i, i + chunkSize),
-          isContinued: i > 0
+          isContinued: i > 0,
+          note: i === 0 ? sec.note : undefined,
         });
       }
     });
@@ -50,6 +62,18 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
   }, [catalog.sections]);
   const lastPage = pages.length + 1;
   const total    = lastPage + 1;
+
+  const theme = catalog.theme;
+  const themed = !!theme;
+  const t = {
+    coverBg:      theme?.coverBg      ?? T.coverBg,
+    coverTitle:   theme?.coverTitle   ?? T.coverTitle,
+    coverTagline: theme?.coverTagline ?? T.coverTagline,
+    pageBg:       theme?.pageBg      ?? T.pageBg,
+    pageText:     theme?.pageText    ?? T.pageText,
+    heading:      theme?.heading     ?? T.heading,
+    headingSplash: theme?.headingSplash ?? T.headingSplash,
+  };
 
   /* ── Helpers ─────────────────────────────────── */
   const canGo = (dir: 'next' | 'prev') => {
@@ -242,16 +266,22 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
 
             {/* PORTADA */}
             {renderPage(0,
-              <div className="relative flex h-full flex-col overflow-hidden bg-stone-950 text-white">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={asset(catalog.coverImage)} alt="" className="absolute inset-0 h-full w-full object-cover" style={{ opacity: 0.9 }} />
-                <div className="absolute inset-x-0 bottom-0 h-3/5" style={{ background: 'linear-gradient(to top,rgba(0,0,0,0.85) 0%,transparent 100%)' }} />
+              <div className={`relative flex h-full flex-col overflow-hidden text-white`} style={{ backgroundColor: t.coverBg }}>
+                {catalog.coverImage && (
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={asset(catalog.coverImage)} alt="" className="absolute inset-0 h-full w-full object-cover" style={{ opacity: 0.9 }} />
+                    <div className="absolute inset-x-0 bottom-0 h-3/5" style={{ background: 'linear-gradient(to top,rgba(0,0,0,0.85) 0%,transparent 100%)' }} />
+                  </>
+                )}
                 <div className="book-cover-content relative z-10 flex h-full flex-col justify-end p-6 pb-8">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={asset(catalog.logoImage)} alt="" className="mb-auto h-16 w-16 object-contain drop-shadow-lg" />
+                  {catalog.logoImage && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={asset(catalog.logoImage)} alt="" className="mb-auto h-16 w-16 object-contain drop-shadow-lg" />
+                  )}
                   <p className="text-[10px] font-bold uppercase tracking-[0.25em] opacity-60">Menú Digital</p>
-                  <h1 className="mt-1 font-serif text-3xl font-bold leading-tight drop-shadow">{catalog.name}</h1>
-                  <p className="mt-1 text-sm text-orange-200 drop-shadow">{catalog.tagline}</p>
+                  <h1 className="mt-1 font-serif text-3xl font-bold leading-tight drop-shadow" style={{ color: t.coverTitle }}>{catalog.name}</h1>
+                  <p className="mt-1 text-sm drop-shadow" style={{ color: t.coverTagline }}>{catalog.tagline}</p>
                   <div className="mt-6 flex items-center gap-1 text-xs opacity-50">
                     <span>Desliza para ver el menú</span>
                     <span className="animate-bounce-x ml-1">→</span>
@@ -262,28 +292,72 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
 
             {/* SECCIONES */}
             {pages.map((page, si) => renderPage(si + 1,
-              <div className="notebook-menu-page relative h-full overflow-hidden bg-orange-50 p-4 pb-10 flex flex-col">
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-orange-600">{catalog.name}</p>
-                <h2 className="mb-3 mt-1 font-serif text-xl font-bold text-stone-900">
-                  {page.sectionName} {page.isContinued && <span className="text-sm font-normal text-stone-500">(cont.)</span>}
-                </h2>
+              <div
+                className={`notebook-menu-page relative h-full overflow-hidden p-4 pb-10 flex flex-col ${themed ? 'menu-flat' : ''}`}
+                style={{ backgroundColor: t.pageBg, '--menu-page-bg': t.pageBg } as React.CSSProperties}
+              >
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-60" style={{ color: t.pageText }}>{catalog.name}</p>
+                <div className="relative mt-2 w-fit mb-2">
+                  <span className="absolute -inset-x-2 -inset-y-1 -rotate-2 rounded-lg" style={{ backgroundColor: t.headingSplash }} aria-hidden="true" />
+                  <h2 className="relative font-serif text-xl font-bold" style={{ color: t.heading }}>
+                    {page.sectionName} {page.isContinued && <span className="text-sm font-normal opacity-50">(cont.)</span>}
+                  </h2>
+                </div>
+                {page.note && (
+                  <p className="mb-2 text-xs italic opacity-70" style={{ color: t.pageText }}>{page.note}</p>
+                )}
                 <div className="space-y-3 flex-1">
                   {page.products.map(p => (
-                    <ProductCard key={p.id} product={p} catalogSlug={catalog.slug} compact />
+                    <ProductCard key={p.id} product={p} catalogSlug={catalog.slug} compact theme={catalog.theme?.card} />
                   ))}
                 </div>
-                <p className="mt-4 text-center text-[10px] text-stone-400">← desliza para ver más →</p>
+                <p className="mt-4 text-center text-[10px] opacity-50" style={{ color: t.pageText }}>← desliza para ver más →</p>
               </div>
             ))}
 
             {/* CONTRAPORTADA */}
             {renderPage(lastPage,
-              <div className="notebook-back-page flex h-full flex-col items-center justify-center bg-stone-900 p-8 text-center text-white">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={asset(catalog.logoImage)} alt="" className="h-20 w-20 object-contain" />
-                <h2 className="mt-5 font-serif text-2xl">Gracias por visitarnos</h2>
-                <p className="mt-3 text-sm text-stone-300">Agrega tus favoritos al carrito y confirma por WhatsApp.</p>
-              </div>
+              (() => {
+                const back = catalog.backCover;
+                return (
+                  <div className={`notebook-back-page flex h-full flex-col items-center justify-center p-8 text-center text-white`} style={{ backgroundColor: t.coverBg }}>
+                    {back ? (
+                      <>
+                        {catalog.logoImage && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={asset(catalog.logoImage)} alt="" className="h-20 w-20 object-contain" />
+                        )}
+                        {back.title && (
+                          <h2 className="mt-5 font-serif text-3xl font-bold" style={{ color: t.coverTitle }}>{back.title}</h2>
+                        )}
+                        {back.subtitle && <p className="mt-2 text-sm" style={{ color: t.coverTagline }}>{back.subtitle}</p>}
+                        <div className="mt-6 w-full max-w-xs space-y-4">
+                          {back.rows?.map((row, i) => (
+                            <div key={i}>
+                              {row.label && (
+                                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/60">{row.label}</p>
+                              )}
+                              <p className="mt-0.5 text-lg font-bold" style={{ color: t.coverTitle }}>{row.value}</p>
+                            </div>
+                          ))}
+                        </div>
+                        {back.footer && (
+                          <p className="absolute bottom-4 left-4 right-4 text-[9px] text-white/40">{back.footer}</p>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        {catalog.logoImage && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={asset(catalog.logoImage)} alt="" className="h-20 w-20 object-contain" />
+                        )}
+                        <h2 className="mt-5 font-serif text-2xl">Gracias por visitarnos</h2>
+                        <p className="mt-3 text-sm text-stone-300">Agrega tus favoritos al carrito y confirma por WhatsApp.</p>
+                      </>
+                    )}
+                  </div>
+                );
+              })()
             )}
 
           </div>

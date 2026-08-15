@@ -1,24 +1,39 @@
 'use client';
 
 import { useState } from 'react';
-import type { Product } from '@/lib/catalog-types';
+import type { Product, CardTheme } from '@/lib/catalog-types';
 import { asset } from '@/lib/asset';
 import { useCart } from '@/store/cart';
+
+const DEFAULT_THEME: CardTheme = {
+  accent: 'bg-orange-600',
+  accentHover: 'hover:bg-orange-700',
+  ring: 'ring-orange-100',
+  price: 'text-orange-700',
+  priceBox: '',
+  badgeBg: 'bg-amber-100',
+  badgeText: 'text-amber-800',
+  name: 'text-stone-900',
+};
 
 export function ProductCard({
   product,
   compact = false,
   catalogSlug,
+  theme,
 }: {
   product: Product;
   compact?: boolean;
   catalogSlug: string;
+  theme?: CardTheme;
 }) {
   const add = useCart((state) => state.add);
   const remove = useCart((state) => state.remove);
   const quantity = useCart((s) => s.carts[catalogSlug]?.find(i => i.id === product.id)?.quantity ?? 0);
-  const src = asset(product.image);
+  const src = product.image ? asset(product.image) : '';
   const [added, setAdded] = useState(false);
+
+  const t = { ...DEFAULT_THEME, ...theme };
 
   const handleAdd = () => {
     add(catalogSlug, product);
@@ -27,21 +42,30 @@ export function ProductCard({
   };
 
   return (
-    <article className={`overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-orange-100`}>
+    <article className={`overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ${t.ring}`}>
       {/* Imagen: next/image se usaría para optimizar rutas estáticas si tuvieran un loader configurado */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={src}
-        alt={product.name}
-        className={compact ? 'h-32 w-full object-cover' : 'h-40 w-full object-cover'}
-      />
+      {src && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={src}
+          alt={product.name}
+          className={compact ? 'h-32 w-full object-cover' : 'h-40 w-full object-cover'}
+        />
+      )}
       <div className="flex flex-1 flex-col gap-2 p-4">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-bold text-stone-900">{product.name}</h3>
-          <span className="font-bold text-orange-700 whitespace-nowrap">${product.price.toFixed(2)}</span>
+          <h3 className={`font-bold ${t.name}`}>{product.name}</h3>
+          <span className={`whitespace-nowrap font-bold ${t.priceBox} ${t.price}`}>
+            <span className={`${product.priceNote ? 'text-sm' : 'text-base'}`}>${product.price.toFixed(2)}</span>
+            {product.priceNote && (
+              <span className="block text-right font-semibold leading-tight" style={{ fontSize: '9px' }}>
+                {product.priceNote}
+              </span>
+            )}
+          </span>
         </div>
         {product.badge && (
-          <span className="w-fit rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
+          <span className={`w-fit rounded-full px-2 py-0.5 text-xs font-semibold ${t.badgeBg} ${t.badgeText}`}>
             {product.badge}
           </span>
         )}
@@ -58,7 +82,7 @@ export function ProductCard({
             </a>
           )}
           {quantity > 0 ? (
-            <div className="flex flex-1 items-center justify-between gap-1 rounded-xl bg-orange-600 px-1.5 py-1 text-white shadow-sm">
+            <div className={`flex flex-1 items-center justify-between gap-1 rounded-xl px-1.5 py-1 text-white shadow-sm ${t.accent}`}>
               <button
                 onClick={() => remove(catalogSlug, product.id)}
                 aria-label="Restar"
@@ -81,7 +105,7 @@ export function ProductCard({
               className={`flex-1 rounded-xl px-3 py-2 text-sm font-semibold transition-colors duration-300 ${
                 added
                   ? 'bg-green-600 text-white'
-                  : 'bg-orange-600 text-white hover:bg-orange-700'
+                  : `${t.accent} ${t.accentHover} text-white`
               }`}
             >
               {added ? '✅ Agregado' : '🛒 Agregar'}
