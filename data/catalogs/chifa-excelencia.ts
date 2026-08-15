@@ -83,7 +83,7 @@ export const chifaExcelencia: Catalog = {
 
     /* ════════ ENTRADAS ════════ */
     { name: 'Entradas', note: '', products: [
-      { id: 'wantun-clasico', name: 'Wantán frito clásico (10 unidades)', price: 4.80, description: '', image: '' },
+      { id: 'wantun-clasico', name: 'Wantán frito clásico (10 unidades)', price: 4.80, description: '', image: '/img/wantan-clasico.webp' },
       { id: 'wantun-camaron-queso', name: 'Wantán relleno camarón y queso (10 unidades)', price: 6.50, description: '', image: '' },
       { id: 'wantun-cangrejo-queso', name: 'Wantán relleno cangrejo y queso (10 unidades)', price: 6.50, description: '', image: '' },
       { id: 'rollos-primavera', name: 'Rollos primavera (8 unidades)', price: 6.50, description: '', image: '' },
