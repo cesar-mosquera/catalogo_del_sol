@@ -10,7 +10,7 @@ export const chifaExcelencia: Catalog = {
   coverImage: '/img/portada.webp',
   infoImage: '/img/subportada.webp',
   logoImage: '',  // pendiente: logo extraído del PDF
-  template: 'book',
+  template: 'list',
   minimumOrder: 0,
   businessHours: { timezone: 'America/Guayaquil', open: 11, close: 23, days: [0, 1, 2, 3, 4, 5, 6] },
   location: { lat: -2.2137, lng: -79.8942 },
