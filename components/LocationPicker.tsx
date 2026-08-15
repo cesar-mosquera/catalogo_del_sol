@@ -28,7 +28,7 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
   const mapRef    = useRef<HTMLDivElement>(null);
   const leafletRef = useRef<{ map: L.Map; marker: L.Marker } | null>(null);
   const leafletMod  = useRef<typeof import('leaflet') | null>(null);
-  const roRef      = useRef<ResizeObserver | null>(null);
+  // roRef removed - ResizeObserver is managed locally in the useEffect below
   const routeRef   = useRef<L.Polyline | null>(null);
   const straightRef = useRef<L.Polyline | null>(null);
   const circleRef  = useRef<L.Circle | null>(null);
@@ -92,8 +92,6 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
       `https://router.project-osrm.org/route/v1/driving/${from.lng},${from.lat};${loc.lng},${loc.lat}` +
       `?overview=full&steps=false&geometries=geojson&alternatives=true`;
     const seq = pickSeq.current;
-    const L = leafletMod.current;
-    const map = leafletRef.current?.map;
     try {
       const res = await fetch(url);
       const data = await res.json();
@@ -108,6 +106,9 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
       setRouteKm(Number((route.distance / 1000).toFixed(2)));
       setRouteMin(Math.max(1, Math.round(route.duration / 60)));
       setRouteState('done');
+      // Leemos los refs DESPUÉS del await para usar los valores actuales
+      const L = leafletMod.current;
+      const map = leafletRef.current?.map;
       if (L && map) {
         if (routeRef.current) routeRef.current.remove();
         routeRef.current = L.polyline(coords, {
@@ -160,6 +161,8 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
     setLatitude(loc.lat.toFixed(6));
     setLongitude(loc.lng.toFixed(6));
     if (leafletRef.current) {
+      // Hace visible el marcador del cliente al asignar ubicación vía GPS/búsqueda/coordenadas
+      leafletRef.current.marker.setOpacity(1);
       leafletRef.current.marker.setLatLng([loc.lat, loc.lng]);
       leafletRef.current.map.setView([loc.lat, loc.lng], zoom);
     }
@@ -310,13 +313,17 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
         iconSize: [30, 30],
         iconAnchor: [15, 29],
       });
+      // El marcador del cliente empieza oculto (sin posición), se muestra al primer clic/GPS/búsqueda
       const marker = L.marker([restaurantLocation.lat, restaurantLocation.lng], {
         icon: clientIcon,
         draggable: true,
         title: 'Tu ubicación — arrastra para mover',
+        opacity: 0,
       }).addTo(map);
 
       const updatePicked = (latlng: L.LatLng) => {
+        // Hace visible el marcador al primer uso
+        marker.setOpacity(1);
         // Al elegir con clic/arrastre conservamos el zoom actual del usuario (solo centra), evita el "agrandón".
         setLocation({ lat: latlng.lat, lng: latlng.lng }, map.getZoom());
       };
@@ -555,7 +562,15 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
             )}
             {routeState === 'loading' && <p className="text-xs text-stone-400">🚗 Calculando ruta por calles…</p>}
             {routeState === 'error' && !outOfRange && (
-              <p className="text-xs text-red-600">No se pudo calcular la ruta por calles. Mueve el pin y reintenta.</p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs text-red-600">No se pudo calcular la ruta. Toca para reintentar.</p>
+                <button
+                  onClick={() => { if (picked) { setRouteState('loading'); setRouteKm(null); fetchRoute(picked); } }}
+                  className="shrink-0 rounded-lg bg-red-100 px-2 py-1 text-xs font-bold text-red-700 hover:bg-red-200 transition-colors"
+                >
+                  🔄 Reintentar
+                </button>
+              </div>
             )}
             {routeKm !== null && (
               <div className="flex justify-between">

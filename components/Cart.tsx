@@ -189,7 +189,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
                         <>
                           <p className="text-xs font-bold text-green-700">Ubicación seleccionada ✓</p>
                           <p className="text-xs text-stone-500 mt-0.5">
-                            {distKm !== null ? `${distKm.toFixed(2)} km del local · ` : ''}Envío: ${deliveryFee.toFixed(2)}
+                            {distKm !== null ? `${distKm.toFixed(2)} km · ` : ''}Envío: {distKm !== null ? `$${deliveryFee.toFixed(2)}` : '…'}
                           </p>
                         </>
                       ) : (
