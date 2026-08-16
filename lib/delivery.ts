@@ -44,6 +44,7 @@ export type DeliveryParams = {
   ratePerKm: number;
   includedKm?: number;
   maxKm?: number;
+  integerDistanceMode?: 'floor' | 'ceil' | 'round';
 };
 
 export function quoteForDistance(params: DeliveryParams, distanceKm: number): DeliveryQuote {
@@ -51,11 +52,16 @@ export function quoteForDistance(params: DeliveryParams, distanceKm: number): De
   const ratePerKm = params.ratePerKm ?? 0.5;
   const includedKm = params.includedKm;
 
+  let distToCharge = distanceKm;
+  if (params.integerDistanceMode === 'floor') distToCharge = Math.floor(distanceKm);
+  else if (params.integerDistanceMode === 'ceil') distToCharge = Math.ceil(distanceKm);
+  else if (params.integerDistanceMode === 'round') distToCharge = Math.round(distanceKm);
+
   // Si includedKm está definido: la tarifa base cubre esos km y
   // luego se cobra ratePerKm solo por el excedente.
   const fee = includedKm && includedKm > 0
-    ? Number((baseFee + Math.max(0, distanceKm - includedKm) * ratePerKm).toFixed(2))
-    : Number((baseFee + distanceKm * ratePerKm).toFixed(2));
+    ? Number((baseFee + Math.max(0, distToCharge - includedKm) * ratePerKm).toFixed(2))
+    : Number((baseFee + distToCharge * ratePerKm).toFixed(2));
 
   const maxDistanceKm = params.maxKm;
 
@@ -85,6 +91,7 @@ export function quoteDelivery(catalog: Catalog, destination: DeliveryLocation): 
     ratePerKm: catalog.deliveryRatePerKm ?? 0.5,
     includedKm: catalog.deliveryIncludedKm,
     maxKm: catalog.deliveryMaxKm,
+    integerDistanceMode: catalog.integerDistanceMode,
   };
   return quoteForDistance(params, haversineKm(catalog.location, destination));
 }

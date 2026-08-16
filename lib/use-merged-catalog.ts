@@ -27,7 +27,10 @@ export function useMergedCatalog(base: Catalog): Catalog {
       location: override.location ?? base.location,
       requiresShipping: override.requiresShipping ?? base.requiresShipping,
       allowPickup: override.allowPickup ?? base.allowPickup,
-      deliveryZones: override.deliveryZones ?? base.deliveryZones,
+      // Política de envío definida en el código del catálogo: si la base NO define
+      // zonas manuales, un override antiguo guardado en localStorage no puede
+      // reintroducirlas (evita mezclar mapa y zonas en un mismo catálogo).
+      deliveryZones: base.deliveryZones ? (override.deliveryZones ?? base.deliveryZones) : undefined,
       prepTimeMinutes: override.prepTimeMinutes ?? base.prepTimeMinutes,
       deliveryTimeMinutes: override.deliveryTimeMinutes ?? base.deliveryTimeMinutes,
       scheduleOrders: override.scheduleOrders ?? base.scheduleOrders,

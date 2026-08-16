@@ -92,6 +92,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
     ratePerKm: catalog.deliveryRatePerKm ?? 0.5,
     includedKm: catalog.deliveryIncludedKm,
     maxKm: catalog.deliveryMaxKm,
+    integerDistanceMode: catalog.integerDistanceMode,
   };
   // La distancia llega directo del mapa (usa la ruta real por calles si hay)
   const quote        = (!isPickup && requiresLocation && !selectedZone && distKm !== null) ? quoteForDistance(deliveryParams, distKm) : null;

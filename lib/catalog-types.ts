@@ -80,6 +80,7 @@ export type Catalog = {
   deliveryIncludedKm?: number;                       // km incluidos en la tarifa base (0/ausente = se cobra desde el 1er km)
   deliveryBaseFee?: number;                          // tarifa base de envío
   deliveryMaxKm?: number;                            // radio máximo de entrega
+  integerDistanceMode?: 'floor' | 'ceil' | 'round';  // cómo redondear la distancia antes de cobrar
   requiresShipping?: boolean;                        // si es falso, desactiva pedir ubicación en el carrito
   allowPickup?: boolean;                              // si es verdadero, el cliente puede elegir "retirar en el local"
   deliveryZones?: { name: string; fee: number }[];    // alternativa manual de envío por zona (sin mapa/OSRM)

@@ -23,9 +23,10 @@ export const chifaExcelencia: Catalog = {
   scheduleOrders: true,       // cliente puede programar fecha/hora
   paymentMethods: ['Efectivo', 'Transferencia', 'Tarjeta', 'Pago al recibir'],
   deliveryBaseFee: 2.00,     // tarifa base $2.00
-  deliveryIncludedKm: 2.9,   // los primeros 2.9 km van en la base
-  deliveryRatePerKm: 0.50,   // $0.50 por km adicional después de 2.9 km
+  deliveryIncludedKm: 2,     // los primeros 2 km van en la base (con redondeo floor)
+  deliveryRatePerKm: 0.50,   // $0.50 por km adicional después de 2 km
   deliveryMaxKm: 0,          // 0 = sin límite de radio
+  integerDistanceMode: 'floor', // cobra según la distancia truncada (ej. 4.08km -> 4km)
   packaging: { label: 'Tarrinas (Para llevar)', price: 0.30 },
   checkoutNote: 'Los pedidos se confirman por WhatsApp.',
 
