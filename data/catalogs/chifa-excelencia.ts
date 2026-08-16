@@ -17,6 +17,11 @@ export const chifaExcelencia: Catalog = {
   // Av. Pedro Vicente Maldonado, sector Guamaní, sur de Quito
   location: { lat: -0.3348695, lng: -78.550437 },
   requiresShipping: true,
+  allowPickup: true,          // el cliente puede elegir "retirar en el local" sin usar el mapa
+  prepTimeMinutes: 25,        // preparación aprox
+  deliveryTimeMinutes: 15,    // entrega aprox adicional
+  scheduleOrders: true,       // cliente puede programar fecha/hora
+  paymentMethods: ['Efectivo', 'Transferencia', 'Tarjeta', 'Pago al recibir'],
   deliveryBaseFee: 2.00,     // tarifa base $2.00
   deliveryIncludedKm: 2.9,   // los primeros 2.9 km van en la base
   deliveryRatePerKm: 0.50,   // $0.50 por km adicional después de 2.9 km

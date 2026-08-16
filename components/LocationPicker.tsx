@@ -52,6 +52,7 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
   const [longitude, setLongitude] = useState('');
   const [manualMode, setManualMode] = useState(false);
   const [mapReady, setMapReady] = useState(false);
+  const [tilesFailed, setTilesFailed] = useState(false);
 
   useEffect(() => { basemapRef.current = basemap; }, [basemap]);
 
@@ -76,6 +77,9 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
       attribution: isSatellite ? '© Esri, Maxar, Earthstar Geographics' : '© OpenStreetMap contributors © CARTO',
       maxZoom: 19,
     }).addTo(map);
+    // Si algún tile no carga (red lenta / proveedor caído), avisamos y ofrecemos reintentar
+    tileRef.current.on('tileerror', () => setTilesFailed(true));
+    tileRef.current.on('tileload', () => setTilesFailed(false));
     // Nombres de calles y sectores sobre la imagen satelital (vista híbrida realista)
     if (isSatellite) {
       labelRef.current = L.tileLayer(SATELLITE_LABELS, {
@@ -83,6 +87,11 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
         maxZoom: 19,
       }).addTo(map);
     }
+  };
+
+  const retryTiles = () => {
+    setTilesFailed(false);
+    applyBasemap();
   };
 
   /* ── Ruta real por calles (OSRM, sin llave) ── */
@@ -441,8 +450,11 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
   };
 
   const confirm = () => {
-    // Solo se confirma con la ruta por calles calculada (la más larga), nunca en línea recta
-    if (picked && routeKm !== null) onSelect(picked, routeKm);
+    // Se prefiere confirmar con la ruta por calles calculada (la más larga). Si
+    // OSRM falló, se confirma con la distancia en línea recta como respaldo.
+    const fallbackKm = distKm;
+    if (!picked || fallbackKm === null) return;
+    if (routeKm !== null || routeState === 'error') onSelect(picked, routeKm ?? fallbackKm);
   };
 
   return (
@@ -537,6 +549,18 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
             </div>
           </div>
         )}
+        {/* Aviso si el proveedor de imágenes del mapa no responde */}
+        {tilesFailed && (
+          <div className="absolute inset-x-0 top-0 z-[400] m-3 flex items-center justify-between gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800 shadow">
+            <span>⚠️ No se cargaron las imágenes del mapa. Puedes usar GPS o la búsqueda igualmente.</span>
+            <button
+              onClick={retryTiles}
+              className="shrink-0 rounded-md bg-amber-500 px-2.5 py-1 font-bold text-white hover:bg-amber-600 transition-colors"
+            >
+              Reintentar
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Panel inferior */}
@@ -576,7 +600,7 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
             )}
             {routeState === 'error' && !outOfRange && (
               <div className="flex items-center justify-between gap-2">
-                <p className="text-xs text-red-600">No se pudo calcular la ruta. Toca para reintentar.</p>
+                <p className="text-xs text-red-600">No se pudo calcular la ruta por calles. Reintenta o confirma con distancia estimada.</p>
                 <button
                   onClick={() => { if (picked) { setRouteState('loading'); setRouteKm(null); fetchRoute(picked); } }}
                   className="shrink-0 rounded-lg bg-red-100 px-2 py-1 text-xs font-bold text-red-700 hover:bg-red-200 transition-colors"
@@ -638,7 +662,7 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
 
         <button
           onClick={confirm}
-          disabled={!picked || outOfRange || routeKm === null}
+          disabled={!picked || outOfRange || (routeKm === null && routeState !== 'error')}
           className="w-full rounded-xl bg-orange-600 py-3.5 font-bold text-white shadow-lg shadow-orange-600/25 transition-all hover:bg-orange-700 active:scale-[0.99] disabled:bg-stone-300 disabled:shadow-none disabled:cursor-not-allowed"
         >
           {outOfRange
@@ -646,7 +670,7 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
             : routeKm === null
               ? (picked
                   ? (routeState === 'error'
-                      ? 'No se pudo calcular la ruta — mueve el pin'
+                      ? 'Confirmar igual (distancia estimada) ✓'
                       : '⏳ Calculando ruta… espera un momento')
                   : 'Selecciona un punto en el mapa o usa GPS')
               : 'Confirmar esta ubicación ✓'}

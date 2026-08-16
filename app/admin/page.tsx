@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useAdmin } from '@/store/admin-store';
 import { getCatalogs } from '@/lib/getCatalog';
 import { compressImage, localStorageUsageKB } from '@/lib/compress-image';
-import type { Product } from '@/lib/catalog-types';
+import type { Catalog, Product } from '@/lib/catalog-types';
 import { asset } from '@/lib/asset';
 
 /* ───────────────────────── PIN DE ACCESO ──────────────────── */
@@ -278,6 +278,14 @@ export default function AdminPage() {
   const val = (key: keyof typeof overrides, fallback: string | number) =>
     (overrides?.[key as keyof typeof overrides] as string | number | undefined) ?? fallback;
 
+  // Zonas de envío (override o base)
+  const zones = overrides?.deliveryZones ?? baseCatalog.deliveryZones ?? [];
+  const saveZones = (next: NonNullable<Catalog['deliveryZones']>) => setField(slug, 'deliveryZones', next);
+  const updateZone = (i: number, patch_: Partial<NonNullable<Catalog['deliveryZones']>[number]>) =>
+    saveZones(zones.map((z, idx) => (idx === i ? { ...z, ...patch_ } : z)));
+  const removeZone = (i: number) => saveZones(zones.filter((_, idx) => idx !== i));
+  const addZone = () => saveZones([...zones, { name: '', fee: 0 }]);
+
   if (!authed) return <PinGate onOk={() => setAuthed(true)} />;
 
   return (
@@ -327,6 +335,39 @@ export default function AdminPage() {
               <Field label="Pedido mínimo ($)" type="number" value={String(val('minimumOrder', baseCatalog.minimumOrder))} onChange={(v) => setField(slug, 'minimumOrder', parseFloat(v) || 0)} />
             </Card>
 
+            <Card title="Tiempos y pagos">
+              <div className="grid grid-cols-2 gap-3">
+                <Field
+                  label="Preparación aprox (min)"
+                  type="number"
+                  value={String(val('prepTimeMinutes', baseCatalog.prepTimeMinutes ?? 0))}
+                  onChange={(v) => setField(slug, 'prepTimeMinutes', parseInt(v) || 0)}
+                />
+                <Field
+                  label="Entrega aprox adicional (min)"
+                  type="number"
+                  value={String(val('deliveryTimeMinutes', baseCatalog.deliveryTimeMinutes ?? 0))}
+                  onChange={(v) => setField(slug, 'deliveryTimeMinutes', parseInt(v) || 0)}
+                />
+              </div>
+              <label className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-stone-200 px-4 py-3 cursor-pointer">
+                <span className="text-sm font-semibold text-stone-700">🗓️ Permitir programar fecha/hora</span>
+                <input
+                  type="checkbox"
+                  checked={Boolean(overrides?.scheduleOrders ?? baseCatalog.scheduleOrders)}
+                  onChange={(e) => setField(slug, 'scheduleOrders', e.target.checked)}
+                  className="h-5 w-5 accent-orange-600"
+                />
+              </label>
+              <div className="mt-3">
+                <Field
+                  label="Métodos de pago (separados por coma, ej: Efectivo, Transferencia, Tarjeta)"
+                  value={(overrides?.paymentMethods ?? baseCatalog.paymentMethods)?.join(', ') ?? ''}
+                  onChange={(v) => setField(slug, 'paymentMethods', v.split(',').map((s) => s.trim()).filter(Boolean))}
+                />
+              </div>
+            </Card>
+
             <Card title="Horario de atención">
               <div className="grid grid-cols-2 gap-3">
                 <Field
@@ -352,7 +393,16 @@ export default function AdminPage() {
             </Card>
 
             <Card title="Envío a domicilio">
-              <div className="grid grid-cols-2 gap-3">
+              <label className="flex items-center justify-between gap-3 rounded-xl border border-stone-200 px-4 py-3 cursor-pointer">
+                <span className="text-sm font-semibold text-stone-700">🏪 Permitir retiro en el local</span>
+                <input
+                  type="checkbox"
+                  checked={Boolean(overrides?.allowPickup ?? baseCatalog.allowPickup)}
+                  onChange={(e) => setField(slug, 'allowPickup', e.target.checked)}
+                  className="h-5 w-5 accent-orange-600"
+                />
+              </label>
+              <div className="grid grid-cols-2 gap-3 mt-3">
                 <Field label="Latitud del local" type="number" value={String((overrides?.location ?? baseCatalog.location)?.lat ?? '')} onChange={(v) => setField(slug, 'location', { lat: parseFloat(v) || 0, lng: (overrides?.location ?? baseCatalog.location)?.lng ?? 0 })} />
                 <Field label="Longitud del local" type="number" value={String((overrides?.location ?? baseCatalog.location)?.lng ?? '')} onChange={(v) => setField(slug, 'location', { lat: (overrides?.location ?? baseCatalog.location)?.lat ?? 0, lng: parseFloat(v) || 0 })} />
                 <Field label="Precio de envío inicial ($)" type="number" step="0.01" value={String(val('deliveryBaseFee', baseCatalog.deliveryBaseFee ?? 0))} onChange={(v) => setField(slug, 'deliveryBaseFee', parseFloat(v) || 0)} />
@@ -362,6 +412,47 @@ export default function AdminPage() {
                 <Field label="Radio máximo de entrega (km)" type="number" value={String(val('deliveryMaxKm', baseCatalog.deliveryMaxKm ?? 0))} onChange={(v) => setField(slug, 'deliveryMaxKm', parseFloat(v) || 0)} />
               </div>
               <p className="mt-2 text-xs text-stone-400">El total se calcula con tarifa base + distancia en línea recta por costo por km. El cliente puede buscar, mover el pin o ingresar coordenadas.</p>
+
+              <div className="mt-4 border-t border-stone-100 pt-3">
+                <p className="text-sm font-semibold text-stone-700 mb-2">🗺️ Envío por zona (opcional, sin mapa)</p>
+                <p className="text-xs text-stone-400 mb-3">Alternativa manual: el cliente elige una zona y paga su tarifa fija, sin depender del mapa ni de Internet.</p>
+                {zones.length === 0 && (
+                  <p className="text-xs text-stone-500 mb-2">Sin zonas configuradas. Agrega una para ofrecer esta opción.</p>
+                )}
+                <div className="space-y-2">
+                  {zones.map((z, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <input
+                        value={z.name}
+                        onChange={(e) => updateZone(i, { name: e.target.value })}
+                        placeholder="Nombre de la zona"
+                        className="min-w-0 flex-1 rounded-lg border border-stone-300 px-3 py-2 text-sm outline-none focus:border-orange-500"
+                      />
+                      <input
+                        type="number"
+                        step="0.10"
+                        value={String(z.fee)}
+                        onChange={(e) => updateZone(i, { fee: parseFloat(e.target.value) || 0 })}
+                        placeholder="Tarifa $"
+                        className="w-24 rounded-lg border border-stone-300 px-3 py-2 text-sm outline-none focus:border-orange-500"
+                      />
+                      <button
+                        onClick={() => removeZone(i)}
+                        className="shrink-0 rounded-lg border border-red-200 px-2 py-1.5 text-sm text-red-600 hover:bg-red-50"
+                        aria-label="Eliminar zona"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={addZone}
+                  className="mt-2 rounded-lg border border-orange-300 px-3 py-1.5 text-sm font-semibold text-orange-600 hover:bg-orange-50"
+                >
+                  + Agregar zona
+                </button>
+              </div>
             </Card>
 
             <Card title="Zona de peligro">

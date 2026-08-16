@@ -81,6 +81,14 @@ export type Catalog = {
   deliveryBaseFee?: number;                          // tarifa base de envío
   deliveryMaxKm?: number;                            // radio máximo de entrega
   requiresShipping?: boolean;                        // si es falso, desactiva pedir ubicación en el carrito
+  allowPickup?: boolean;                              // si es verdadero, el cliente puede elegir "retirar en el local"
+  deliveryZones?: { name: string; fee: number }[];    // alternativa manual de envío por zona (sin mapa/OSRM)
+  // ── Tiempos estimados (opcional) ──
+  prepTimeMinutes?: number;                           // tiempo de preparación aprox (min)
+  deliveryTimeMinutes?: number;                       // tiempo de entrega aprox adicional (min)
+  scheduleOrders?: boolean;                           // si es verdadero, el cliente puede programar fecha/hora
+  // ── Métodos de pago (opcional, ej: ['Efectivo', 'Transferencia', 'Tarjeta']) ──
+  paymentMethods?: string[];
   alwaysOpen?: boolean;                              // si es verdadero, ignora el horario comercial
   // ── Costos adicionales (opcional) ──
   packaging?: { label: string; price: number };      // ej: tarrinas para llevar, cajas de regalo

@@ -16,6 +16,13 @@ export type CatalogOverride = {
   phone?: string;
   address?: string;
   minimumOrder?: number;
+  requiresShipping?: boolean;
+  allowPickup?: boolean;
+  deliveryZones?: Catalog['deliveryZones'];
+  prepTimeMinutes?: number;
+  deliveryTimeMinutes?: number;
+  scheduleOrders?: boolean;
+  paymentMethods?: string[];
   location?: Catalog['location'];
   deliveryBaseFee?: number;
   deliveryRatePerKm?: number;

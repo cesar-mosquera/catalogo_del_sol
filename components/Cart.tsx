@@ -15,6 +15,19 @@ const LocationPicker = dynamic(
 
 const EMPTY_CART: CartItem[] = [];
 
+// Formatea un datetime-local (YYYY-MM-DDTHH:mm) a texto legible en español
+function formatSchedule(value: string): string {
+  try {
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return value;
+    return new Intl.DateTimeFormat('es-EC', {
+      weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
+    }).format(d);
+  } catch {
+    return value;
+  }
+}
+
 export function Cart({ catalog }: { catalog: Catalog }) {
   const cartState = useCart((s) => s.carts[catalog.slug] ?? EMPTY_CART);
   const remove = useCart((s) => s.remove);
@@ -56,10 +69,23 @@ export function Cart({ catalog }: { catalog: Catalog }) {
   const [notes,      setNotes]      = useState('');
   const [clientLoc,  setClientLoc]  = useState<LatLng | null>(null);
   const [distKm,     setDistKm]     = useState<number | null>(null);
+  // Modo de entrega: 'delivery' (domicilio) o 'pickup' (retiro en el local)
+  const [mode, setMode] = useState<'delivery' | 'pickup'>(catalog.requiresShipping ?? true ? 'delivery' : 'pickup');
+  // Método de pago y pedido programado
+  const [paymentMethod, setPaymentMethod] = useState<string | null>(catalog.paymentMethods?.[0] ?? null);
+  const [scheduledAt, setScheduledAt] = useState('');
+  // Envío por zona manual (no depende del mapa/OSRM). null = usar mapa.
+  const [zone, setZone] = useState<string | null>(null);
 
   const packagingQty = useMemo(() => items.reduce((sum, item) => sum + (item.packagingCount ?? 0) * item.quantity, 0), [items]);
 
   const requiresLocation = catalog.requiresShipping ?? true;
+  const canPickup = !!catalog.allowPickup;
+  const zones = catalog.deliveryZones ?? [];
+  const selectedZone = zones.find((z) => z.name === zone) ?? null;
+  // El toggle se ofrece solo cuando hay ambas opciones (envío configurado + retiro habilitado)
+  const showModeToggle = requiresLocation && canPickup;
+  const isPickup = showModeToggle ? mode === 'pickup' : !requiresLocation;
   const subtotal     = useMemo(() => items.reduce((s, i) => s + i.price * i.quantity, 0), [items]);
   const deliveryParams: DeliveryParams = {
     baseFee: catalog.deliveryBaseFee ?? 1,
@@ -68,8 +94,8 @@ export function Cart({ catalog }: { catalog: Catalog }) {
     maxKm: catalog.deliveryMaxKm,
   };
   // La distancia llega directo del mapa (usa la ruta real por calles si hay)
-  const quote        = (requiresLocation && distKm !== null) ? quoteForDistance(deliveryParams, distKm) : null;
-  const deliveryFee  = requiresLocation ? (quote?.fee ?? 0) : 0;
+  const quote        = (!isPickup && requiresLocation && !selectedZone && distKm !== null) ? quoteForDistance(deliveryParams, distKm) : null;
+  const deliveryFee  = selectedZone ? selectedZone.fee : ((!isPickup && requiresLocation) ? (quote?.fee ?? 0) : 0);
   const packagingFeeTotal = catalog.packaging ? packagingQty * catalog.packaging.price : 0;
   const total        = subtotal + deliveryFee + packagingFeeTotal;
   const minimumMet   = subtotal >= catalog.minimumOrder;
@@ -77,8 +103,32 @@ export function Cart({ catalog }: { catalog: Catalog }) {
   const tooFar       = quote ? !quote.isAvailable : false;
   
   // Si el catálogo requiere envío pero olvidaron configurar las coordenadas, permitimos continuar sin mapa.
-  const hasLocation  = (requiresLocation && catalog.location) ? clientLoc !== null : true;
+  const hasLocation  = isPickup || selectedZone ? true : (requiresLocation && catalog.location) ? clientLoc !== null : true;
   const open_        = computeIsOpen(catalog);
+
+  // Hora aproximada en que estará listo/entregado (se actualiza tras el montaje y cada 30s)
+  const prepMin = catalog.prepTimeMinutes ?? 0;
+  const deliveryMin = catalog.deliveryTimeMinutes ?? 0;
+  const [readyAt, setReadyAt] = useState('');
+  useEffect(() => {
+    const update = () => {
+      if (!prepMin && !deliveryMin) { setReadyAt(''); return; }
+      const totalMin = (isPickup ? prepMin : prepMin + deliveryMin);
+      const t = new Date(Date.now() + totalMin * 60_000);
+      const hh = t.getHours().toString().padStart(2, '0');
+      const mm = t.getMinutes().toString().padStart(2, '0');
+      setReadyAt(`~${hh}:${mm}`);
+    };
+    const first = setTimeout(update, 0);
+    const id = setInterval(update, 30_000);
+    return () => { clearTimeout(first); clearInterval(id); };
+  }, [prepMin, deliveryMin, isPickup]);
+
+  const onClickMode = (m: 'delivery' | 'pickup') => {
+    setMode(m);
+    // Al cambiar a retiro no hacen falta datos de envío
+    if (m === 'pickup') { setClientLoc(null); setDistKm(null); }
+  };
 
   const onLocationSelected = (loc: LatLng, km: number) => {
     setClientLoc(loc);
@@ -93,25 +143,43 @@ export function Cart({ catalog }: { catalog: Catalog }) {
       .map((i) => `• ${i.quantity} × ${i.name} — $${(i.quantity * i.price).toFixed(2)}`)
       .join('\n');
 
-    const locLine = (requiresLocation && clientLoc)
+    const locLine = (!isPickup && requiresLocation && !selectedZone && clientLoc)
       ? `📍 Entregar en: https://maps.google.com/maps?q=${clientLoc.lat},${clientLoc.lng}\n`
+      : '';
+    const pickupLine = isPickup
+      ? `🏪 Retirar en el local: ${catalog.address || catalog.name}\n`
+      : '';
+    const zoneLine = selectedZone
+      ? `*🛵 Zona de entrega: ${selectedZone.name} — Envío $${selectedZone.fee.toFixed(2)}*\n`
       : '';
     const packagingLine = catalog.packaging && packagingQty > 0
       ? `📦 ${catalog.packaging.label} (${packagingQty} × $${catalog.packaging.price.toFixed(2)}): $${packagingFeeTotal.toFixed(2)}\n`
       : '';
-    const distLine = (requiresLocation && distKm !== null)
+    const distLine = (!isPickup && requiresLocation && !selectedZone && distKm !== null)
       ? `*🛵 Envío (${distKm.toFixed(2)} km por calles): $${deliveryFee.toFixed(2)}*\n`
       : '';
     const notesLine = notes.trim() ? `📝 Indicaciones: ${notes.trim()}` : '';
     const checkoutLine = catalog.checkoutNote ? `\n*ℹ️ ${catalog.checkoutNote}*\n` : '';
+
+    // Tiempo estimado de listo/entrega (o fecha programada por el cliente)
+    const scheduleLine = scheduledAt
+      ? `🗓️ Pedido programado para: ${formatSchedule(scheduledAt)}\n`
+      : readyAt
+      ? (isPickup ? `⏱️ Listo para retirar aprox: ${readyAt}\n` : `⏱️ Entrega estimada aprox: ${readyAt}\n`)
+      : '';
+    const paymentLine = paymentMethod ? `💳 Método de pago: ${paymentMethod}\n` : '';
 
     const message =
       `Hola, quiero hacer un pedido en *${catalog.name}*:\n\n` +
       `${detail}\n\n` +
       `*Subtotal: $${subtotal.toFixed(2)}*\n` +
       packagingLine +
+      zoneLine +
       distLine +
-      `*Total${requiresLocation ? ' con envío' : ''}: $${total.toFixed(2)}*\n` +
+      `*Total${!isPickup && requiresLocation ? ' con envío' : ''}: $${total.toFixed(2)}*\n` +
+      pickupLine +
+      scheduleLine +
+      paymentLine +
       checkoutLine +
       locLine + notesLine;
 
@@ -120,7 +188,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
     
     if (w === null) {
       // El navegador bloqueó la ventana emergente, redirigimos en la misma pestaña
-      window.location.href = url;
+      window.location.assign(url);
       // No limpiamos el carrito aquí por si el usuario regresa atrás
     } else {
       // Se abrió correctamente en nueva pestaña, es seguro limpiar el carrito
@@ -129,6 +197,8 @@ export function Cart({ catalog }: { catalog: Catalog }) {
       setClientLoc(null);
       setDistKm(null);
       setNotes('');
+      setScheduledAt('');
+      setZone(null);
     }
   };
 
@@ -195,6 +265,70 @@ export function Cart({ catalog }: { catalog: Catalog }) {
             {/* Footer con resumen y ubicación */}
             <div className="flex-shrink-0 border-t pt-4 space-y-3 mt-2">
 
+              {/* Selector de entrega: retiro en local o domicilio */}
+              {showModeToggle && (
+                <div className="grid grid-cols-2 gap-1 rounded-xl bg-stone-100 p-1 dark:bg-stone-800/60">
+                  {([
+                    { key: 'pickup', label: '🏪 Retiro en local' },
+                    { key: 'delivery', label: '🛵 A domicilio' },
+                  ] as const).map((opt) => (
+                    <button
+                      key={opt.key}
+                      onClick={() => onClickMode(opt.key)}
+                      className={`rounded-lg px-3 py-2.5 text-sm font-bold transition-colors ${
+                        mode === opt.key
+                          ? 'bg-white shadow text-stone-900 dark:bg-stone-900 dark:text-stone-50'
+                          : 'text-stone-500 hover:text-stone-700'
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Tiempos estimados / pedido programado */}
+              {(prepMin > 0 || deliveryMin > 0 || catalog.scheduleOrders) && (
+                <div className="space-y-2 rounded-xl border border-stone-200 bg-stone-50 p-3 dark:bg-stone-800/40">
+                  {prepMin > 0 && (
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-stone-500 dark:text-stone-400">
+                        ⏱️ Preparación
+                      </span>
+                      <span className="font-bold text-stone-700 dark:text-stone-200">~{prepMin} min</span>
+                    </div>
+                  )}
+                  {deliveryMin > 0 && !isPickup && (
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-stone-500 dark:text-stone-400">🛵 Entrega (adicional)</span>
+                      <span className="font-bold text-stone-700 dark:text-stone-200">~{deliveryMin} min</span>
+                    </div>
+                  )}
+                  {!catalog.scheduleOrders && readyAt && (
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-stone-500 dark:text-stone-400">
+                        {isPickup ? '🕐 Listo para retirar' : '🕐 Entrega estimada'}
+                      </span>
+                      <span className="font-bold text-orange-600 dark:text-orange-500">{readyAt}</span>
+                    </div>
+                  )}
+                  {catalog.scheduleOrders && (
+                    <div>
+                      <label className="block text-xs text-stone-500 dark:text-stone-400 mb-1">
+                        🗓️ ¿Prefieres programar tu pedido?
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={scheduledAt}
+                        onChange={(e) => setScheduledAt(e.target.value)}
+                        min={new Date().toISOString().slice(0, 16)}
+                        className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm outline-none focus:border-orange-500 dark:bg-stone-900 dark:border-stone-700"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Selector de empaque (automático) */}
               {catalog.packaging && packagingQty > 0 && (
                 <div className="flex items-center justify-between rounded-xl border border-stone-200 p-3 bg-stone-50 dark:bg-stone-800/40">
@@ -231,8 +365,8 @@ export function Cart({ catalog }: { catalog: Catalog }) {
                 </p>
               )}
 
-              {/* Sección de ubicación */}
-              {requiresLocation && (
+              {/* Sección de ubicación (solo domicilio) */}
+              {requiresLocation && !isPickup && (
                 <div className="rounded-xl border border-stone-200 overflow-hidden">
                   <button
                     onClick={() => setShowMap(true)}
@@ -274,19 +408,73 @@ export function Cart({ catalog }: { catalog: Catalog }) {
                 </div>
               )}
 
+              {/* Envío por zona (manual, sin depender del mapa) */}
+              {requiresLocation && !isPickup && zones.length > 0 && (
+                <div className="rounded-xl border border-stone-200 p-3 dark:border-stone-700">
+                  <p className="text-xs font-bold text-stone-600 dark:text-stone-300 mb-2">🗺️ ¿Dónde entregamos?</p>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    <button
+                      onClick={() => { setZone(null); setClientLoc(null); setDistKm(null); }}
+                      className={`rounded-lg px-3 py-2 text-xs font-bold transition-colors ${
+                        !selectedZone
+                          ? 'bg-orange-600 text-white shadow'
+                          : 'bg-white text-stone-600 ring-1 ring-stone-300 hover:bg-orange-50 dark:bg-stone-900 dark:text-stone-300 dark:ring-stone-600'
+                      }`}
+                    >
+                      📍 Con mapa
+                    </button>
+                    {zones.map((z) => (
+                      <button
+                        key={z.name}
+                        onClick={() => { setZone(z.name); setClientLoc(null); setDistKm(null); setShowMap(false); }}
+                        className={`rounded-lg px-3 py-2 text-xs font-bold transition-colors ${
+                          selectedZone?.name === z.name
+                            ? 'bg-orange-600 text-white shadow'
+                            : 'bg-white text-stone-600 ring-1 ring-stone-300 hover:bg-orange-50 dark:bg-stone-900 dark:text-stone-300 dark:ring-stone-600'
+                        }`}
+                      >
+                        {z.name} · ${z.fee.toFixed(2)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Notas adicionales */}
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder={requiresLocation ? "Indicaciones (timbre, piso, etc.)" : "Notas, requerimientos o mensaje adicional..."}
+                placeholder={isPickup ? "Notas adicionales (p.ej. apellido para retirar)..." : "Indicaciones (timbre, piso, etc.)"}
                 className="w-full rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 resize-none dark:bg-stone-800 dark:border-stone-700 dark:focus:border-orange-500"
                 rows={2}
               />
 
+              {/* Método de pago */}
+              {catalog.paymentMethods && catalog.paymentMethods.length > 0 && (
+                <div className="rounded-xl border border-stone-200 bg-stone-50 p-3 dark:bg-stone-800/40">
+                  <p className="text-xs font-bold text-stone-600 dark:text-stone-300 mb-2">💳 Método de pago</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {catalog.paymentMethods.map((m) => (
+                      <button
+                        key={m}
+                        onClick={() => setPaymentMethod(m)}
+                        className={`rounded-full px-3 py-1.5 text-xs font-bold transition-colors ${
+                          paymentMethod === m
+                            ? 'bg-orange-600 text-white shadow'
+                            : 'bg-white text-stone-600 ring-1 ring-stone-300 hover:bg-orange-50 dark:bg-stone-900 dark:text-stone-300 dark:ring-stone-600'
+                        }`}
+                      >
+                        {m}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Total */}
-              {(!requiresLocation || clientLoc) && !tooFar && (
+              {(!requiresLocation || isPickup || clientLoc || selectedZone) && !tooFar && (
                 <div className="flex justify-between font-bold text-base border-t pt-2">
-                  <span>{requiresLocation ? 'Total con envío' : 'Total'}</span>
+                  <span>{isPickup ? 'Total (retiro)' : requiresLocation ? 'Total con envío' : 'Total'}</span>
                   <span className="text-orange-600">${total.toFixed(2)}</span>
                 </div>
               )}
@@ -298,8 +486,8 @@ export function Cart({ catalog }: { catalog: Catalog }) {
                 </p>
               )}
 
-              {/* Aviso contextual cuando falta ubicación — el cuello de botella más crítico */}
-              {requiresLocation && !clientLoc && items.length > 0 && (
+              {/* Aviso contextual cuando falta ubicación — el cuello de botella más crítico (solo domicilio) */}
+              {requiresLocation && !isPickup && !selectedZone && !clientLoc && items.length > 0 && (
                 <button
                   onClick={() => setShowMap(true)}
                   className="w-full flex items-center gap-2 rounded-xl bg-amber-50 border border-amber-300 px-4 py-3 text-sm font-bold text-amber-800 hover:bg-amber-100 transition-colors text-left"
