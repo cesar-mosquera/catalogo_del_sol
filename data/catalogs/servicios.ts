@@ -55,7 +55,7 @@ export const servicios: Catalog = {
   ],
 
   /* ── Garantía ── */
-  guarantee: 'Trabajamos contigo hasta que estés conforme. Si tu catálogo no cumple lo acordado, te devolvemos tu dinero dentro de los primeros 7 días. Sin letra pequeña.',
+  guarantee: 'Trabajamos contigo hasta que estés conforme. Si tu catálogo no cumple lo acordado, te devolvemos tu dinero dentro de los primeros 6 meses. Sin letra pequeña.',
 
   /* ── Costos recurrentes ── */
   recurringCosts: [
@@ -89,7 +89,7 @@ export const servicios: Catalog = {
     { q: '¿Cuánto tarda la entrega de mi catálogo?', a: 'El Catálogo Lista se entrega en 2 a 3 días, el Libro 3D en 4 a 5 días y el Administrable en 5 a 7 días. Te avisamos con el enlace de tu demo para que lo pruebes antes de publicarlo.' },
     { q: '¿Qué tengo que enviarte para empezar?', a: 'Muy poco: tu menú o lista con precios, las fotos que tengas (o nada, y usamos plantillas), tu logo y colores si los tienes, y el número de WhatsApp donde quieres recibir pedidos. Puedes mandar todo por foto.' },
     { q: '¿Cómo pago?', a: 'Aceptamos transferencia, depósito o efectivo. Puedes pagar con un anticipo del 50% y el saldo cuando tu catálogo esté listo y te haya gustado.' },
-    { q: '¿Y si no me gusta o el catálogo no sale como esperaba?', a: 'Tienes garantía: trabajamos contigo hasta que estés conforme. Si tu catálogo no cumple lo acordado, te devolvemos tu dinero dentro de los primeros 7 días.' },
+    { q: '¿Y si no me gusta o el catálogo no sale como esperaba?', a: 'Tienes garantía: trabajamos contigo hasta que estés conforme. Si tu catálogo no cumple lo acordado, te devolvemos tu dinero dentro de los primeros 6 meses.' },
     { q: '¿Tengo que pagar algo cada mes o cada año?', a: 'Solo si eliges el Catálogo Administrable (mantenimiento de $15 al mes, que incluye hosting y soporte) o un dominio propio ($20 al año). Los catálogos Lista y Libro 3D son pago único, sin mensualidades.' },
     { q: '¿Puedo cambiar de plan después de comprar?', a: 'Sí. Si empiezas con el más económico y luego quieres uno con más funciones, pagas únicamente la diferencia entre planes y migramos tu contenido sin perder nada.' },
     { q: '¿Qué es eso de que "se instala como aplicación"?', a: 'Es una función del Libro 3D y el Administrable. Cuando tus clientes abren el enlace de tu restaurante, el celular les ofrece añadirlo a su pantalla. Si aceptan, el logo de tu negocio queda instalado junto a WhatsApp o Facebook, listo para pedir con un solo toque.' },

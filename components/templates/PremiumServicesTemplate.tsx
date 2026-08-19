@@ -1,8 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
 import type { Catalog, Product } from '@/lib/catalog-types';
 import { BASE_PATH } from '@/lib/base-path';
+import { asset } from '@/lib/asset';
 import { useCart } from '@/store/cart';
 
 /* ───────────────────────── HELPERS ───────────────────────── */
@@ -11,13 +13,265 @@ function goTo(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+/* Partículas "brasas" del hero (dorado + esmeralda) */
+const EMBERS = Array.from({ length: 22 }).map((_, i) => ({
+  left: (i * 47 + 5) % 100,
+  size: 3 + (i % 3) * 1.6,
+  dur: 9 + ((i * 13) % 10),
+  delay: -(i * 1.7),
+  color: i % 3 === 0 ? '#fcd34d' : i % 3 === 1 ? '#34d399' : '#fef3c7',
+}));
+
 function SectionHeading({ kicker, title, sub }: { kicker: string; title: string; sub?: string }) {
   return (
     <div className="mb-14 text-center">
-      <p className="text-xs font-black uppercase tracking-[0.3em] text-orange-500">{kicker}</p>
+      <p className="text-xs font-black uppercase tracking-[0.3em] text-emerald-500">{kicker}</p>
       <h2 className="mt-3 text-3xl md:text-4xl font-black tracking-tight text-slate-900">{title}</h2>
       {sub && <p className="mx-auto mt-4 max-w-2xl font-medium text-slate-600 leading-relaxed">{sub}</p>}
-      <div className="mx-auto mt-6 h-1 w-20 rounded-full bg-gradient-to-r from-orange-400 to-pink-500" />
+      <div className="mx-auto mt-6 h-1 w-20 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500" />
+    </div>
+  );
+}
+
+/* ─────────────── FILTROS POR CARACTERÍSTICA ─────────────── */
+
+function FilterGroup({
+  title, options, selected, onToggle, onClear, resultCount,
+}: {
+  title: string;
+  options: { id: string; label: string }[];
+  selected: string[];
+  onToggle: (id: string) => void;
+  onClear: () => void;
+  resultCount?: number;
+}) {
+  if (options.length === 0) return null;
+
+  return (
+    <div className="mx-auto mb-10 max-w-4xl">
+      <div className="flex flex-wrap items-center justify-center gap-2 rounded-3xl border border-white bg-white/40 p-4 shadow-sm backdrop-blur-md">
+        <span className="text-xs font-black uppercase tracking-widest text-slate-500">{title}:</span>
+        {selected.length > 0 && (
+          <button
+            onClick={onClear}
+            className="rounded-full border border-red-200 bg-red-50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-red-600 transition-colors hover:bg-red-100"
+          >
+            ✕ Limpiar
+          </button>
+        )}
+        {options.map((opt) => {
+          const active = selected.includes(opt.id);
+          return (
+            <button
+              key={opt.id}
+              onClick={() => onToggle(opt.id)}
+              aria-pressed={active}
+              className={`rounded-full border px-4 py-2 text-xs font-black uppercase tracking-wider transition-all active:scale-95 ${
+                active
+                  ? 'border-emerald-500 bg-emerald-500 text-white shadow-lg shadow-emerald-500/30'
+                  : 'border-white bg-white/80 text-slate-600 hover:border-emerald-300 hover:text-emerald-700'
+              }`}
+            >
+              {opt.label}
+            </button>
+          );
+        })}
+      </div>
+      {resultCount !== undefined && selected.length > 0 && (
+        <p className="mt-3 text-center text-xs font-medium text-slate-400">
+          Mostrando {resultCount} {resultCount === 1 ? 'plan' : 'planes'} que incluyen todas las características seleccionadas.
+        </p>
+      )}
+      {resultCount === undefined && selected.length > 0 && (
+        <p className="mt-3 text-center text-xs font-medium text-slate-400">
+          Mostrando solo lo que incluye las características seleccionadas.
+        </p>
+      )}
+    </div>
+  );
+}
+
+/* ─────────────── REVELAR AL HACER SCROLL ─────────────── */
+
+function Reveal({ children, delay = 0, className = '' }: { children: ReactNode; delay?: number; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [shown, setShown] = useState(
+    () => typeof window !== 'undefined' && typeof IntersectionObserver === 'undefined'
+  );
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || shown) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) { setShown(true); io.disconnect(); }
+      },
+      { threshold: 0.08, rootMargin: '0px 0px -60px 0px' }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [shown]);
+
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        opacity: shown ? 1 : 0,
+        transform: shown ? 'none' : 'translateY(28px)',
+        transition: 'opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
+        transitionDelay: `${delay}ms`,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/* ─────────────── INCLINACIÓN 3D AL MOUSE ─────────────── */
+
+function TiltCard({ children, className = '', max = 10 }: { children: ReactNode; className?: string; max?: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5;
+    const y = (e.clientY - r.top) / r.height - 0.5;
+    el.style.transform = `perspective(1100px) rotateY(${(x * max).toFixed(2)}deg) rotateX(${(-y * max).toFixed(2)}deg) scale(1.02)`;
+  };
+
+  const onLeave = () => {
+    if (ref.current) ref.current.style.transform = '';
+  };
+
+  return (
+    <div
+      ref={ref}
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+      className={className}
+      style={{ transition: 'transform 0.28s cubic-bezier(0.16, 1, 0.3, 1) , box-shadow 0.28s ease', willChange: 'transform', transformStyle: 'preserve-3d' }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/* ─────────────── CONFETI (jugable) ─────────────── */
+
+function ConfettiBurst() {
+  const COLORS = ['#10b981', '#f59e0b', '#14b8a6', '#fbbf24', '#84cc16'];
+  return (
+    <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden rounded-[2.5rem]">
+      {Array.from({ length: 16 }).map((_, i) => {
+        const angle = (i / 16) * Math.PI * 2;
+        const dist = 46 + ((i * 37) % 64);
+        return (
+          <span
+            key={i}
+            className="absolute left-1/2 top-1/2 h-2.5 w-2.5 animate-confetti rounded-[2px]"
+            style={{
+              backgroundColor: COLORS[i % COLORS.length],
+              ['--dx' as string]: `${(Math.cos(angle) * dist).toFixed(0)}px`,
+              ['--dy' as string]: `${(Math.sin(angle) * dist - 26).toFixed(0)}px`,
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+/* ─────────────── TELÉFONO DEMO INTERACTIVO ─────────────── */
+
+type HeroDemo = { id: string; name: string; tag: string; img: string; demoUrl: string | null };
+
+function PhoneDemo({ demos, catalogSlug }: { demos: HeroDemo[]; catalogSlug: string }) {
+  const [i, setI] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (paused || demos.length < 2) return;
+    const t = setInterval(() => setI((p) => (p + 1) % demos.length), 3800);
+    return () => clearInterval(t);
+  }, [paused, demos.length]);
+
+  const d = demos[i % demos.length];
+  if (!d) return null;
+
+  const next = () => setI((p) => (p + 1) % demos.length);
+
+  return (
+    <div className="relative mx-auto w-full max-w-[400px] animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+      <div className="absolute inset-0 scale-90 rounded-full bg-gradient-to-tr from-emerald-500/40 to-amber-500/40 blur-[90px] animate-blob" />
+
+      {/* Aviso "tócalo" */}
+      <div className="absolute -top-10 left-1/2 z-20 -translate-x-1/2 animate-wiggle">
+        <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/40 px-4 py-2 text-[11px] font-black uppercase tracking-widest text-amber-200 shadow-xl backdrop-blur-md">
+          👆 Toca el celular <span className="animate-bounce-x">→</span>
+        </span>
+      </div>
+
+      <div onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onClick={next}>
+        <TiltCard className="relative cursor-pointer" max={9}>
+          <div className="relative animate-float-slow rounded-[2.7rem] border border-white/25 bg-white/10 p-3 shadow-[0_50px_100px_-24px_rgba(0,0,0,0.8)] backdrop-blur-xl">
+            <div className="relative overflow-hidden rounded-[2.2rem] bg-stone-900">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                key={d.img}
+                src={asset(d.img)}
+                alt={`Vista previa de ${d.name}`}
+                className="h-auto w-full animate-phone-in"
+              />
+              <div className="absolute left-1/2 top-2 h-5 w-28 -translate-x-1/2 rounded-full bg-black/90" />
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-4 pt-14">
+                <p className="text-sm font-black text-white">{d.name}</p>
+                <p className="text-xs font-medium text-white/70">Toca para ver el siguiente →</p>
+              </div>
+            </div>
+          </div>
+        </TiltCard>
+      </div>
+
+      {/* Puntos de navegación */}
+      <div className="absolute -bottom-2 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2">
+        {demos.map((dm, idx) => (
+          <button
+            key={dm.id}
+            onClick={(e) => { e.stopPropagation(); setI(idx); }}
+            aria-label={`Ver ${dm.name}`}
+            className={`h-2.5 rounded-full transition-all duration-300 ${
+              idx === i ? 'w-7 bg-gradient-to-r from-amber-300 to-emerald-300' : 'w-2.5 bg-white/40 hover:bg-white/70'
+            }`}
+          />
+        ))}
+      </div>
+
+      {/* Tarjeta flotante del demo actual */}
+      <div className="absolute -right-3 top-1/3 z-20 animate-float rounded-2xl border border-white/30 bg-white/15 px-4 py-3 shadow-2xl backdrop-blur-md" style={{ animationDelay: '1.8s' }}>
+        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-amber-200">{d.tag || 'Demo en vivo'}</p>
+        <p className="text-sm font-black text-white">{d.name}</p>
+        {d.demoUrl ? (
+          <a
+            href={`${BASE_PATH}${d.demoUrl}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-1 inline-flex items-center gap-1 text-[11px] font-black text-emerald-300 hover:text-amber-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            Probar en vivo →
+          </a>
+        ) : (
+          <p className="mt-1 text-[11px] font-bold text-white/60">Ver características abajo ↓</p>
+        )}
+      </div>
+
+      <div className="absolute -left-4 top-10 z-20 animate-float rounded-2xl border border-white/30 bg-white/15 px-4 py-3 shadow-2xl backdrop-blur-md" style={{ animationDelay: '0.9s' }}>
+        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-emerald-200">Pedido recibido</p>
+        <p className="text-sm font-black text-white">✅ Directo a tu WhatsApp</p>
+      </div>
     </div>
   );
 }
@@ -27,11 +281,20 @@ function SectionHeading({ kicker, title, sub }: { kicker: string; title: string;
 function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalogSlug: string }) {
   const add = useCart((state) => state.add);
   const [added, setAdded] = useState(false);
+  const [spot, setSpot] = useState<{ x: number; y: number } | null>(null);
+  const [bursting, setBursting] = useState(false);
 
   const handleAdd = () => {
     add(catalogSlug, product);
     setAdded(true);
+    setBursting(true);
     setTimeout(() => setAdded(false), 1400);
+    setTimeout(() => setBursting(false), 1000);
+  };
+
+  const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    setSpot({ x: e.clientX - r.left, y: e.clientY - r.top });
   };
 
   const isPopular = !!product.badge && product.badge.toLowerCase().includes('vendido');
@@ -39,18 +302,33 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
   const mockupImageSrc = `/img/mockup-${mockupType}.webp`;
 
   return (
-    <div id={`plan-${product.id}`} className={`group relative flex flex-col overflow-hidden rounded-[2.5rem] transition-all duration-700 hover:-translate-y-4 ${
-      isPopular
-        ? 'bg-white/80 backdrop-blur-3xl border border-white shadow-[0_30px_60px_-15px_rgba(249,115,22,0.3)] scale-[1.03] z-10'
-        : 'bg-white/50 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:bg-white/80 hover:shadow-[0_20px_40px_rgb(0,0,0,0.1)]'
-    }`}>
+    <div
+      id={`plan-${product.id}`}
+      onMouseMove={onMove}
+      onMouseLeave={() => setSpot(null)}
+      className={`group relative flex flex-col overflow-hidden rounded-[2.5rem] transition-all duration-700 hover:-translate-y-4 ${
+        isPopular
+          ? 'bg-white/80 backdrop-blur-3xl border border-white shadow-[0_30px_60px_-15px_rgba(4,120,87,0.35)] scale-[1.03] z-10'
+          : 'bg-white/50 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:bg-white/80 hover:shadow-[0_20px_40px_rgb(0,0,0,0.1)]'
+      }`}>
 
-      {isPopular && (
-        <div className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-gradient-to-br from-orange-400/20 to-pink-400/20 blur-3xl transition-transform duration-700 hover:scale-150" />
+      {spot && (
+        <div
+          className="pointer-events-none absolute inset-0 z-[5] transition-opacity duration-300 rounded-[2.5rem]"
+          style={{
+            background: `radial-gradient(520px circle at ${spot.x}px ${spot.y}px, rgba(255,255,255,0.55), transparent 45%)`,
+          }}
+        />
       )}
 
-      <div className="relative h-56 w-full overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-4 flex items-end justify-center border-b border-white/50">
-        <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_50%_0%,rgba(120,119,198,0.5),rgba(255,255,255,0))] transition-opacity duration-700 group-hover:opacity-80" />
+      {bursting && <ConfettiBurst />}
+
+      {isPopular && (
+        <div className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-gradient-to-br from-emerald-400/20 to-teal-400/20 blur-3xl transition-transform duration-700 hover:scale-150" />
+      )}
+
+      <div className="relative h-56 w-full overflow-hidden bg-gradient-to-br from-teal-50 via-amber-50 to-teal-50 p-4 flex items-end justify-center border-b border-white/50">
+        <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_50%_0%,rgba(16,185,129,0.5),rgba(255,255,255,0))] transition-opacity duration-700 group-hover:opacity-80" />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={mockupImageSrc}
@@ -63,7 +341,7 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
         <div className="flex justify-between items-start gap-4">
           <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-tight">{product.name}</h3>
           {product.badge && (
-            <span className="flex-shrink-0 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-md">
+            <span className="flex-shrink-0 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-md">
               {product.badge}
             </span>
           )}
@@ -85,7 +363,7 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
         <ul className="mt-5 mb-8 flex flex-1 flex-col gap-3">
           {product.description.split(/\.\s+/).filter(Boolean).map((line, i) => (
             <li key={i} className="flex items-start gap-3 text-sm font-medium leading-relaxed text-slate-700">
-              <div className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-pink-500 text-[9px] font-bold text-white shadow-sm">
+              <div className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 text-[9px] font-bold text-white shadow-sm">
                 ✓
               </div>
               <span>{line.replace(/\.$/, '')}</span>
@@ -99,7 +377,7 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
               href={`${BASE_PATH}${product.demoUrl}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-indigo-100 bg-indigo-50/50 px-5 py-3 text-xs font-black uppercase tracking-widest text-indigo-700 transition-colors hover:bg-indigo-100 hover:border-indigo-200"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-teal-100 bg-teal-50/50 px-5 py-3 text-xs font-black uppercase tracking-widest text-teal-700 transition-colors hover:bg-teal-100 hover:border-teal-200"
             >
               <span>👀</span> Probar Demostración
             </a>
@@ -121,7 +399,7 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
                 ? 'bg-green-500 text-white shadow-lg shadow-green-500/30'
                 : isPopular
                   ? 'bg-slate-900 text-white hover:bg-slate-800 shadow-xl shadow-slate-900/20'
-                  : 'bg-orange-500 text-white hover:bg-orange-600 shadow-lg shadow-orange-500/20'
+                  : 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-lg shadow-emerald-500/20'
             }`}
           >
             {added ? '✅ ¡Añadido!' : '🛒 Comprar Ahora'}
@@ -137,20 +415,24 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
 function AddonServiceCard({ product, catalogSlug }: { product: Product; catalogSlug: string }) {
   const add = useCart((state) => state.add);
   const [added, setAdded] = useState(false);
+  const [bursting, setBursting] = useState(false);
 
   const handleAdd = () => {
     add(catalogSlug, product);
     setAdded(true);
+    setBursting(true);
     setTimeout(() => setAdded(false), 1200);
+    setTimeout(() => setBursting(false), 1000);
   };
 
   return (
-    <div className="group flex flex-col md:flex-row md:items-center justify-between gap-6 rounded-[2rem] bg-white/50 backdrop-blur-md p-6 shadow-sm border border-white transition-all duration-500 hover:bg-white hover:border-orange-200 hover:shadow-xl hover:-translate-y-1">
+    <div className="group relative flex flex-col md:flex-row md:items-center justify-between gap-6 rounded-[2rem] bg-white/50 backdrop-blur-md p-6 shadow-sm border border-white transition-all duration-500 hover:bg-white hover:border-emerald-200 hover:shadow-xl hover:-translate-y-1">
+      {bursting && <ConfettiBurst />}
       <div className="flex-1">
         <div className="flex flex-wrap items-center gap-3">
           <h4 className="text-lg font-black text-slate-900">{product.name}</h4>
           {product.badge && (
-            <span className="rounded-full bg-indigo-100 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-indigo-700">
+            <span className="rounded-full bg-teal-100 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-teal-700">
               {product.badge}
             </span>
           )}
@@ -246,11 +528,11 @@ function PlanRecommender({ plans, catalogSlug }: { plans: Product[]; catalogSlug
     return (
       <div className="mx-auto max-w-2xl rounded-[2.5rem] border border-white bg-white/70 p-8 text-center shadow-[0_20px_50px_rgb(0,0,0,0.08)] backdrop-blur-md animate-fade-in-up">
         <div className="text-5xl">🎉</div>
-        <p className="mt-3 text-xs font-black uppercase tracking-[0.3em] text-orange-500">Nuestra recomendación</p>
+        <p className="mt-3 text-xs font-black uppercase tracking-[0.3em] text-emerald-500">Nuestra recomendación</p>
         <h3 className="mt-2 text-3xl font-black text-slate-900">{recommended.name}</h3>
         <p className="mt-3 font-medium leading-relaxed text-slate-600">{why[recommended.id]}</p>
         <div className="mt-5 flex items-baseline justify-center gap-2">
-          <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-orange-500 to-pink-500">${recommended.price.toFixed(0)}</span>
+          <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-emerald-500 to-teal-500">${recommended.price.toFixed(0)}</span>
           <span className="text-sm font-bold uppercase tracking-widest text-slate-400">pago único</span>
         </div>
         <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3">
@@ -262,7 +544,7 @@ function PlanRecommender({ plans, catalogSlug }: { plans: Product[]; catalogSlug
           >
             {added ? '✅ ¡Añadido al carrito!' : '🛒 Añadir este plan'}
           </button>
-          <button onClick={() => goTo('planes')} className="rounded-2xl border-2 border-slate-200 px-6 py-3.5 text-xs font-black uppercase tracking-widest text-slate-700 transition-colors hover:border-orange-300 hover:text-orange-600">
+          <button onClick={() => goTo('planes')} className="rounded-2xl border-2 border-slate-200 px-6 py-3.5 text-xs font-black uppercase tracking-widest text-slate-700 transition-colors hover:border-emerald-300 hover:text-emerald-600">
             Ver todos los planes
           </button>
           <button onClick={restart} className="rounded-2xl px-4 py-3.5 text-xs font-bold text-slate-400 transition-colors hover:text-slate-600">
@@ -280,12 +562,12 @@ function PlanRecommender({ plans, catalogSlug }: { plans: Product[]; catalogSlug
       {/* Progreso */}
       <div className="mb-6 flex items-center gap-3">
         <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-200/70">
-          <div className="h-full rounded-full bg-gradient-to-r from-orange-400 to-pink-500 transition-all duration-500" style={{ width: `${((step) / total) * 100}%` }} />
+          <div className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 transition-all duration-500" style={{ width: `${((step) / total) * 100}%` }} />
         </div>
         <span className="text-xs font-black text-slate-500">{step + 1}/{total}</span>
       </div>
 
-      <p className="text-center text-xs font-black uppercase tracking-[0.3em] text-orange-500">¿No sabes cuál elegir?</p>
+      <p className="text-center text-xs font-black uppercase tracking-[0.3em] text-emerald-500">¿No sabes cuál elegir?</p>
       <h3 className="mt-2 text-center text-2xl font-black text-slate-900">{current.question}</h3>
 
       <div className="mt-6 flex flex-col gap-3">
@@ -293,10 +575,10 @@ function PlanRecommender({ plans, catalogSlug }: { plans: Product[]; catalogSlug
           <button
             key={opt.label}
             onClick={() => pick(opt)}
-            className="group flex items-center justify-between rounded-2xl border-2 border-slate-100 bg-white px-5 py-4 text-left font-bold text-slate-700 transition-all duration-300 hover:border-orange-300 hover:bg-orange-50 hover:shadow-lg active:scale-[0.98]"
+            className="group flex items-center justify-between rounded-2xl border-2 border-slate-100 bg-white px-5 py-4 text-left font-bold text-slate-700 transition-all duration-300 hover:border-emerald-300 hover:bg-emerald-50 hover:shadow-lg active:scale-[0.98]"
           >
             <span>{opt.label}</span>
-            <span className="text-slate-300 transition-all group-hover:translate-x-1 group-hover:text-orange-500">→</span>
+            <span className="text-slate-300 transition-all group-hover:translate-x-1 group-hover:text-emerald-500">→</span>
           </button>
         ))}
       </div>
@@ -340,17 +622,17 @@ function ComparisonTable({ catalog }: { catalog: Catalog }) {
                 onClick={() => setSelectedId(active ? null : plan.id)}
                 className={`flex flex-col items-center gap-1 rounded-2xl border-2 px-3 py-4 text-center transition-all duration-300 active:scale-95 ${
                   active
-                    ? 'border-orange-400 bg-gradient-to-b from-orange-50 to-pink-50 shadow-lg shadow-orange-500/20 scale-[1.02]'
-                    : 'border-white bg-white hover:border-orange-200 hover:shadow-md'
+                    ? 'border-emerald-400 bg-gradient-to-b from-emerald-50 to-teal-50 shadow-lg shadow-emerald-500/20 scale-[1.02]'
+                    : 'border-white bg-white hover:border-emerald-200 hover:shadow-md'
                 }`}
               >
                 <span className="text-xs font-black uppercase tracking-wider text-slate-900">{plan.name}</span>
                 {plan.badge && (
-                  <span className="rounded-full bg-gradient-to-r from-orange-500 to-pink-500 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-white">
+                  <span className="rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-white">
                     {plan.badge}
                   </span>
                 )}
-                <span className="text-lg font-black text-orange-600">${plan.price.toFixed(0)}</span>
+                <span className="text-lg font-black text-emerald-600">${plan.price.toFixed(0)}</span>
               </button>
             );
           })}
@@ -380,17 +662,17 @@ function ComparisonTable({ catalog }: { catalog: Catalog }) {
         </div>
 
         {/* Barra de resumen al seleccionar un plan */}
-        <div className="mt-4 flex min-h-[4.5rem] items-center justify-between gap-3 rounded-2xl border border-orange-200 bg-gradient-to-r from-orange-50 to-pink-50 px-5 py-3 transition-all">
+        <div className="mt-4 flex min-h-[4.5rem] items-center justify-between gap-3 rounded-2xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-teal-50 px-5 py-3 transition-all">
           {selected ? (
             <>
               <div className="flex-1">
-                <p className="text-xs font-black uppercase tracking-widest text-orange-600">✓ Has elegido</p>
+                <p className="text-xs font-black uppercase tracking-widest text-emerald-600">✓ Has elegido</p>
                 <p className="font-black text-slate-900">{selected.name} · ${selected.price.toFixed(0)} {selected.deliveryDays && `· ${selected.deliveryDays}`}</p>
               </div>
               <button
                 onClick={() => handleAdd(selected)}
                 className={`flex-shrink-0 rounded-xl px-5 py-2.5 text-xs font-black uppercase tracking-widest transition-all active:scale-95 ${
-                  added ? 'bg-green-500 text-white shadow-lg shadow-green-500/30' : 'bg-orange-500 text-white hover:bg-orange-600 shadow-lg shadow-orange-500/20'
+                  added ? 'bg-green-500 text-white shadow-lg shadow-green-500/30' : 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-lg shadow-emerald-500/20'
                 }`}
               >
                 {added ? '✅ Añadido' : '🛒 Añadir'}
@@ -430,7 +712,7 @@ function FaqSection({ catalog }: { catalog: Catalog }) {
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           placeholder="Busca tu duda (ej: dominio, pago, app…)"
-          className="w-full rounded-2xl border border-white bg-white/70 px-11 py-3.5 text-sm font-medium text-slate-700 shadow-sm outline-none backdrop-blur-md transition-all focus:border-orange-400 focus:ring-2 focus:ring-orange-500/20"
+          className="w-full rounded-2xl border border-white bg-white/70 px-11 py-3.5 text-sm font-medium text-slate-700 shadow-sm outline-none backdrop-blur-md transition-all focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20"
         />
       </div>
 
@@ -442,7 +724,7 @@ function FaqSection({ catalog }: { catalog: Catalog }) {
             <details key={i} name="faq" className="group rounded-[2rem] border border-white bg-white/60 p-6 shadow-sm backdrop-blur-md transition-all hover:shadow-lg hover:-translate-y-0.5">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-lg font-bold text-slate-900 outline-none">
                 <span>{f.q}</span>
-                <span className="flex-shrink-0 text-2xl font-light text-orange-500 transition-transform duration-300 group-open:rotate-180">↓</span>
+                <span className="flex-shrink-0 text-2xl font-light text-emerald-500 transition-transform duration-300 group-open:rotate-180">↓</span>
               </summary>
               <p className="faq-answer mt-4 font-medium leading-relaxed text-slate-600">{f.a}</p>
             </details>
@@ -467,8 +749,19 @@ const NAV_LINKS = [
 
 function StickyNav() {
   const [visible, setVisible] = useState(false);
+  const [active, setActive] = useState<string | undefined>('planes');
+
   useEffect(() => {
-    const onScroll = () => setVisible(window.scrollY > 560);
+    const onScroll = () => {
+      setVisible(window.scrollY > 560);
+      const probe = window.scrollY + window.innerHeight * 0.32;
+      let current: string | undefined;
+      for (const l of NAV_LINKS) {
+        const el = document.getElementById(l.id);
+        if (el && el.offsetTop <= probe) current = l.id;
+      }
+      setActive(current ?? NAV_LINKS[0].id);
+    };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
@@ -481,7 +774,11 @@ function StickyNav() {
           <button
             key={l.id}
             onClick={() => goTo(l.id)}
-            className="flex-shrink-0 rounded-full px-3 py-1.5 text-xs font-black text-slate-600 transition-colors hover:bg-orange-100 hover:text-orange-700"
+            className={`flex-shrink-0 rounded-full px-3 py-1.5 text-xs font-black transition-colors ${
+              active === l.id
+                ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md shadow-emerald-500/30'
+                : 'text-slate-600 hover:bg-emerald-100 hover:text-emerald-700'
+            }`}
           >
             {l.label}
           </button>
@@ -497,12 +794,12 @@ function FinalCta({ catalog }: { catalog: Catalog }) {
   const wa = `https://wa.me/${catalog.phone}?text=${encodeURIComponent('Hola, tengo una duda sobre los catálogos digitales.')}`;
   return (
     <section id="contacto" className="relative z-10 mx-auto max-w-4xl animate-fade-in-up scroll-mt-28" style={{ animationDelay: '0.9s' }}>
-      <div className="relative overflow-hidden rounded-[3rem] bg-gradient-to-br from-orange-500 via-rose-500 to-pink-500 p-10 text-center text-white shadow-2xl shadow-orange-500/30 md:p-14">
+      <div className="relative overflow-hidden rounded-[3rem] bg-gradient-to-br from-emerald-500 via-amber-500 to-teal-500 p-10 text-center text-white shadow-2xl shadow-emerald-500/30 md:p-14">
         <div className="absolute -left-16 -top-16 h-56 w-56 rounded-full bg-white/10 blur-2xl" />
         <div className="absolute -bottom-20 -right-16 h-64 w-64 rounded-full bg-white/10 blur-2xl" />
-        <p className="relative text-xs font-black uppercase tracking-[0.3em] text-orange-100">Empecemos hoy</p>
+        <p className="relative text-xs font-black uppercase tracking-[0.3em] text-emerald-100">Empecemos hoy</p>
         <h2 className="relative mt-3 text-3xl font-black tracking-tight md:text-4xl">¿Listo para tener tu catálogo digital?</h2>
-        <p className="relative mx-auto mt-4 max-w-xl font-medium leading-relaxed text-orange-50">
+        <p className="relative mx-auto mt-4 max-w-xl font-medium leading-relaxed text-emerald-50">
           Si ya lo tienes claro, añade tu plan al carrito. Y si te queda una duda, escríbenos: te respondemos en menos de 24 horas.
         </p>
         <div className="relative mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -510,7 +807,7 @@ function FinalCta({ catalog }: { catalog: Catalog }) {
             href={wa}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-2xl bg-white px-8 py-4 text-sm font-black uppercase tracking-widest text-orange-600 shadow-xl transition-all hover:scale-105 active:scale-95"
+            className="inline-flex items-center gap-2 rounded-2xl bg-white px-8 py-4 text-sm font-black uppercase tracking-widest text-emerald-600 shadow-xl transition-all hover:scale-105 active:scale-95"
           >
             💬 Aún tengo una duda
           </a>
@@ -531,60 +828,200 @@ function FinalCta({ catalog }: { catalog: Catalog }) {
 export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
   const plans = catalog.sections.find((s) => /modelo|plan/i.test(s.name))?.products ?? catalog.sections[0]?.products ?? [];
 
+  // ── Filtros por característica (desde la tabla comparativa) ──
+  const [activeFeatures, setActiveFeatures] = useState<string[]>([]);
+  const [activeAddonBadges, setActiveAddonBadges] = useState<string[]>([]);
+
+  const planFeatures = (catalog.comparison ?? []).filter((row) =>
+    row.includedIn.some((id) => plans.some((p) => p.id === id))
+  );
+
+  const visiblePlans = activeFeatures.length === 0
+    ? plans
+    : plans.filter((p) => activeFeatures.every((f) => {
+        const row = planFeatures.find((r) => r.feature === f);
+        return row ? row.includedIn.includes(p.id) : false;
+      }));
+
+  const addonSections = catalog.sections.filter((s) => /servicio|suscripcion/i.test(s.name));
+  const addonBadges = [...new Set(
+    addonSections.flatMap((s) => s.products.map((p) => p.badge ?? '').filter(Boolean))
+  )];
+
+  const visibleAddonSections = activeAddonBadges.length === 0
+    ? addonSections
+    : addonSections.map((s) => ({
+        ...s,
+        products: s.products.filter((p) => p.badge && activeAddonBadges.includes(p.badge)),
+      })).filter((s) => s.products.length > 0);
+
+  const toggleFeature = (f: string) =>
+    setActiveFeatures((prev) => (prev.includes(f) ? prev.filter((x) => x !== f) : [...prev, f]));
+  const toggleAddonBadge = (b: string) =>
+    setActiveAddonBadges((prev) => (prev.includes(b) ? prev.filter((x) => x !== b) : [...prev, b]));
+
+  const demoPath = plans[0]?.demoUrl ?? null;
+  const waHref = `https://wa.me/${catalog.phone}?text=${encodeURIComponent('Hola, quiero un catálogo digital para mi negocio. 💛')}`;
+
+  const heroDemos = plans.map((p) => ({
+    id: p.id,
+    name: p.name,
+    tag: p.badge ?? 'Demo interactiva',
+    img: `/img/mockup-${p.id.includes('basico') ? 'lista' : p.id.includes('pro') ? 'libro' : 'admin'}.webp`,
+    demoUrl: p.demoUrl ?? null,
+  }));
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-rose-50 to-indigo-50 animate-mesh text-slate-900 selection:bg-orange-500/30 font-sans overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-amber-50 to-teal-50 animate-mesh text-slate-900 selection:bg-emerald-500/30 font-sans overflow-hidden">
       <StickyNav />
 
       {/* Orbes decorativos */}
-      <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-purple-300/30 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob" />
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-300/30 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-2000" />
-      <div className="absolute -bottom-32 left-20 w-[500px] h-[500px] bg-pink-300/30 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-4000" />
+      <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-amber-300/30 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob" />
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-300/30 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-2000" />
+      <div className="absolute -bottom-32 left-20 w-[500px] h-[500px] bg-teal-300/30 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-4000" />
 
       {/* ═══════════ HEADER ═══════════ */}
-      <header className="relative z-10">
-        <div className="relative z-10 mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
-          <div className="mb-16 flex flex-col items-center justify-between gap-12 text-center lg:flex-row lg:text-left">
-            <div className="flex-1 max-w-2xl">
-              <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/40 px-5 py-2 shadow-sm backdrop-blur-md">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange-400 opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-orange-500" />
+      <header className="relative z-10 overflow-hidden bg-[#041b14] text-white">
+        {/* Fondo: auroras + rejilla + grano */}
+        <div className="absolute inset-0">
+          <div className="absolute -left-[12%] -top-[25%] h-[620px] w-[620px] rounded-full bg-emerald-500/30 blur-[130px] animate-blob" />
+          <div className="absolute right-[-10%] top-[5%] h-[540px] w-[540px] rounded-full bg-amber-500/30 blur-[130px] animate-blob animation-delay-2000" />
+          <div className="absolute bottom-[-20%] left-[35%] h-[520px] w-[520px] rounded-full bg-teal-500/25 blur-[140px] animate-blob animation-delay-4000" />
+          <div
+            className="absolute inset-0 opacity-20"
+            style={{
+              backgroundImage: 'linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px)',
+              backgroundSize: '76px 76px',
+              maskImage: 'radial-gradient(ellipse 95% 85% at 50% 0%, #000 30%, transparent 78%)',
+              WebkitMaskImage: 'radial-gradient(ellipse 95% 85% at 50% 0%, #000 30%, transparent 78%)',
+            }}
+          />
+          {/* Brasas ascendentes */}
+          <div className="pointer-events-none absolute inset-0 z-[1] overflow-hidden">
+            {EMBERS.map((e, i) => (
+              <span
+                key={i}
+                className="absolute bottom-0 animate-ember rounded-full opacity-0"
+                style={{
+                  left: `${e.left}%`,
+                  width: `${e.size}px`,
+                  height: `${e.size}px`,
+                  background: e.color,
+                  boxShadow: `0 0 8px 2px ${e.color}55`,
+                  animationDuration: `${e.dur}s`,
+                  animationDelay: `${e.delay}s`,
+                  opacity: 0,
+                }}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="relative z-10 mx-auto max-w-7xl px-5 pt-16 pb-14 sm:px-8 lg:pt-24">
+          <div className="grid items-center gap-14 lg:grid-cols-2">
+            {/* ── Columna texto ── */}
+            <div className="text-center lg:text-left animate-fade-in-up">
+              <div className="mb-7 inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/10 px-4 py-2 shadow-lg backdrop-blur-md">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-80" />
+                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
                 </span>
-                <span className="text-xs font-black uppercase tracking-widest text-slate-800">{catalog.tagline}</span>
+                <span className="text-[11px] font-black uppercase tracking-[0.25em] text-emerald-200">{catalog.tagline}</span>
               </div>
-              <h1 className="text-5xl font-black leading-[1.1] tracking-tighter text-slate-900 md:text-7xl">
-                {catalog.name}
+
+              <h1 className="text-[2.6rem] font-black leading-[1.05] tracking-tighter sm:text-6xl lg:text-[4.2rem]">
+                Tu negocio convertido en un{' '}
+                <span className="bg-gradient-to-r from-amber-200 via-yellow-300 to-emerald-300 bg-clip-text text-transparent">
+                  catálogo que enamora
+                </span>
               </h1>
-              <p className="mx-auto mt-6 max-w-2xl text-lg font-medium leading-relaxed text-slate-600 md:text-xl lg:mx-0">
-                {catalog.description}
+
+              <p className="mx-auto mt-6 max-w-xl text-base font-medium leading-relaxed text-white/70 sm:text-lg lg:mx-0">
+                {catalog.description} Con carrito de pedidos, envío por WhatsApp y panel para editar todo tú mismo. Listo en días, sin comisiones.
               </p>
 
-              {/* Barra de confianza */}
-              <div className="mt-8 flex flex-wrap justify-center gap-3 lg:justify-start">
+              {/* CTAs */}
+              <div className="mt-9 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
+                <button
+                  onClick={() => goTo('planes')}
+                  className="shine group relative inline-flex items-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-400 px-7 py-4 text-sm font-black uppercase tracking-widest text-emerald-950 shadow-2xl shadow-amber-500/30 ring-1 ring-white/30 transition-all hover:scale-[1.04] hover:shadow-amber-500/50 active:scale-95"
+                >
+                  🛒 Ver planes y precios
+                  <span className="transition-transform group-hover:translate-x-1">→</span>
+                </button>
+                {demoPath && (
+                  <a
+                    href={`${BASE_PATH}${demoPath}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-2xl border border-white/25 bg-white/10 px-6 py-4 text-sm font-black uppercase tracking-widest text-white backdrop-blur-md transition-all hover:bg-white/20 hover:scale-[1.03] active:scale-95"
+                  >
+                    👀 Probar una demo
+                  </a>
+                )}
+                <a
+                  href={waHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-2xl px-4 py-4 text-sm font-black uppercase tracking-widest text-white/60 transition-colors hover:text-emerald-300"
+                >
+                  💬 WhatsApp
+                </a>
+              </div>
+
+              {/* Stats */}
+              <div className="mt-10 grid max-w-xl grid-cols-3 gap-3">
                 {[
-                  { icon: '💵', text: 'Pago único' },
-                  { icon: '🚫', text: 'Sin comisiones' },
-                  { icon: '⏱', text: 'Entrega 2–7 días' },
-                  { icon: '🛡', text: 'Garantía 7 días' },
-                ].map((t) => (
-                  <span key={t.text} className="inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/50 px-4 py-2 text-xs font-black uppercase tracking-wider text-slate-700 shadow-sm backdrop-blur-md transition-transform hover:scale-105">
-                    {t.icon} {t.text}
-                  </span>
+                  { icon: '🚫', big: '0%', small: 'comisiones' },
+                  { icon: '⏱', big: '2–7', small: 'días de entrega' },
+                  { icon: '🛡', big: '6 meses', small: 'de garantía' },
+                ].map((s) => (
+                  <div
+                    key={s.small}
+                    className={`relative rounded-2xl px-3 py-4 text-center backdrop-blur-md transition-all ${
+                      s.small === 'de garantía'
+                        ? 'border border-amber-400/70 bg-gradient-to-b from-amber-400/20 to-emerald-500/10 shadow-[0_0_30px_rgba(251,191,36,0.25)] hover:shadow-[0_0_40px_rgba(251,191,36,0.4)]'
+                        : 'border border-white/15 bg-white/5 hover:border-emerald-400/50 hover:bg-white/10'
+                    }`}
+                  >
+                    {s.small === 'de garantía' && (
+                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-amber-300 to-yellow-400 px-3 py-0.5 text-[9px] font-black uppercase tracking-widest text-emerald-950 shadow-lg">
+                        Reembolso garantizado
+                      </span>
+                    )}
+                    {s.small === 'de garantía' && (
+                      <span className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
+                        <span className="absolute inline-flex h-3 w-3 -right-1 -top-1 animate-ping rounded-full bg-amber-300/80" />
+                      </span>
+                    )}
+                    <div className="text-xl">{s.icon}</div>
+                    <div className={`mt-1 bg-gradient-to-r from-amber-300 to-yellow-200 bg-clip-text text-2xl font-black text-transparent ${s.small === 'de garantía' ? 'scale-110' : ''}`}>{s.big}</div>
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-white/50">{s.small}</div>
+                  </div>
                 ))}
               </div>
             </div>
 
-            <div className="relative w-full max-w-lg flex-1 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-              <div className="absolute inset-0 scale-75 rounded-full bg-gradient-to-tr from-orange-400/30 to-pink-500/30 blur-[80px]" />
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/img/hero-mockup.webp"
-                alt="Catálogo Digital Interactivo"
-                className="relative z-10 h-auto w-full drop-shadow-2xl transition-transform duration-700 hover:rotate-1 hover:scale-[1.03]"
-              />
-            </div>
+            {/* ── Columna mockup (teléfono interactivo) ── */}
+            <PhoneDemo demos={heroDemos} catalogSlug={catalog.slug} />
           </div>
         </div>
+
+        {/* Marquee de negocios */}
+        {(catalog.businessTypes?.length ?? 0) > 0 && (
+          <div className="relative z-10 border-t border-white/10 bg-black/30 backdrop-blur-sm">
+            <div className="marquee-mask overflow-hidden py-5">
+              <div className="animate-marquee flex w-max items-center gap-8 px-4">
+                {[...(catalog.businessTypes ?? []), ...(catalog.businessTypes ?? [])].map((b, i) => (
+                  <span key={i} className="flex items-center gap-2.5 whitespace-nowrap text-sm font-black uppercase tracking-[0.2em] text-white/60">
+                    <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-r from-emerald-400 to-amber-400" />
+                    {b}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* ═══════════ PLANES ═══════════ */}
@@ -596,23 +1033,81 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
               title="Elige el catálogo perfecto para tu negocio"
               sub="Toca “Probar Demostración” en cualquier plan para verlo funcionando con productos reales."
             />
-            <div className="grid justify-center gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {plans.map((product) => (
-                <PremiumServiceCard key={product.id} product={product} catalogSlug={catalog.slug} />
-              ))}
-            </div>
 
-            {/* Servicios adicionales */}
-            {catalog.sections.filter((s) => /servicio|suscripcion/i.test(s.name)).map((section) => (
-              <div key={section.name} className="mt-24">
-                <SectionHeading kicker="Complementa tu plan" title={section.name} />
-                <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-2">
-                  {section.products.map((product) => (
-                    <AddonServiceCard key={product.id} product={product} catalogSlug={catalog.slug} />
+            <FilterGroup
+              title="Filtrar por qué incluye"
+              options={planFeatures.map((row) => ({ id: row.feature, label: row.feature }))}
+              selected={activeFeatures}
+              onToggle={toggleFeature}
+              onClear={() => setActiveFeatures([])}
+              resultCount={visiblePlans.length}
+            />
+
+            {visiblePlans.length > 0 ? (
+              <Reveal>
+                <div className="grid justify-center gap-8 md:grid-cols-2 lg:grid-cols-3">
+                  {visiblePlans.map((product) => (
+                    <PremiumServiceCard key={product.id} product={product} catalogSlug={catalog.slug} />
                   ))}
                 </div>
+              </Reveal>
+            ) : (
+              <div className="mx-auto max-w-md rounded-[2.5rem] border border-white bg-white/60 p-8 text-center shadow-sm backdrop-blur-md">
+                <p className="text-4xl">🔍</p>
+                <p className="mt-3 font-black text-slate-900">Ningún plan incluye todo lo que marcaste</p>
+                <p className="mt-2 text-sm font-medium text-slate-600">Prueba quitar un filtro o compara los planes para ver qué incluye cada uno.</p>
+                <button
+                  onClick={() => setActiveFeatures([])}
+                  className="mt-5 rounded-xl bg-emerald-500 px-6 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-600 active:scale-95"
+                >
+                  ✕ Limpiar filtros
+                </button>
               </div>
-            ))}
+            )}
+
+            {/* Servicios adicionales */}
+            {addonSections.length > 0 && (
+              <div className="mt-24">
+                <SectionHeading
+                  kicker="Complementa tu plan"
+                  title="Servicios adicionales"
+                  sub="Filtra por tipo de pago: mensual, anual o por cambio."
+                />
+                <FilterGroup
+                  title="Filtrar por"
+                  options={addonBadges.map((b) => ({ id: b, label: b }))}
+                  selected={activeAddonBadges}
+                  onToggle={toggleAddonBadge}
+                  onClear={() => setActiveAddonBadges([])}
+                />
+                {visibleAddonSections.map((section) => (
+                  <div key={section.name} className={addonSections.length > 1 ? "mt-14" : ""}>
+                    {addonSections.length > 1 && (
+                      <h3 className="mb-5 text-center font-black text-slate-800">{section.name}</h3>
+                    )}
+                    <Reveal>
+                      <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-2">
+                        {section.products.map((product) => (
+                          <AddonServiceCard key={product.id} product={product} catalogSlug={catalog.slug} />
+                        ))}
+                      </div>
+                    </Reveal>
+                  </div>
+                ))}
+                {visibleAddonSections.length === 0 && (
+                  <div className="mx-auto max-w-md rounded-[2.5rem] border border-white bg-white/60 p-8 text-center shadow-sm backdrop-blur-md">
+                    <p className="text-4xl">🔍</p>
+                    <p className="mt-3 font-black text-slate-900">No hay servicios con ese tipo de pago</p>
+                    <button
+                      onClick={() => setActiveAddonBadges([])}
+                      className="mt-5 rounded-xl bg-emerald-500 px-6 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-600 active:scale-95"
+                    >
+                      ✕ Limpiar filtros
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </section>
 
           {/* ═══════════ RECOMENDADOR ═══════════ */}
@@ -623,7 +1118,9 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                 title="¿No sabes cuál elegir? Te ayudamos"
                 sub="Responde 4 preguntas y te recomendamos el plan ideal para tu negocio."
               />
-              <PlanRecommender plans={plans} catalogSlug={catalog.slug} />
+              <Reveal>
+                <PlanRecommender plans={plans} catalogSlug={catalog.slug} />
+              </Reveal>
             </section>
           )}
 
@@ -635,7 +1132,9 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                 title="Compara los planes de un vistazo"
                 sub="Puedes seleccionar el plan que más te llame la atención tocando su columna."
               />
-              <ComparisonTable catalog={catalog} />
+              <Reveal>
+                <ComparisonTable catalog={catalog} />
+              </Reveal>
             </section>
           )}
 
@@ -649,7 +1148,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
               />
               <div className="mx-auto flex max-w-4xl flex-wrap justify-center gap-3">
                 {catalog.businessTypes!.map((b) => (
-                  <span key={b} className="rounded-full border border-white bg-white/60 px-5 py-2.5 text-sm font-bold text-slate-700 shadow-sm backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white hover:shadow-lg hover:border-orange-200">
+                  <span key={b} className="rounded-full border border-white bg-white/60 px-5 py-2.5 text-sm font-bold text-slate-700 shadow-sm backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white hover:shadow-lg hover:border-emerald-200">
                     {b}
                   </span>
                 ))}
@@ -665,10 +1164,11 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                 title="¿Qué necesitas entregarme para empezar?"
                 sub="Menos de lo que crees. Todo se puede enviar por WhatsApp o foto."
               />
+              <Reveal>
               <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 {catalog.handoff!.map((h, i) => (
                   <div key={h.title} className="group rounded-[2rem] border border-white bg-white/60 p-6 text-center shadow-sm backdrop-blur-md transition-all duration-500 hover:-translate-y-2 hover:shadow-xl animate-fade-in-up" style={{ animationDelay: `${i * 0.1}s` }}>
-                    <span className="inline-grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-orange-100 to-pink-100 text-3xl shadow-inner transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6">
+                    <span className="inline-grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-emerald-100 to-teal-100 text-3xl shadow-inner transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6">
                       {h.icon}
                     </span>
                     <h3 className="mt-4 font-black text-slate-900">{h.title}</h3>
@@ -676,6 +1176,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                   </div>
                 ))}
               </div>
+            </Reveal>
             </section>
           )}
 
@@ -687,11 +1188,12 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                 title="¿Qué pasa después de tu compra?"
                 sub="Un proceso de 5 pasos y tú siempre al tanto. Nada de letra pequeña."
               />
+              <Reveal>
               <div className="relative mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
-                <div className="absolute left-0 right-0 top-10 hidden h-0.5 bg-gradient-to-r from-transparent via-orange-300 to-transparent md:block" />
+                <div className="absolute left-0 right-0 top-10 hidden h-0.5 bg-gradient-to-r from-transparent via-emerald-300 to-transparent md:block" />
                 {catalog.process!.map((p, i) => (
                   <div key={p.title} className="relative rounded-[2rem] border border-white bg-white/60 p-6 shadow-sm backdrop-blur-md transition-all duration-500 hover:-translate-y-1.5 hover:shadow-xl animate-fade-in-up" style={{ animationDelay: `${i * 0.1}s` }}>
-                    <span className="absolute -top-4 left-6 grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-orange-500 to-pink-500 text-sm font-black text-white shadow-lg">
+                    <span className="absolute -top-4 left-6 grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 text-sm font-black text-white shadow-lg">
                       {i + 1}
                     </span>
                     <h3 className="mt-3 font-black text-slate-900">{p.title}</h3>
@@ -699,6 +1201,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                   </div>
                 ))}
               </div>
+            </Reveal>
             </section>
           )}
 
@@ -710,57 +1213,61 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                 title="Pago, garantía y costos que debes conocer"
                 sub="Todo lo que quieres saber antes de dar el sí, respondido aquí."
               />
-              <div className="grid gap-5 md:grid-cols-2">
-                {catalog.payment && (
-                  <div className="rounded-[2rem] border border-white bg-white/60 p-7 shadow-sm backdrop-blur-md transition-shadow hover:shadow-xl">
-                    <h3 className="flex items-center gap-3 text-lg font-black text-slate-900">💳 Formas de pago</h3>
-                    <ul className="mt-4 space-y-2.5">
-                      {catalog.payment.map((p) => (
-                        <li key={p} className="flex items-start gap-3 text-sm font-medium text-slate-700">
-                          <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-bold text-emerald-600">✓</span>
-                          {p}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+              <Reveal>
+                <div className="grid gap-5 md:grid-cols-2">
+                  {catalog.payment && (
+                    <div className="rounded-[2rem] border border-white bg-white/60 p-7 shadow-sm backdrop-blur-md transition-shadow hover:shadow-xl">
+                      <h3 className="flex items-center gap-3 text-lg font-black text-slate-900">💳 Formas de pago</h3>
+                      <ul className="mt-4 space-y-2.5">
+                        {catalog.payment.map((p) => (
+                          <li key={p} className="flex items-start gap-3 text-sm font-medium text-slate-700">
+                            <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-bold text-emerald-600">✓</span>
+                            {p}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
 
-                {catalog.guarantee && (
-                  <div className="rounded-[2rem] border border-white bg-gradient-to-br from-emerald-50 to-teal-50 p-7 shadow-sm backdrop-blur-md transition-all hover:-translate-y-1 hover:shadow-xl">
-                    <h3 className="flex items-center gap-3 text-lg font-black text-slate-900">🛡 Garantía</h3>
-                    <p className="mt-4 text-sm font-medium leading-relaxed text-slate-700">{catalog.guarantee}</p>
-                  </div>
-                )}
+                  {catalog.guarantee && (
+                    <div className="rounded-[2rem] border border-white bg-gradient-to-br from-emerald-50 to-teal-50 p-7 shadow-sm backdrop-blur-md transition-all hover:-translate-y-1 hover:shadow-xl">
+                      <h3 className="flex items-center gap-3 text-lg font-black text-slate-900">🛡 Garantía</h3>
+                      <p className="mt-4 text-sm font-medium leading-relaxed text-slate-700">{catalog.guarantee}</p>
+                    </div>
+                  )}
 
-                {catalog.recurringCosts && (
-                  <div className="rounded-[2rem] border border-white bg-white/60 p-7 shadow-sm backdrop-blur-md transition-shadow hover:shadow-xl">
-                    <h3 className="flex items-center gap-3 text-lg font-black text-slate-900">💡 Costos que debes conocer</h3>
-                    <ul className="mt-4 space-y-2.5">
-                      {catalog.recurringCosts.map((c) => (
-                        <li key={c} className="flex items-start gap-3 text-sm font-medium text-slate-700">
-                          <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100 text-[10px] font-bold text-indigo-600">→</span>
-                          {c}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                  {catalog.recurringCosts && (
+                    <div className="rounded-[2rem] border border-white bg-white/60 p-7 shadow-sm backdrop-blur-md transition-shadow hover:shadow-xl">
+                      <h3 className="flex items-center gap-3 text-lg font-black text-slate-900">💡 Costos que debes conocer</h3>
+                      <ul className="mt-4 space-y-2.5">
+                        {catalog.recurringCosts.map((c) => (
+                          <li key={c} className="flex items-start gap-3 text-sm font-medium text-slate-700">
+                            <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-teal-100 text-[10px] font-bold text-teal-600">→</span>
+                            {c}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
 
-                {catalog.upgradePolicy && (
-                  <div className="rounded-[2rem] border border-white bg-white/60 p-7 shadow-sm backdrop-blur-md transition-shadow hover:shadow-xl">
-                    <h3 className="flex items-center gap-3 text-lg font-black text-slate-900">🔄 ¿Puedo cambiar de plan después?</h3>
-                    <p className="mt-4 text-sm font-medium leading-relaxed text-slate-700">{catalog.upgradePolicy}</p>
-                  </div>
-                )}
-              </div>
+                  {catalog.upgradePolicy && (
+                    <div className="rounded-[2rem] border border-white bg-white/60 p-7 shadow-sm backdrop-blur-md transition-shadow hover:shadow-xl">
+                      <h3 className="flex items-center gap-3 text-lg font-black text-slate-900">🔄 ¿Puedo cambiar de plan después?</h3>
+                      <p className="mt-4 text-sm font-medium leading-relaxed text-slate-700">{catalog.upgradePolicy}</p>
+                    </div>
+                  )}
+                </div>
+              </Reveal>
             </section>
           ) : null}
 
           {/* ═══════════ FAQ ═══════════ */}
-          {(catalog.faq?.length ?? 0) > 0 && <FaqSection catalog={catalog} />}
+          {(catalog.faq?.length ?? 0) > 0 && (
+            <Reveal><FaqSection catalog={catalog} /></Reveal>
+          )}
 
           {/* ═══════════ CTA FINAL ═══════════ */}
-          <FinalCta catalog={catalog} />
+          <Reveal><FinalCta catalog={catalog} /></Reveal>
         </div>
       </main>
 

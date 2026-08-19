@@ -275,6 +275,89 @@ button, input, textarea { font: inherit; }
   animation-delay: 4s;
 }
 
+/* ── Flotación suave (mockups / tarjetas flotantes) ── */
+@keyframes float-y {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-18px) rotate(1.5deg); }
+}
+.animate-float {
+  animation: float-y 6s ease-in-out infinite;
+}
+.animate-float-slow {
+  animation: float-y 9s ease-in-out infinite;
+}
+
+/* ── Marquee horizontal (tipos de negocio) ── */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 28s linear infinite;
+}
+.marquee-mask {
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+/* ── Brillo que barre la tarjeta popular al pasar el mouse ── */
+@keyframes shine-sweep {
+  from { transform: translateX(-120%) skewX(-18deg); }
+  to { transform: translateX(320%) skewX(-18deg); }
+}
+.shine::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 40%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,0.55), transparent);
+  transform: translateX(-120%) skewX(-18deg);
+  pointer-events: none;
+}
+.group:hover .shine::after {
+  animation: shine-sweep 0.9s ease;
+}
+
+/* ── Transición de imagen dentro del teléfono (mockup) ── */
+@keyframes phone-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.96); }
+  to   { opacity: 1; transform: none; }
+}
+.animate-phone-in {
+  animation: phone-in 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Confeti al añadir un plan ── */
+@keyframes confetti-out {
+  0%   { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) rotate(340deg) scale(0.35); opacity: 0; }
+}
+.animate-confetti {
+  animation: confetti-out 0.95s ease-out forwards;
+}
+
+/* ── Brasas ascendentes (atmósfera del hero) ── */
+@keyframes ember-rise {
+  0%   { transform: translate(0, 0) scale(1); opacity: 0; }
+  10%  { opacity: 0.9; }
+  100% { transform: translate(4rem, -108vh) scale(0.2); opacity: 0; }
+}
+.animate-ember {
+  animation: ember-rise linear infinite;
+  will-change: transform, opacity;
+}
+
+/* ── Sacudida suave para avisos "tócame" ── */
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-3deg); }
+  50%      { transform: rotate(3deg); }
+}
+.animate-wiggle {
+  animation: wiggle 1.4s ease-in-out infinite;
+}
+
 /* ════════════════════════════════════════════════════════
    ANIMACIÓN RESPUESTAS DEL FAQ
 ════════════════════════════════════════════════════════ */

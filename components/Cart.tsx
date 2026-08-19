@@ -97,6 +97,14 @@ export function Cart({ catalog }: { catalog: Catalog }) {
   // La distancia llega directo del mapa (usa la ruta real por calles si hay)
   const quote        = (!isPickup && requiresLocation && !selectedZone && distKm !== null) ? quoteForDistance(deliveryParams, distKm) : null;
   const deliveryFee  = selectedZone ? selectedZone.fee : ((!isPickup && requiresLocation) ? (quote?.fee ?? 0) : 0);
+  // Distancia efectiva cobrada (con redondeo aplicado, si corresponde)
+  const chargedKm    = quote?.distanceKm !== undefined ? (() => {
+    const mode = deliveryParams.integerDistanceMode;
+    if (mode === 'floor') return Math.floor(quote.distanceKm);
+    if (mode === 'ceil')  return Math.ceil(quote.distanceKm);
+    if (mode === 'round') return Math.round(quote.distanceKm);
+    return quote.distanceKm;
+  })() : distKm;
   const packagingFeeTotal = catalog.packaging ? packagingQty * catalog.packaging.price : 0;
   const total        = subtotal + deliveryFee + packagingFeeTotal;
   const minimumMet   = subtotal >= catalog.minimumOrder;
@@ -147,7 +155,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
     const locLine = (!isPickup && requiresLocation && !selectedZone && clientLoc)
       ? `📍 Entregar en: https://maps.google.com/maps?q=${clientLoc.lat},${clientLoc.lng}\n`
       : '';
-    const pickupLine = isPickup
+    const pickupLine = isPickup && catalog.allowPickup
       ? `🏪 Retirar en el local: ${catalog.address || catalog.name}\n`
       : '';
     const zoneLine = selectedZone
@@ -157,7 +165,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
       ? `📦 ${catalog.packaging.label} (${packagingQty} × $${catalog.packaging.price.toFixed(2)}): $${packagingFeeTotal.toFixed(2)}\n`
       : '';
     const distLine = (!isPickup && requiresLocation && !selectedZone && distKm !== null)
-      ? `*🛵 Envío (${distKm.toFixed(2)} km por calles): $${deliveryFee.toFixed(2)}*\n`
+      ? `*🛵 Envío (${distKm.toFixed(2)} km por calles${chargedKm !== null && chargedKm !== distKm ? `, cobrado como ${chargedKm} km` : ''}): $${deliveryFee.toFixed(2)}*\n`
       : '';
     const notesLine = notes.trim() ? `📝 Indicaciones: ${notes.trim()}` : '';
     const checkoutLine = catalog.checkoutNote ? `\n*ℹ️ ${catalog.checkoutNote}*\n` : '';
@@ -401,9 +409,16 @@ export function Cart({ catalog }: { catalog: Catalog }) {
                   )}
 
                   {clientLoc && !tooFar && distKm !== null && (
-                    <div className="bg-green-50 px-3 py-2 border-t border-green-100 flex justify-between text-xs">
-                      <span className="text-stone-500">🛵 Costo de envío ({distKm.toFixed(2)} km)</span>
-                      <span className="font-bold text-green-700">${deliveryFee.toFixed(2)}</span>
+                    <div className="bg-green-50 px-3 py-2 border-t border-green-100 space-y-1">
+                      <div className="flex justify-between text-xs">
+                        <span className="text-stone-500">
+                          🛵 Costo de envío
+                          {chargedKm !== null && chargedKm !== distKm
+                            ? ` (${chargedKm} km cobrados de ${distKm.toFixed(2)} km)` 
+                            : ` (${distKm.toFixed(2)} km)`}
+                        </span>
+                        <span className="font-bold text-green-700">${deliveryFee.toFixed(2)}</span>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -475,7 +490,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
               {/* Total */}
               {(!requiresLocation || isPickup || clientLoc || selectedZone) && !tooFar && (
                 <div className="flex justify-between font-bold text-base border-t pt-2">
-                  <span>{isPickup ? 'Total (retiro)' : requiresLocation ? 'Total con envío' : 'Total'}</span>
+                  <span>{isPickup && catalog.allowPickup ? 'Total (retiro)' : requiresLocation ? 'Total con envío' : 'Total'}</span>
                   <span className="text-orange-600">${total.toFixed(2)}</span>
                 </div>
               )}

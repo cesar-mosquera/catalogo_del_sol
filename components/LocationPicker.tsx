@@ -458,7 +458,7 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-white">
+    <div className="fixed inset-0 z-50 flex flex-col bg-white" style={{ touchAction: 'none' }}>
       {/* Header */}
       <div className="flex-shrink-0 bg-gradient-to-r from-stone-900 to-stone-800 px-4 py-3 text-white shadow-lg">
         <div className="flex items-center justify-between gap-2">
@@ -564,18 +564,18 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
       </div>
 
       {/* Panel inferior */}
-      <div className="flex-shrink-0 space-y-3 border-t border-stone-200 bg-white p-4 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] max-h-[58vh] overflow-y-auto">
+      <div className="flex-shrink-0 space-y-2.5 border-t border-stone-200 bg-white px-4 pt-3 pb-4 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] overflow-y-auto" style={{ maxHeight: 'min(46vh, 320px)' }}>
         {/* Botón GPS */}
         <button
           onClick={locateUser}
           disabled={loading}
-          className="w-full flex items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 font-bold text-white transition-colors hover:bg-blue-700 disabled:opacity-60"
+          className="w-full flex items-center justify-center gap-2 rounded-xl bg-blue-600 py-2.5 text-sm font-bold text-white transition-colors hover:bg-blue-700 disabled:opacity-60"
         >
-          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+          <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
             <circle cx="12" cy="12" r="3" />
             <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
           </svg>
-          {loading ? '⏳ Obteniendo ubicación…' : 'Usar mi ubicación actual (GPS)'}
+          {loading ? '⏳ Obteniendo ubicación…' : 'Usar mi ubicación (GPS)'}
         </button>
 
         {gpsError && <p className="text-sm text-red-600 text-center">{gpsError}</p>}
@@ -663,16 +663,16 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
         <button
           onClick={confirm}
           disabled={!picked || outOfRange || (routeKm === null && routeState !== 'error')}
-          className="w-full rounded-xl bg-orange-600 py-3.5 font-bold text-white shadow-lg shadow-orange-600/25 transition-all hover:bg-orange-700 active:scale-[0.99] disabled:bg-stone-300 disabled:shadow-none disabled:cursor-not-allowed"
+          className="w-full rounded-xl bg-orange-600 py-3 text-sm font-bold text-white shadow-lg shadow-orange-600/25 transition-all hover:bg-orange-700 active:scale-[0.99] disabled:bg-stone-300 disabled:shadow-none disabled:cursor-not-allowed"
         >
           {outOfRange
-            ? 'Fuera del radio de entrega'
+            ? '⚠️ Fuera del radio de entrega'
             : routeKm === null
               ? (picked
                   ? (routeState === 'error'
-                      ? 'Confirmar igual (distancia estimada) ✓'
-                      : '⏳ Calculando ruta… espera un momento')
-                  : 'Selecciona un punto en el mapa o usa GPS')
+                      ? 'Confirmar con distancia estimada ✓'
+                      : '⏳ Calculando ruta… espera')
+                  : 'Selecciona tu punto en el mapa o usa GPS')
               : 'Confirmar esta ubicación ✓'}
         </button>
       </div>
