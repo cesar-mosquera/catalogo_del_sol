@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import type { Catalog, Product } from '@/lib/catalog-types';
 import { BASE_PATH } from '@/lib/base-path';
@@ -38,6 +38,7 @@ function SectionHeading({ kicker, title, sub }: { kicker: string; title: string;
 function FilterGroup({
   title, options, selected, onToggle, onClear, resultCount,
   singularNoun = 'plan', pluralNoun = 'planes',
+  sticky = false,
 }: {
   title: string;
   options: { id: string; label: string }[];
@@ -47,66 +48,95 @@ function FilterGroup({
   resultCount?: number;
   singularNoun?: string;
   pluralNoun?: string;
+  sticky?: boolean;
 }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const checkScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 2);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 2);
+  }, []);
+
+  useEffect(() => {
+    checkScroll();
+    const el = scrollRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(checkScroll);
+    ro.observe(el);
+    el.addEventListener('scroll', checkScroll, { passive: true });
+    return () => { ro.disconnect(); el.removeEventListener('scroll', checkScroll); };
+  }, [checkScroll, options.length]);
+
   if (options.length === 0) return null;
 
   return (
-    <div className="mx-auto mb-12 max-w-4xl px-4">
-      <div className="flex flex-col items-center gap-5">
-        {/* Título */}
-        <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-stone-400">{title}</p>
-
-        {/* Chips de filtro */}
-        <div className="flex flex-wrap items-center justify-center gap-3">
-          {options.map((opt) => {
-            const active = selected.includes(opt.id);
-            return (
+    <div className={`${sticky ? 'sticky top-0 z-40' : ''} mb-6 sm:mb-10`}>
+      <div className={`${sticky ? 'border-b border-stone-200/60 bg-white/80 backdrop-blur-xl shadow-[0_1px_3px_rgb(0,0,0,0.04)]' : ''}`}>
+        <div className="mx-auto max-w-5xl px-4 py-3 sm:px-5">
+          {/* Fila: título + badge contador + limpiar */}
+          <div className="flex items-center justify-between gap-3 mb-2.5">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-stone-400 truncate">{title}</span>
+              {resultCount !== undefined && selected.length > 0 && (
+                <span className="flex-shrink-0 inline-flex items-center justify-center h-5 min-w-[20px] rounded-full bg-stone-800 px-1.5 text-[10px] font-semibold text-white tabular-nums">
+                  {resultCount}
+                </span>
+              )}
+            </div>
+            {selected.length > 0 && (
               <button
-                key={opt.id}
-                onClick={() => onToggle(opt.id)}
-                aria-pressed={active}
-                aria-label={`Filtrar por: ${opt.label}`}
-                className={`group relative flex items-center gap-3 rounded-2xl px-5 py-3 text-[13px] font-semibold tracking-wide transition-all duration-300 active:scale-95 shadow-sm sm:text-sm ${
-                  active
-                    ? 'bg-emerald-600 text-white border-transparent shadow-emerald-900/25 shadow-xl scale-[1.02]'
-                    : 'bg-white text-stone-600 border border-stone-200/80 hover:border-amber-300 hover:shadow-md hover:-translate-y-0.5 hover:text-stone-800'
-                }`}
+                onClick={onClear}
+                className="flex-shrink-0 text-[11px] font-medium text-stone-400 underline decoration-stone-300 underline-offset-2 transition-colors hover:text-stone-600"
               >
-                <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full transition-colors ${
-                  active ? 'bg-amber-400 shadow-inner' : 'bg-stone-100 group-hover:bg-amber-100'
-                }`}>
-                  {active ? (
-                    <svg className="h-3.5 w-3.5 text-emerald-900" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                  ) : (
-                    <span className="h-1.5 w-1.5 rounded-full bg-stone-300 group-hover:bg-amber-400 transition-colors" />
-                  )}
-                </div>
-                <span>{opt.label}</span>
+                Limpiar
               </button>
-            );
-          })}
-        </div>
+            )}
+          </div>
 
-        {/* Botón limpiar y contador */}
-        <div className="mt-2 flex h-6 items-center gap-4">
-          {selected.length > 0 && (
-            <button
-              onClick={onClear}
-              className="text-[11px] font-bold uppercase tracking-wider text-amber-600 hover:text-amber-700 flex items-center gap-1 transition-colors"
+          {/* Chips horizontales con scroll */}
+          <div className="relative">
+            {canScrollLeft && (
+              <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white/90 to-transparent z-10 pointer-events-none" />
+            )}
+            {canScrollRight && (
+              <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white/90 to-transparent z-10 pointer-events-none" />
+            )}
+
+            <div
+              ref={scrollRef}
+              className="no-scrollbar flex gap-1.5 overflow-x-auto scroll-smooth pb-0.5"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
-              <span>✕</span> Limpiar filtros
-            </button>
-          )}
-          {resultCount !== undefined && selected.length > 0 && (
-            <>
-              <span className="w-1 h-1 rounded-full bg-stone-300" />
-              <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">
-                {resultCount} {resultCount === 1 ? singularNoun : pluralNoun} {resultCount === 1 ? 'encontrado' : 'encontrados'}
-              </p>
-            </>
-          )}
+              {options.map((opt) => {
+                const active = selected.includes(opt.id);
+                return (
+                  <button
+                    key={opt.id}
+                    onClick={() => onToggle(opt.id)}
+                    aria-pressed={active}
+                    className="flex-shrink-0 group"
+                  >
+                    <span className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[11px] font-medium tracking-wide transition-all duration-200 select-none whitespace-nowrap ${
+                      active
+                        ? 'bg-stone-800 text-white shadow-md shadow-stone-800/10 scale-[1.02]'
+                        : 'bg-stone-100 text-stone-500 hover:bg-stone-200/70 hover:text-stone-700'
+                    }`}>
+                      {opt.label}
+                      {active && (
+                        <svg className="h-3 w-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      )}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -244,10 +274,9 @@ function PhoneDemo({ demos, catalogSlug }: { demos: HeroDemo[]; catalogSlug: str
             <div className="relative overflow-hidden rounded-[2.2rem] bg-stone-900">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                key={d.img}
                 src={asset(d.img)}
                 alt={`Vista previa de ${d.name}`}
-                className="h-auto w-full animate-phone-in"
+                className="h-auto w-full transition-opacity duration-500 ease-in-out"
               />
               <div className="absolute left-1/2 top-2 h-5 w-28 -translate-x-1/2 rounded-full bg-black/90" />
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-4 pt-14">
@@ -1110,16 +1139,21 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
               onToggle={toggleFeature}
               onClear={() => setActiveFeatures([])}
               resultCount={visiblePlans.length}
+              sticky
             />
 
             {visiblePlans.length > 0 ? (
-              <Reveal>
-                <div className="grid justify-center gap-8 md:grid-cols-2 lg:grid-cols-3">
-                  {visiblePlans.map((product) => (
-                    <PremiumServiceCard key={product.id} product={product} catalogSlug={catalog.slug} />
-                  ))}
-                </div>
-              </Reveal>
+              <div className="grid justify-center gap-6 transition-all duration-500 sm:gap-8 md:grid-cols-2 lg:grid-cols-3">
+                {visiblePlans.map((product, idx) => (
+                  <div
+                    key={product.id}
+                    className="transition-all duration-500"
+                    style={{ transitionDelay: `${idx * 60}ms`, animation: 'fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}
+                  >
+                    <PremiumServiceCard product={product} catalogSlug={catalog.slug} />
+                  </div>
+                ))}
+              </div>
             ) : (
               <div className="mx-auto max-w-md rounded-[2.5rem] border border-stone-200/60 bg-white/60 p-8 text-center shadow-sm backdrop-blur-md">
                 <p className="text-4xl">🔍</p>
@@ -1151,6 +1185,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                   resultCount={visibleAddonSections.reduce((acc, s) => acc + s.products.length, 0)}
                   singularNoun="servicio"
                   pluralNoun="servicios"
+                  sticky
                 />
                 {visibleAddonSections.map((section) => (
                   <div key={section.name} className={addonSections.length > 1 ? "mt-14" : ""}>
