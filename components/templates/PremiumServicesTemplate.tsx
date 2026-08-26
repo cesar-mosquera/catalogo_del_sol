@@ -52,9 +52,20 @@ function FilterGroup({
 
   return (
     <div className="mx-auto mb-10 max-w-3xl">
-      <div className="flex flex-col items-center gap-3">
-        {/* Título */}
-        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-400">{title}</p>
+      {/* Contenedor con fondo blanco/cristal */}
+      <div className="rounded-2xl border border-white/70 bg-white/80 px-5 py-5 shadow-sm backdrop-blur-md sm:rounded-3xl sm:px-7 sm:py-6">
+        {/* Título con ícono */}
+        <div className="mb-4 flex items-center justify-center gap-2">
+          <svg className="h-4 w-4 text-emerald-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
+          </svg>
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-stone-600">{title}</p>
+          {selected.length > 0 && (
+            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+              {selected.length} activo{selected.length > 1 ? 's' : ''}
+            </span>
+          )}
+        </div>
 
         {/* Chips de filtro */}
         <div className="flex flex-wrap items-center justify-center gap-2">
@@ -66,40 +77,46 @@ function FilterGroup({
                 onClick={() => onToggle(opt.id)}
                 aria-pressed={active}
                 aria-label={`Filtrar por: ${opt.label}`}
-                className={`group relative rounded-full px-4 py-2 text-[11px] font-medium tracking-wide transition-all duration-300 active:scale-[0.97] ${
+                className={`group flex items-center gap-1.5 rounded-full px-4 py-2 text-[11px] font-semibold tracking-wide transition-all duration-300 active:scale-[0.97] sm:text-xs ${
                   active
-                    ? 'bg-stone-800 text-white shadow-md shadow-stone-800/10'
-                    : 'bg-white text-stone-500 border border-stone-200/80 hover:border-stone-300 hover:text-stone-700 hover:shadow-sm'
+                    ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/25 ring-2 ring-emerald-500/30'
+                    : 'border border-stone-200 bg-white text-stone-600 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700 hover:shadow-sm'
                 }`}
               >
-                <span className="relative z-10 flex items-center gap-1.5">
-                  {opt.label}
-                  {active && (
-                    <svg className="h-3 w-3 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  )}
-                </span>
+                {active ? (
+                  <svg className="h-3 w-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : (
+                  <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-emerald-400/60 group-hover:bg-emerald-500" />
+                )}
+                {opt.label}
               </button>
             );
           })}
-
-          {/* Botón limpiar — solo texto, minimalista */}
-          {selected.length > 0 && (
-            <button
-              onClick={onClear}
-              className="ml-1 text-[11px] font-medium text-stone-400 underline decoration-stone-300 underline-offset-2 transition-colors hover:text-stone-600"
-            >
-              Limpiar
-            </button>
-          )}
         </div>
 
-        {/* Contador de resultados */}
-        {resultCount !== undefined && selected.length > 0 && (
-          <p className="text-[11px] font-normal text-stone-400">
-            {resultCount} {resultCount === 1 ? singularNoun : pluralNoun} {resultCount === 1 ? 'encontrado' : 'encontrados'}
-          </p>
+        {/* Fila inferior: contador + limpiar */}
+        {(selected.length > 0) && (
+          <div className="mt-4 flex items-center justify-between border-t border-stone-100 pt-3">
+            {resultCount !== undefined ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200/60 px-3 py-1 text-[11px] font-semibold text-emerald-700">
+                <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                {resultCount} {resultCount === 1 ? singularNoun : pluralNoun} {resultCount === 1 ? 'encontrado' : 'encontrados'}
+              </span>
+            ) : <span />}
+            <button
+              onClick={onClear}
+              className="flex items-center gap-1 text-[11px] font-semibold text-stone-400 transition-colors hover:text-red-500"
+            >
+              <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              Limpiar filtros
+            </button>
+          </div>
         )}
       </div>
     </div>
