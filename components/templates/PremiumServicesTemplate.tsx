@@ -37,6 +37,7 @@ function SectionHeading({ kicker, title, sub }: { kicker: string; title: string;
 
 function FilterGroup({
   title, options, selected, onToggle, onClear, resultCount,
+  singularNoun = 'plan', pluralNoun = 'planes',
 }: {
   title: string;
   options: { id: string; label: string }[];
@@ -44,6 +45,8 @@ function FilterGroup({
   onToggle: (id: string) => void;
   onClear: () => void;
   resultCount?: number;
+  singularNoun?: string;
+  pluralNoun?: string;
 }) {
   if (options.length === 0) return null;
 
@@ -66,6 +69,7 @@ function FilterGroup({
               key={opt.id}
               onClick={() => onToggle(opt.id)}
               aria-pressed={active}
+              aria-label={`Filtrar por: ${opt.label}`}
               className={`rounded-full border px-4 py-2 text-xs font-black uppercase tracking-wider transition-all active:scale-95 ${
                 active
                   ? 'border-emerald-500 bg-emerald-500 text-white shadow-lg shadow-emerald-500/30'
@@ -79,12 +83,7 @@ function FilterGroup({
       </div>
       {resultCount !== undefined && selected.length > 0 && (
         <p className="mt-3 text-center text-xs font-medium text-slate-400">
-          Mostrando {resultCount} {resultCount === 1 ? 'plan' : 'planes'} que incluyen todas las características seleccionadas.
-        </p>
-      )}
-      {resultCount === undefined && selected.length > 0 && (
-        <p className="mt-3 text-center text-xs font-medium text-slate-400">
-          Mostrando solo lo que incluye las características seleccionadas.
+          Mostrando {resultCount} {resultCount === 1 ? singularNoun : pluralNoun}.
         </p>
       )}
     </div>
@@ -96,7 +95,8 @@ function FilterGroup({
 function Reveal({ children, delay = 0, className = '' }: { children: ReactNode; delay?: number; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [shown, setShown] = useState(
-    () => typeof window !== 'undefined' && typeof IntersectionObserver === 'undefined'
+    // Muestra inmediatamente si el navegador no soporta IntersectionObserver
+    () => typeof IntersectionObserver === 'undefined'
   );
 
   useEffect(() => {
@@ -562,7 +562,7 @@ function PlanRecommender({ plans, catalogSlug }: { plans: Product[]; catalogSlug
       {/* Progreso */}
       <div className="mb-6 flex items-center gap-3">
         <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-200/70">
-          <div className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 transition-all duration-500" style={{ width: `${((step) / total) * 100}%` }} />
+          <div className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 transition-all duration-500" style={{ width: `${((step + 1) / total) * 100}%` }} />
         </div>
         <span className="text-xs font-black text-slate-500">{step + 1}/{total}</span>
       </div>
@@ -720,8 +720,8 @@ function FaqSection({ catalog }: { catalog: Catalog }) {
         <p className="text-center font-semibold text-slate-500">No encontramos esa pregunta. ¡Escríbenos por WhatsApp y la respondemos al instante! 💬</p>
       ) : (
         <div className="flex flex-col gap-3">
-          {faq.map((f, i) => (
-            <details key={i} name="faq" className="group rounded-[2rem] border border-white bg-white/60 p-6 shadow-sm backdrop-blur-md transition-all hover:shadow-lg hover:-translate-y-0.5">
+          {faq.map((f) => (
+            <details key={f.q} name="faq" className="group rounded-[2rem] border border-white bg-white/60 p-6 shadow-sm backdrop-blur-md transition-all hover:shadow-lg hover:-translate-y-0.5">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-lg font-bold text-slate-900 outline-none">
                 <span>{f.q}</span>
                 <span className="flex-shrink-0 text-2xl font-light text-emerald-500 transition-transform duration-300 group-open:rotate-180">↓</span>
@@ -754,11 +754,11 @@ function StickyNav() {
   useEffect(() => {
     const onScroll = () => {
       setVisible(window.scrollY > 560);
-      const probe = window.scrollY + window.innerHeight * 0.32;
+      const probe = window.innerHeight * 0.32;
       let current: string | undefined;
       for (const l of NAV_LINKS) {
         const el = document.getElementById(l.id);
-        if (el && el.offsetTop <= probe) current = l.id;
+        if (el && el.getBoundingClientRect().top <= probe) current = l.id;
       }
       setActive(current ?? NAV_LINKS[0].id);
     };
@@ -832,9 +832,13 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
   const [activeFeatures, setActiveFeatures] = useState<string[]>([]);
   const [activeAddonBadges, setActiveAddonBadges] = useState<string[]>([]);
 
-  const planFeatures = (catalog.comparison ?? []).filter((row) =>
-    row.includedIn.some((id) => plans.some((p) => p.id === id))
-  );
+  // Sólo mostramos en el filtro las features que diferencian planes.
+  // Features que están en TODOS los planes se excluyen: marcarlas no cambiaría nada.
+  const planFeatures = (catalog.comparison ?? []).filter((row) => {
+    const isInSomePlan = row.includedIn.some((id) => plans.some((p) => p.id === id));
+    const isInAllPlans = plans.length > 0 && plans.every((p) => row.includedIn.includes(p.id));
+    return isInSomePlan && !isInAllPlans;
+  });
 
   const visiblePlans = activeFeatures.length === 0
     ? plans
@@ -1074,11 +1078,14 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                   sub="Filtra por tipo de pago: mensual, anual o por cambio."
                 />
                 <FilterGroup
-                  title="Filtrar por"
+                  title="Filtrar por tipo de pago"
                   options={addonBadges.map((b) => ({ id: b, label: b }))}
                   selected={activeAddonBadges}
                   onToggle={toggleAddonBadge}
                   onClear={() => setActiveAddonBadges([])}
+                  resultCount={visibleAddonSections.reduce((acc, s) => acc + s.products.length, 0)}
+                  singularNoun="servicio"
+                  pluralNoun="servicios"
                 />
                 {visibleAddonSections.map((section) => (
                   <div key={section.name} className={addonSections.length > 1 ? "mt-14" : ""}>
