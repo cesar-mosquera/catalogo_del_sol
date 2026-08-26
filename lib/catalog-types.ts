@@ -13,6 +13,8 @@ export type Product = {
   priceNote?: string;
   packagingCount?: number; // Cuántas unidades de empaque usa este producto (para cobros automáticos)
   variants?: { id: string; name: string; price: number; packagingCount?: number }[];
+  // Frecuencia de pago: 'one-time' (pago único), 'monthly' (mensual), 'yearly' (anual), 'per-service' (por cambio/servicio)
+  paymentFrequency?: 'one-time' | 'monthly' | 'yearly' | 'per-service';
 };
 
 export type FaqItem = { q: string; a: string };
@@ -104,4 +106,10 @@ export type Catalog = {
   upgradePolicy?: string;                            // cambiar de plan después
   businessTypes?: string[];                          // tipos de negocio a los que sirve
   checkoutNote?: string;                             // microcopy al enviar pedido por WhatsApp
+  // ── SEO opcional por catálogo ──
+  seo?: {
+    title?: string;                                  // título personalizado para SEO (default: `${name} | Menú digital`)
+    description?: string;                            // meta description personalizada
+    image?: string;                                  // imagen personalizada para OG/Twitter (default: coverImage)
+  };
 };

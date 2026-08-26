@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { Product, CardTheme } from '@/lib/catalog-types';
 import { asset } from '@/lib/asset';
+import { BASE_PATH } from '@/lib/base-path';
 import { useCart } from '@/store/cart';
 
 const DEFAULT_THEME: CardTheme = {
@@ -160,7 +161,7 @@ export function ProductCard({
           <div className="flex items-center gap-2">
             {product.demoUrl && (
               <a
-                href={product.demoUrl}
+                href={`${BASE_PATH}${product.demoUrl}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 rounded-xl bg-stone-100 px-3 py-2 text-center text-sm font-semibold text-stone-700 transition-colors hover:bg-stone-200"

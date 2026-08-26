@@ -27,10 +27,33 @@ export function computeIsOpen(catalog: Catalog, now: Date = new Date()): boolean
   const hour    = Number(parts.find((p) => p.type === 'hour')?.value ?? 0) % 24;
   const minute  = Number(parts.find((p) => p.type === 'minute')?.value ?? 0);
   const { open, close } = businessMinutes(catalog);
+  const currentTime = hour * 60 + minute;
   const index = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(weekday ?? '');
-  return catalog.businessHours.days.includes(index)
-    && hour * 60 + minute >= open
-    && hour * 60 + minute < close;
+  
+  // Horario normal: open < close (ej: 11:00 → 22:00)
+  if (open < close) {
+    if (!catalog.businessHours.days.includes(index)) return false;
+    return currentTime >= open && currentTime < close;
+  }
+  
+  // Horario nocturno que cruza medianoche: open > close (ej: 18:00 → 02:00)
+  // Si estamos antes de closeTime (ej: 01:00), pertenece al día ANTERIOR
+  if (currentTime < close) {
+    // Hora en la parte "después de medianoche" → validar contra el día anterior
+    const previousDay = new Date(now);
+    previousDay.setDate(previousDay.getDate() - 1);
+    const prevParts = new Intl.DateTimeFormat('en-US', {
+      timeZone: catalog.businessHours.timezone,
+      weekday: 'short',
+    }).formatToParts(previousDay);
+    const prevWeekday = prevParts.find((p) => p.type === 'weekday')?.value;
+    const prevIndex = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(prevWeekday ?? '');
+    return catalog.businessHours.days.includes(prevIndex);
+  }
+  
+  // Hora en la parte "después de opening" → validar contra el día actual
+  if (!catalog.businessHours.days.includes(index)) return false;
+  return currentTime >= open;
 }
 
 export function formatBusinessHours(catalog: Catalog): string {

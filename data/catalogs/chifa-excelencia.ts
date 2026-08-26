@@ -30,6 +30,13 @@ export const chifaExcelencia: Catalog = {
   packaging: { label: 'Tarrinas (Para llevar)', price: 0.30 },
   checkoutNote: 'Los pedidos se confirman por WhatsApp.',
 
+  /* ── SEO personalizado ── */
+  seo: {
+    title: 'CHIFA EXCELENCIA | Menú digital - Comida china en Quito',
+    description: 'Menú digital de CHIFA EXCELENCIA: combos, sopas, chaulafán, platos orientales y bebidas. Ordena por WhatsApp y recibe en casa. Av. Maldonado y IS57, Guamaní, Quito.',
+    image: '/img/portada.webp',
+  },
+
   /* ── Paleta extraída del PDF ── */
   theme: {
     coverBg: '#682a20',            // granate chino: portada y contraportada

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import Image from 'next/image';
 import { useAdmin } from '@/store/admin-store';
+import { BASE_PATH } from '@/lib/base-path';
 import { getCatalogs } from '@/lib/getCatalog';
 import { compressImage, localStorageUsageKB } from '@/lib/compress-image';
 import type { Catalog, Product } from '@/lib/catalog-types';
@@ -57,12 +58,17 @@ function ImageUpload({
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleFile = async (file: File) => {
     setLoading(true);
+    setError(null);
     try {
       const data = await compressImage(file, maxPx, 0.78, aspectRatio);
       onUpload(data);
+    } catch (err) {
+      console.error('Error procesando imagen:', err);
+      setError('No pudimos procesar esta imagen. Intenta con otra.');
     } finally {
       setLoading(false);
     }
@@ -87,6 +93,11 @@ function ImageUpload({
           </div>
         )}
       </div>
+      {error && (
+        <p className="text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2">
+          ⚠️ {error}
+        </p>
+      )}
       <input
         ref={inputRef}
         type="file"
@@ -115,6 +126,7 @@ function ProductEditor({
   const upsert = useAdmin((s) => s.upsertProduct);
   const remove = useAdmin((s) => s.deleteProduct);
   const [selectedSection, setSelectedSection] = useState(initialSectionName);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const [form, setForm] = useState<Product>({
     id: product?.id ?? '',
@@ -123,9 +135,14 @@ function ProductEditor({
     description: product?.description ?? '',
     image: product?.image ?? '',
     badge: product?.badge ?? '',
+    demoUrl: product?.demoUrl ?? '',
+    deliveryDays: product?.deliveryDays ?? '',
+    priceNote: product?.priceNote ?? '',
+    packagingCount: product?.packagingCount ?? undefined,
+    paymentFrequency: product?.paymentFrequency ?? undefined,
   });
 
-  const set = (k: keyof Product, v: string | number) =>
+  const set = (k: keyof Product, v: string | number | undefined) =>
     setForm((f) => ({ ...f, [k]: v }));
 
   const save = () => {
@@ -134,6 +151,11 @@ function ProductEditor({
       ...form,
       id: form.id || `prod-${Date.now()}`,
       badge: form.badge || undefined,
+      demoUrl: form.demoUrl || undefined,
+      deliveryDays: form.deliveryDays || undefined,
+      priceNote: form.priceNote || undefined,
+      packagingCount: form.packagingCount || undefined,
+      paymentFrequency: form.paymentFrequency || undefined,
     };
     upsert(catalogSlug, selectedSection, prod);
     onClose();
@@ -170,6 +192,46 @@ function ProductEditor({
           <Field label="Precio *" type="number" step="0.01" value={String(form.price)} onChange={(v) => set('price', parseFloat(v) || 0)} />
           <Field label="Descripción" value={form.description} onChange={(v) => set('description', v)} textarea />
           <Field label="Etiqueta (ej: Favorita)" value={form.badge ?? ''} onChange={(v) => set('badge', v)} />
+          <Field label="Días de entrega (ej: 2–3 días)" value={form.deliveryDays ?? ''} onChange={(v) => set('deliveryDays', v)} />
+          <Field label="Nota de precio (ej: MEDIO $5.50 | COMPLETO $6.50)" value={form.priceNote ?? ''} onChange={(v) => set('priceNote', v)} />
+          <Field label="URL de demo" value={form.demoUrl ?? ''} onChange={(v) => set('demoUrl', v)} />
+        </div>
+
+        {/* Sección de campos avanzados (colapsable) */}
+        <div className="mt-4">
+          <button
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="flex items-center gap-2 text-xs font-semibold text-stone-500 hover:text-stone-700"
+          >
+            <span>{showAdvanced ? '▼' : '▶'}</span>
+            <span>Campos avanzados</span>
+          </button>
+          
+          {showAdvanced && (
+            <div className="mt-3 space-y-3 rounded-xl border border-stone-200 p-3 bg-stone-50">
+              <Field 
+                label="Unidades de empaque (para cobros automáticos)" 
+                type="number" 
+                step="1"
+                value={String(form.packagingCount ?? '')} 
+                onChange={(v) => set('packagingCount', v ? parseInt(v) : undefined)} 
+              />
+              <div>
+                <label className="block text-xs font-semibold text-stone-500 mb-1">Frecuencia de pago</label>
+                <select
+                  className="w-full rounded-xl border border-stone-200 px-3 py-2 text-sm outline-none focus:border-orange-400 bg-white"
+                  value={form.paymentFrequency ?? ''}
+                  onChange={(e) => set('paymentFrequency', e.target.value as Product['paymentFrequency'] || undefined)}
+                >
+                  <option value="">No especificado</option>
+                  <option value="one-time">Pago único</option>
+                  <option value="monthly">Mensual</option>
+                  <option value="yearly">Anual</option>
+                  <option value="per-service">Por cambio/servicio</option>
+                </select>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="mt-5 flex gap-3">
@@ -301,7 +363,7 @@ export default function AdminPage() {
             <p className="text-xs text-stone-400">Memoria usada</p>
             <p className="text-sm font-bold text-orange-400">{storageKB} KB</p>
           </div>
-          <a href="/menu/del-sol" target="_blank"
+          <a href={`${BASE_PATH}/menu/del-sol`} target="_blank"
             className="rounded-xl bg-orange-600 px-3 py-2 text-xs font-bold text-white hover:bg-orange-700">
             Ver catálogo →
           </a>

@@ -15,6 +15,17 @@ const LocationPicker = dynamic(
 
 const EMPTY_CART: CartItem[] = [];
 
+// Formatea la frecuencia de pago a texto legible
+function formatPaymentFrequency(frequency?: string): string {
+  switch (frequency) {
+    case 'monthly': return 'mensual';
+    case 'yearly': return 'anual';
+    case 'per-service': return 'por cambio';
+    case 'one-time': return 'pago único';
+    default: return '';
+  }
+}
+
 // Formatea un datetime-local (YYYY-MM-DDTHH:mm) a texto legible en español
 function formatSchedule(value: string): string {
   try {
@@ -28,21 +39,107 @@ function formatSchedule(value: string): string {
   }
 }
 
+// Obtiene la fecha/hora local en formato para datetime-local (sin zona horaria)
+function getLocalDatetimeString(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+// Valida si una fecha/hora programada es válida según el horario del negocio
+// Soporta horarios que cruzan medianoche (ej: 18:00 → 02:00)
+function validateScheduleDate(
+  value: string,
+  businessHours: { timezone: string; open: number; close: number; days: number[]; openMinute?: number; closeMinute?: number }
+): { valid: boolean; error?: string } {
+  if (!value) return { valid: true };
+  
+  const scheduled = new Date(value);
+  if (isNaN(scheduled.getTime())) return { valid: false, error: 'Fecha/hora inválida.' };
+  
+  const now = new Date();
+  if (scheduled <= now) return { valid: false, error: 'La fecha debe ser en el futuro.' };
+  
+  const hour = scheduled.getHours();
+  const minute = scheduled.getMinutes();
+  const timeInMinutes = hour * 60 + minute;
+  const openTime = businessHours.open * 60 + (businessHours.openMinute ?? 0);
+  const closeTime = businessHours.close * 60 + (businessHours.closeMinute ?? 0);
+  const dayNames = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+  
+  const isCrossMidnight = openTime > closeTime; // ej: 18:00 → 02:00
+  
+  if (isCrossMidnight) {
+    // Horario nocturno que cruza medianoche (ej: 18:00 → 02:00)
+    // Si la hora es DESPUÉS de medianoche (timeInMinutes < closeTime),
+    // pertenece al día ANTERIOR (ej: 01:00 del martes = horario del lunes)
+    const belongsToPreviousDay = timeInMinutes < closeTime;
+    
+    if (belongsToPreviousDay) {
+      // Validar contra el día anterior
+      const previousDay = new Date(scheduled);
+      previousDay.setDate(previousDay.getDate() - 1);
+      const prevDayOfWeek = previousDay.getDay();
+      
+      if (!businessHours.days.includes(prevDayOfWeek)) {
+        return { valid: false, error: `El negocio no abre los ${dayNames[prevDayOfWeek]}. El horario nocturno de ${dayNames[prevDayOfWeek]} inicia a las ${businessHours.open}:00.` };
+      }
+      
+      // La hora es válida si está después de openTime (ej: 18:00 → 02:00, hora 01:00 es válida)
+      // No necesitamos verificar más porque timeInMinutes < closeTime ya implica que es válido
+      return { valid: true };
+    } else {
+      // Hora después de opening (ej: 20:00, 23:00)
+      // Validar contra el día actual
+      const dayOfWeek = scheduled.getDay();
+      if (!businessHours.days.includes(dayOfWeek)) {
+        return { valid: false, error: `El negocio no abre los ${dayNames[dayOfWeek]}.` };
+      }
+      
+      // Verificar que sea >= openTime
+      if (timeInMinutes < openTime) {
+        return { valid: false, error: `El horario de atención inicia a las ${businessHours.open}:00.` };
+      }
+      
+      return { valid: true };
+    }
+  } else {
+    // Horario normal (ej: 09:00 → 18:00)
+    const dayOfWeek = scheduled.getDay();
+    if (!businessHours.days.includes(dayOfWeek)) {
+      return { valid: false, error: `El negocio no abre los ${dayNames[dayOfWeek]}.` };
+    }
+    
+    if (timeInMinutes < openTime || timeInMinutes >= closeTime) {
+      return { valid: false, error: `El horario de atención es de ${businessHours.open}:00 a ${businessHours.close}:00.` };
+    }
+    
+    return { valid: true };
+  }
+}
+
 export function Cart({ catalog }: { catalog: Catalog }) {
   const cartState = useCart((s) => s.carts[catalog.slug] ?? EMPTY_CART);
   const remove = useCart((s) => s.remove);
   const clear  = useCart((s) => s.clear);
+  const prune  = useCart((s) => s.prune);
 
   // Hidratar ítems del carrito con los datos más recientes del catálogo (evita precios desactualizados)
   const items = useMemo(() => {
     const allSections = catalog.sections;
-    return cartState.map(cartItem => {
+    const validIds = new Set<string>();
+    const hydrated = cartState.map(cartItem => {
       let p: (Product & { packagingCount?: number }) | null = null;
       
       for (const section of allSections) {
         const prod = section.products.find(pr => pr.id === cartItem.id);
         if (prod) {
           p = { ...prod, packagingCount: prod.packagingCount ?? section.defaultPackagingCount ?? (catalog.packaging ? 1 : 0) };
+          validIds.add(cartItem.id);
           break;
         }
         const prodWithVariant = section.products.find(pr => pr.variants?.some(v => v.id === cartItem.id));
@@ -56,13 +153,21 @@ export function Cart({ catalog }: { catalog: Catalog }) {
             packagingCount: variant.packagingCount ?? prodWithVariant.packagingCount ?? section.defaultPackagingCount ?? (catalog.packaging ? 1 : 0), 
             priceNote: undefined 
           };
+          validIds.add(cartItem.id);
           break;
         }
       }
       if (!p) return null; // El producto fue eliminado del catálogo
       return { ...p, quantity: cartItem.quantity };
     }).filter((i): i is NonNullable<typeof i> => i !== null);
-  }, [cartState, catalog]);
+
+    // Limpiar productos que ya no existen del carrito persistido
+    if (validIds.size < cartState.length) {
+      prune(catalog.slug, validIds);
+    }
+
+    return hydrated;
+  }, [cartState, catalog, prune]);
 
   const [open,       setOpen]       = useState(false);
   const [showMap,    setShowMap]    = useState(false);
@@ -133,6 +238,13 @@ export function Cart({ catalog }: { catalog: Catalog }) {
     return () => { clearTimeout(first); clearInterval(id); };
   }, [prepMin, deliveryMin, isPickup]);
 
+  // Validar programación cuando cambia scheduledAt
+  const scheduleErrorValue = useMemo(() => {
+    if (!scheduledAt) return '';
+    const result = validateScheduleDate(scheduledAt, catalog.businessHours);
+    return result.valid ? '' : result.error ?? '';
+  }, [scheduledAt, catalog.businessHours]);
+
   const onClickMode = (m: 'delivery' | 'pickup') => {
     setMode(m);
     // Al cambiar a retiro no hacen falta datos de envío
@@ -146,10 +258,13 @@ export function Cart({ catalog }: { catalog: Catalog }) {
   };
 
   const send = () => {
-    if (!items.length || !hasLocation) return;
+    if (!items.length || !hasLocation || (scheduledAt && scheduleErrorValue)) return;
 
     const detail = items
-      .map((i) => `• ${i.quantity} × ${i.name} — $${(i.quantity * i.price).toFixed(2)}`)
+      .map((i) => {
+        const frequency = i.paymentFrequency ? ` · ${formatPaymentFrequency(i.paymentFrequency)}` : '';
+        return `• ${i.quantity} × ${i.name}${frequency} — $${(i.quantity * i.price).toFixed(2)}`;
+      })
       .join('\n');
 
     const locLine = (!isPickup && requiresLocation && !selectedZone && clientLoc)
@@ -254,7 +369,14 @@ export function Cart({ catalog }: { catalog: Catalog }) {
             <div className="mt-4 flex-1 overflow-auto space-y-3 pr-2">
               {items.length ? items.map((item) => (
                 <div key={item.id} className="flex justify-between gap-3 rounded-2xl bg-stone-50 p-4 dark:bg-stone-800/50">
-                  <span className="text-sm font-medium">{item.quantity} × {item.name}</span>
+                  <div className="flex-1">
+                    <span className="text-sm font-medium">{item.quantity} × {item.name}</span>
+                    {item.paymentFrequency && (
+                      <span className="ml-2 inline-block rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-orange-700 dark:bg-orange-900/30 dark:text-orange-300">
+                        · {formatPaymentFrequency(item.paymentFrequency)}
+                      </span>
+                    )}
+                  </div>
                   <span className="whitespace-nowrap text-sm font-bold text-orange-600">
                     ${(item.price * item.quantity).toFixed(2)}
                     <button
@@ -330,9 +452,14 @@ export function Cart({ catalog }: { catalog: Catalog }) {
                         type="datetime-local"
                         value={scheduledAt}
                         onChange={(e) => setScheduledAt(e.target.value)}
-                        min={new Date().toISOString().slice(0, 16)}
+                        min={getLocalDatetimeString()}
                         className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm outline-none focus:border-orange-500 dark:bg-stone-900 dark:border-stone-700"
                       />
+                      {scheduleErrorValue && (
+                        <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                          ⚠️ {scheduleErrorValue}
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>
@@ -516,11 +643,11 @@ export function Cart({ catalog }: { catalog: Catalog }) {
 
               {/* Botón enviar */}
               <button
-                disabled={!items.length || !hasLocation || tooFar}
+                disabled={!items.length || !hasLocation || tooFar || !minimumMet || !!(scheduledAt && scheduleErrorValue)}
                 onClick={send}
                 className="w-full rounded-2xl bg-green-600 px-5 py-4 text-base font-bold text-white shadow-xl shadow-green-900/20 disabled:cursor-not-allowed disabled:bg-stone-300 disabled:shadow-none hover:bg-green-700 transition-all active:scale-95 dark:disabled:bg-stone-800 dark:disabled:text-stone-500"
               >
-                {tooFar ? '⚠️ Fuera del radio de entrega' : '📲 Enviar pedido por WhatsApp'}
+                {tooFar ? '⚠️ Fuera del radio de entrega' : !minimumMet ? `⚠️ Mínimo $${catalog.minimumOrder.toFixed(2)}` : scheduledAt && scheduleErrorValue ? '⚠️ Horario no válido' : '📲 Enviar pedido por WhatsApp'}
               </button>
             </div>
           </aside>

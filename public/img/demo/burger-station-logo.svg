@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E63946"/>
+      <stop offset="100%" style="stop-color:#D62828"/>
+    </linearGradient>
+  </defs>
+  <circle cx="60" cy="60" r="58" fill="url(#bg)" stroke="#1D3557" stroke-width="2"/>
+  <text x="60" y="45" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="14" font-weight="900" fill="#F1FAEE">BURGER</text>
+  <text x="60" y="65" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="14" font-weight="900" fill="#F1FAEE">STATION</text>
+  <text x="60" y="85" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" fill="#A8DADC">🍔 since 2024</text>
+</svg>

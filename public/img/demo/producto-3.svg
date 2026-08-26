@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#FFF3E0"/>
+  <circle cx="200" cy="180" r="100" fill="#FF9800"/>
+  <text x="200" y="190" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" fill="white">✨</text>
+  <text x="200" y="320" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#E65100">Producto 3</text>
+</svg>

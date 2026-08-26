@@ -1,37 +1,33 @@
 /* ═══════════════════════════════════════════════════════════
-   Service Worker — Pinchos y Chuletas Del Sol
-   Objetivo: carga instantánea en visitas repetidas + que el menú
-   siga siendo usable con conexión mala/intermitente.
-
-   Reglas para no repetir el problema de "quedó viejo" que ya
-   tuvimos con el deploy:
-   - El HTML SIEMPRE se pide primero a la red (network-first). Si no
-     hay red, recién ahí se usa la copia guardada.
-   - CSS/JS (los chunks de Next en /_next/static) usan
-     "stale-while-revalidate": se sirve la copia guardada al instante,
-     pero en paralelo se pide la versión nueva y se guarda para la
-     PRÓXIMA visita. Next ya genera estos archivos con nombre hasheado,
-     así que un cambio de versión pide (y cachea) una URL distinta.
-   - Imágenes propias: cache-first (rara vez cambian).
-   - Todo lo que NO es de este sitio (fuentes, maps, WhatsApp, CDN de
-     terceros) se deja pasar directo a la red, sin interferir.
+   Service Worker — Catálogos Digitales
+   
+   Nivel: PWA BÁSICO (instalable + caché para visitas repetidas)
+   - El catálogo se carga la primera vez con conexión
+   - En visitas repetidas, se sirve desde caché (carga instantánea)
+   - Con conexión mala/intermitente, funciona con lo cacheado
+   - NO garantiza catálogo 100% offline desde la primera visita
+   
+   Estrategias:
+   - HTML: network-first (siempre intenta red primero)
+   - CSS/JS: stale-while-revalidate (caché instantáneo + actualización en fondo)
+   - Imágenes: cache-first (rara vez cambian)
+   - Datos de catálogos: stale-while-revalidate (importantes para offline)
    ═══════════════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'catalogo-del-sol-v3';
+const CACHE_NAME = 'catalogos-digitales-v1';
 
+// Páginas y datos críticos para precarga (se cargan después de la primera visita)
 const PRECACHE_URLS = [
     './',
     'manifest.json',
-    'img/cover.webp',
-    'img/logo.webp',
-    'img/pincho_pollo.webp',
-    'img/pincho_carne.webp',
-    'img/chuleta.webp',
-    'img/guatita.webp',
-    'img/seco.webp',
-    'img/choclo.webp',
+    // Iconos PWA
     'img/icons/icon-192.png',
     'img/icons/icon-512.png',
+    // Páginas de menú (catálogos más importantes)
+    'menu/del-sol',
+    'menu/mis-servicios',
+    'menu/demo-lista',
+    'menu/demo-minimal',
 ];
 
 self.addEventListener('install', event => {
@@ -60,6 +56,12 @@ function esCssOJs(url) {
     return url.origin === self.location.origin && /\.(css|js)$/i.test(url.pathname);
 }
 
+function esDatoCatalogo(url) {
+    // Archivos de datos de catálogos o páginas de menú
+    return url.origin === self.location.origin && 
+           (url.pathname.includes('/menu/') || url.pathname.includes('/api/'));
+}
+
 self.addEventListener('fetch', event => {
     const req = event.request;
     if (req.method !== 'GET') return;
@@ -85,6 +87,22 @@ self.addEventListener('fetch', event => {
 
     // CSS/JS propios: stale-while-revalidate.
     if (esCssOJs(url)) {
+        event.respondWith(
+            caches.open(CACHE_NAME).then(cache =>
+                cache.match(req).then(cached => {
+                    const fresh = fetch(req).then(res => {
+                        cache.put(req, res.clone());
+                        return res;
+                    }).catch(() => cached);
+                    return cached || fresh;
+                })
+            )
+        );
+        return;
+    }
+
+    // Datos de catálogos y páginas de menú: stale-while-revalidate
+    if (esDatoCatalogo(url)) {
         event.respondWith(
             caches.open(CACHE_NAME).then(cache =>
                 cache.match(req).then(cached => {

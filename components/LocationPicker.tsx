@@ -389,23 +389,8 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
   }, [basemap]);
 
   /* ── Autocompletado al escribir ── */
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      const q = search.trim();
-      if (!q) { setSuggestions([]); return; }
-      fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&accept-language=es&q=${encodeURIComponent(q)}`)
-        .then((r) => r.json())
-        .then((results: Array<{ display_name: string; lat: string; lon: string }>) => {
-          setSuggestions(
-            results
-              .filter((r) => r.display_name)
-              .map((r) => ({ label: r.display_name, lat: Number(r.lat), lng: Number(r.lon) }))
-          );
-        })
-        .catch(() => setSuggestions([]));
-    }, 350);
-    return () => clearTimeout(handler);
-  }, [search]);
+  // NOTA: Nominatim no permite autocomplete automatizado (política oficial).
+  // Las sugerencias se cargan solo al enviar el formulario (searchAddress).
 
   const searchAddress = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -414,18 +399,36 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
     setSearching(true);
     setSearchError('');
     try {
-      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${encodeURIComponent(search)}`);
-      const results: Array<{ lat: string; lon: string }> = await response.json();
-      const result = results[0];
-      const loc = result ? { lat: Number(result.lat), lng: Number(result.lon) } : null;
-      if (!loc || !isValidLocation(loc)) {
+      // Límite de 5 resultados para mostrar opciones al usuario (respeta política de Nominatim: 1 req/s)
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&accept-language=es&q=${encodeURIComponent(search)}`);
+      const results: Array<{ display_name: string; lat: string; lon: string }> = await response.json();
+      
+      if (results.length === 0) {
         setSearchError('No encontramos esa ubicación. Prueba con una dirección más completa.');
         setSuggestions([]);
         return;
       }
-      setLocation(loc, 16);
-      setSuggestions([]);
-      setSearch('');
+
+      // Si solo hay un resultado, seleccionarlo directamente
+      if (results.length === 1) {
+        const loc = { lat: Number(results[0].lat), lng: Number(results[0].lon) };
+        if (!isValidLocation(loc)) {
+          setSearchError('No encontramos esa ubicación. Prueba con una dirección más completa.');
+          setSuggestions([]);
+          return;
+        }
+        setLocation(loc, 16);
+        setSuggestions([]);
+        setSearch('');
+        return;
+      }
+
+      // Si hay varios resultados, mostrar sugerencias para que el usuario elija
+      setSuggestions(
+        results
+          .filter((r) => r.display_name)
+          .map((r) => ({ label: r.display_name, lat: Number(r.lat), lng: Number(r.lon) }))
+      );
     } catch {
       setSearchError('No fue posible buscar la ubicación. Puedes mover el pin o ingresar coordenadas.');
     } finally {
@@ -552,7 +555,7 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
         {/* Aviso si el proveedor de imágenes del mapa no responde */}
         {tilesFailed && (
           <div className="absolute inset-x-0 top-0 z-[400] m-3 flex items-center justify-between gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800 shadow">
-            <span>⚠️ No se cargaron las imágenes del mapa. Puedes usar GPS o la búsqueda igualmente.</span>
+            <span>⚠️ Mapa no disponible. Usa GPS, búsqueda o coordenadas manuales.</span>
             <button
               onClick={retryTiles}
               className="shrink-0 rounded-md bg-amber-500 px-2.5 py-1 font-bold text-white hover:bg-amber-600 transition-colors"
@@ -643,13 +646,20 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
           </p>
         )}
 
-        {/* Entrada manual de coordenadas (colapsable) */}
-        <button
-          onClick={() => setManualMode((v) => !v)}
-          className="w-full text-sm font-semibold text-stone-700 underline underline-offset-2 text-center"
-        >
-          {manualMode ? 'Ocultar coordenadas manuales' : 'Ingresar coordenadas manualmente'}
-        </button>
+        {/* Entrada manual de coordenadas (siempre visible cuando el mapa falla, colapsable si funciona) */}
+        {(!tilesFailed || manualMode) && (
+          <button
+            onClick={() => setManualMode((v) => !v)}
+            className="w-full text-sm font-semibold text-stone-700 underline underline-offset-2 text-center"
+          >
+            {manualMode ? 'Ocultar coordenadas manuales' : 'Ingresar coordenadas manualmente'}
+          </button>
+        )}
+        {tilesFailed && !manualMode && (
+          <p className="text-xs text-stone-500 text-center">
+            Si el GPS o la búsqueda no funcionan, ingresa las coordenadas de tu ubicación.
+          </p>
+        )}
         {manualMode && (
           <div className="space-y-2">
             <div className="grid grid-cols-2 gap-2">
@@ -662,7 +672,7 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
 
         <button
           onClick={confirm}
-          disabled={!picked || outOfRange || (routeKm === null && routeState !== 'error')}
+          disabled={!picked || outOfRange || (routeKm === null && routeState !== 'error' && !manualMode)}
           className="w-full rounded-xl bg-orange-600 py-3 text-sm font-bold text-white shadow-lg shadow-orange-600/25 transition-all hover:bg-orange-700 active:scale-[0.99] disabled:bg-stone-300 disabled:shadow-none disabled:cursor-not-allowed"
         >
           {outOfRange
@@ -671,7 +681,9 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
               ? (picked
                   ? (routeState === 'error'
                       ? 'Confirmar con distancia estimada ✓'
-                      : '⏳ Calculando ruta… espera')
+                      : manualMode
+                        ? 'Confirmar con coordenadas manuales ✓'
+                        : '⏳ Calculando ruta… espera')
                   : 'Selecciona tu punto en el mapa o usa GPS')
               : 'Confirmar esta ubicación ✓'}
         </button>

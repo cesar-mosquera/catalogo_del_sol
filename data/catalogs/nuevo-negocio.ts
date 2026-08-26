@@ -7,8 +7,8 @@ export const nuevoNegocio: Catalog = {
   description: 'Catálogo digital de prueba creado para demostración.',
   phone: '593999999999',
   address: 'Av. Principal y Secundaria',
-  coverImage: '/img/cover.webp',
-  logoImage: '/img/logo.webp',
+  coverImage: '/img/demo/nuevo-negocio-cover.svg',
+  logoImage: '/img/demo/nuevo-negocio-logo.svg',
   template: 'list',
   minimumOrder: 10,
   businessHours: { timezone: 'America/Guayaquil', open: 9, close: 18, days: [1, 2, 3, 4, 5] },
@@ -19,11 +19,11 @@ export const nuevoNegocio: Catalog = {
   requiresShipping: true,
   sections: [
     { name: 'Populares', products: [
-      { id: 'prod-1', name: 'Producto 1', price: 15, description: 'Descripción detallada del primer producto.', image: '/img/pincho_pollo.webp' },
-      { id: 'prod-2', name: 'Producto 2', price: 25, description: 'Descripción detallada del segundo producto.', image: '/img/chuleta.webp' },
+      { id: 'prod-1', name: 'Producto 1', price: 15, description: 'Descripción detallada del primer producto.', image: '/img/demo/producto-1.svg' },
+      { id: 'prod-2', name: 'Producto 2', price: 25, description: 'Descripción detallada del segundo producto.', image: '/img/demo/producto-2.svg' },
     ] },
     { name: 'Novedades', products: [
-      { id: 'prod-3', name: 'Producto 3', price: 30, description: 'Un producto muy especial y novedoso.', image: '/img/seco.webp' },
+      { id: 'prod-3', name: 'Producto 3', price: 30, description: 'Un producto muy especial y novedoso.', image: '/img/demo/producto-3.svg' },
     ] }
   ],
 };

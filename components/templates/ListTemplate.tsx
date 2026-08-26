@@ -10,20 +10,86 @@ import { computeIsOpen, formatBusinessHours } from '@/lib/delivery';
 // Normaliza texto para buscar sin importar tildes/mayúsculas
 const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-// Filtros rápidos fijos
-const QUICK_FILTERS = [
-  { key: 'populares', label: '🔥 Más vendidos', type: 'badge',   value: 'Popular'  },
-  { key: 'combos',    label: '🍱 Combos',       type: 'section', value: 'Combo'    },
-  { key: 'bebidas',   label: '🥤 Bebidas',      type: 'section', value: 'Bebida'   },
-  { key: 'mariscos',  label: '🦐 Mariscos',     type: 'badge',   value: 'Mariscos' },
-];
+// Emojis para filtros comunes (se usan cuando se detecta un badge o sección conocida)
+const FILTER_EMOJIS: Record<string, string> = {
+  'popular': '🔥',
+  'más vendidos': '🔥',
+  'combo': '🍱',
+  'bebida': '🥤',
+  'mariscos': '🦐',
+  'pescado': '🐟',
+  'nuevo': '✨',
+  'chef': '👨‍🍳',
+  'recomendada': '👍',
+  'vegetariano': '🥬',
+  'vegano': '🌱',
+  'postre': '🍰',
+  'cafetería': '☕',
+  'panadería': '🥐',
+  'servicio': '🛠️',
+  'mensual': '📅',
+  'anual': '📅',
+};
 
-const matchesFilter = (product: Product, sectionName: string, key: string): boolean => {
-  if (key === 'todos') return true;
-  const f = QUICK_FILTERS.find((q) => q.key === key);
+// Genera filtros dinámicos según el contenido del catálogo
+function generateQuickFilters(catalog: Catalog): { key: string; label: string; type: 'badge' | 'section'; value: string }[] {
+  const filters: { key: string; label: string; type: 'badge' | 'section'; value: string }[] = [];
+  const seenBadges = new Set<string>();
+  const seenSections = new Set<string>();
+
+  // Recopilar todos los badges y secciones
+  for (const section of catalog.sections) {
+    for (const product of section.products) {
+      // Agregar badge como filtro
+      if (product.badge && !seenBadges.has(product.badge.toLowerCase())) {
+        seenBadges.add(product.badge.toLowerCase());
+        const emoji = FILTER_EMOJIS[product.badge.toLowerCase()] || '🏷️';
+        filters.push({
+          key: `badge-${product.badge.toLowerCase().replace(/\s+/g, '-')}`,
+          label: `${emoji} ${product.badge}`,
+          type: 'badge',
+          value: product.badge,
+        });
+      }
+    }
+
+    // Agregar sección como filtro (solo si tiene sentido como filtro)
+    const sectionLower = section.name.toLowerCase();
+    if (!seenSections.has(sectionLower)) {
+      // Detectar si la sección parece un tipo de producto/filtro útil
+      const isFilterableSection = 
+        sectionLower.includes('combo') ||
+        sectionLower.includes('bebida') ||
+        sectionLower.includes('postre') ||
+        sectionLower.includes('café') ||
+        sectionLower.includes('cafe') ||
+        sectionLower.includes('servicio') ||
+        sectionLower.includes('adicional') ||
+        section.products.length >= 2; // Secciones con varios productos
+
+      if (isFilterableSection) {
+        seenSections.add(sectionLower);
+        const emoji = FILTER_EMOJIS[sectionLower] || '📋';
+        filters.push({
+          key: `section-${sectionLower.replace(/\s+/g, '-')}`,
+          label: `${emoji} ${section.name}`,
+          type: 'section',
+          value: section.name,
+        });
+      }
+    }
+  }
+
+  // Limitar a 6 filtros máximo para no saturar la UI
+  return filters.slice(0, 6);
+}
+
+const matchesFilter = (product: Product, sectionName: string, filter: string, quickFilters: { key: string; type: 'badge' | 'section'; value: string }[]): boolean => {
+  if (filter === 'todos') return true;
+  const f = quickFilters.find((q) => q.key === filter);
   if (!f) return true;
-  if (f.type === 'section') return sectionName.includes(f.value);
-  return product.badge === f.value;
+  if (f.type === 'section') return norm(sectionName).includes(norm(f.value));
+  return norm(product.badge ?? '') === norm(f.value);
 };
 
 /* ══ Drawer lateral de categorías ══ */
@@ -144,6 +210,9 @@ export function ListTemplate({ catalog }: { catalog: Catalog }) {
   const isOpen = computeIsOpen(catalog);
   const hours = formatBusinessHours(catalog);
 
+  // Generar filtros dinámicos según el contenido del catálogo
+  const quickFilters = useMemo(() => generateQuickFilters(catalog), [catalog]);
+
   const [query,    setQuery]    = useState('');
   const [filter,   setFilter]   = useState('todos');
   const [showTop,  setShowTop]  = useState(false);
@@ -166,7 +235,7 @@ export function ListTemplate({ catalog }: { catalog: Catalog }) {
         ...section,
         idx,
         products: section.products.filter((product) => {
-          if (!matchesFilter(product, section.name, filter)) return false;
+          if (!matchesFilter(product, section.name, filter, quickFilters)) return false;
           if (!nq) return true;
           const haystack = norm([
             product.name,
@@ -179,7 +248,7 @@ export function ListTemplate({ catalog }: { catalog: Catalog }) {
         }),
       }))
       .filter((section) => section.products.length > 0);
-  }, [catalog.sections, isFiltering, filter, nq]);
+  }, [catalog.sections, isFiltering, filter, nq, quickFilters]);
 
   const totalShown = sections.reduce((n, s) => n + s.products.length, 0);
 
@@ -288,7 +357,7 @@ export function ListTemplate({ catalog }: { catalog: Catalog }) {
 
           {/* Filtros rápidos en fila scrollable */}
           <div ref={filterScrollRef} className="no-scrollbar mt-2.5 flex gap-2 overflow-x-auto pb-0.5">
-            {[{ key: 'todos', label: '☰ Todo' }, ...QUICK_FILTERS].map((f) => (
+            {[{ key: 'todos', label: '☰ Todo' }, ...quickFilters].map((f) => (
               <button
                 key={f.key}
                 onClick={() => setFilter(f.key)}
@@ -308,7 +377,7 @@ export function ListTemplate({ catalog }: { catalog: Catalog }) {
           {isFiltering && (
             <p className="mt-1.5 text-[11px] font-semibold opacity-70">
               {totalShown} {totalShown === 1 ? 'resultado' : 'resultados'}
-              {filter !== 'todos' && ` · ${QUICK_FILTERS.find((q) => q.key === filter)?.label ?? ''}`}
+              {filter !== 'todos' && ` · ${quickFilters.find((q) => q.key === filter)?.label ?? ''}`}
             </p>
           )}
         </div>

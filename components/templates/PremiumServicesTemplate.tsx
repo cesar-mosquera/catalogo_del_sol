@@ -24,11 +24,11 @@ const EMBERS = Array.from({ length: 22 }).map((_, i) => ({
 
 function SectionHeading({ kicker, title, sub }: { kicker: string; title: string; sub?: string }) {
   return (
-    <div className="mb-14 text-center">
-      <p className="text-xs font-black uppercase tracking-[0.3em] text-emerald-500">{kicker}</p>
-      <h2 className="mt-3 text-3xl md:text-4xl font-black tracking-tight text-slate-900">{title}</h2>
-      {sub && <p className="mx-auto mt-4 max-w-2xl font-medium text-slate-600 leading-relaxed">{sub}</p>}
-      <div className="mx-auto mt-6 h-1 w-20 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500" />
+    <div className="mb-8 text-center sm:mb-14">
+      <p className="text-[10px] font-black uppercase tracking-[0.25em] text-emerald-500 sm:text-xs sm:tracking-[0.3em]">{kicker}</p>
+      <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-900 sm:mt-3 sm:text-3xl md:text-4xl">{title}</h2>
+      {sub && <p className="mx-auto mt-3 max-w-xl text-sm font-medium text-slate-600 leading-relaxed sm:mt-4 sm:max-w-2xl sm:text-base">{sub}</p>}
+      <div className="mx-auto mt-4 h-1 w-12 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 sm:mt-6 sm:w-20" />
     </div>
   );
 }
@@ -306,17 +306,17 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
       id={`plan-${product.id}`}
       onMouseMove={onMove}
       onMouseLeave={() => setSpot(null)}
-      className={`group relative flex flex-col overflow-hidden rounded-[2.5rem] transition-all duration-700 hover:-translate-y-4 ${
+      className={`group relative flex flex-col overflow-hidden rounded-2xl transition-all duration-500 hover:-translate-y-2 sm:rounded-[2.5rem] lg:rounded-[2.5rem] ${
         isPopular
-          ? 'bg-white/80 backdrop-blur-3xl border border-white shadow-[0_30px_60px_-15px_rgba(4,120,87,0.35)] scale-[1.03] z-10'
-          : 'bg-white/50 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:bg-white/80 hover:shadow-[0_20px_40px_rgb(0,0,0,0.1)]'
+          ? 'bg-white/80 backdrop-blur-3xl border-2 border-emerald-200 shadow-[0_20px_40px_-10px_rgba(4,120,87,0.25)] sm:border-white sm:shadow-[0_30px_60px_-15px_rgba(4,120,87,0.35)] sm:scale-[1.02] sm:z-10'
+          : 'bg-white/50 backdrop-blur-xl border border-white/80 shadow-[0_4px_20px_rgb(0,0,0,0.04)] hover:bg-white/80 hover:shadow-[0_12px_30px_rgb(0,0,0,0.08)] sm:shadow-[0_8px_30px_rgb(0,0,0,0.06)]'
       }`}>
 
       {spot && (
         <div
-          className="pointer-events-none absolute inset-0 z-[5] transition-opacity duration-300 rounded-[2.5rem]"
+          className="pointer-events-none absolute inset-0 z-[5] transition-opacity duration-300 rounded-2xl sm:rounded-[2.5rem]"
           style={{
-            background: `radial-gradient(520px circle at ${spot.x}px ${spot.y}px, rgba(255,255,255,0.55), transparent 45%)`,
+            background: `radial-gradient(400px circle at ${spot.x}px ${spot.y}px, rgba(255,255,255,0.5), transparent 40%)`,
           }}
         />
       )}
@@ -324,46 +324,49 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
       {bursting && <ConfettiBurst />}
 
       {isPopular && (
-        <div className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-gradient-to-br from-emerald-400/20 to-teal-400/20 blur-3xl transition-transform duration-700 hover:scale-150" />
+        <div className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-gradient-to-br from-emerald-400/20 to-teal-400/20 blur-3xl sm:h-64 sm:w-64" />
       )}
 
-      <div className="relative h-56 w-full overflow-hidden bg-gradient-to-br from-teal-50 via-amber-50 to-teal-50 p-4 flex items-end justify-center border-b border-white/50">
-        <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_50%_0%,rgba(16,185,129,0.5),rgba(255,255,255,0))] transition-opacity duration-700 group-hover:opacity-80" />
+      {/* Header de la tarjeta - compacto en mobile */}
+      <div className="relative h-32 w-full overflow-hidden bg-gradient-to-br from-teal-50 via-amber-50 to-teal-50 p-3 flex items-end justify-center border-b border-white/50 sm:h-48 sm:p-4">
+        <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_50%_0%,rgba(16,185,129,0.5),rgba(255,255,255,0))] transition-opacity duration-500 group-hover:opacity-60" />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={mockupImageSrc}
           alt={`Demo ${product.name}`}
-          className="relative z-10 w-auto h-[140%] object-contain drop-shadow-2xl transition-all duration-700 transform translate-y-8 group-hover:translate-y-2 group-hover:scale-[1.15] group-hover:rotate-2"
+          className="relative z-10 w-auto h-[120%] object-contain drop-shadow-xl transition-all duration-500 transform translate-y-6 group-hover:translate-y-2 group-hover:scale-110 sm:h-[140%] sm:drop-shadow-2xl sm:group-hover:scale-[1.12]"
         />
       </div>
 
-      <div className="flex flex-col flex-1 p-6 relative z-10">
-        <div className="flex justify-between items-start gap-4">
-          <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-tight">{product.name}</h3>
+      <div className="flex flex-col flex-1 p-4 sm:p-6 relative z-10">
+        <div className="flex justify-between items-start gap-2 sm:gap-4">
+          <h3 className="text-lg font-black text-slate-900 tracking-tight leading-tight sm:text-2xl">{product.name}</h3>
           {product.badge && (
-            <span className="flex-shrink-0 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-md">
+            <span className="flex-shrink-0 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.15em] text-white shadow-md sm:px-3 sm:py-1 sm:text-[10px] sm:tracking-[0.2em]">
               {product.badge}
             </span>
           )}
         </div>
 
-        <div className="mt-2 flex items-baseline gap-2">
-          <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-slate-900 to-slate-600">
+        {/* Precio - más prominente */}
+        <div className="mt-3 flex items-baseline gap-1.5 sm:mt-2 sm:gap-2">
+          <span className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-br from-slate-900 to-slate-600 sm:text-4xl">
             ${product.price.toFixed(0)}
           </span>
-          <span className="text-xs font-bold uppercase tracking-widest text-slate-400">USD (Pago Único)</span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 sm:text-xs">USD · Pago Único</span>
         </div>
 
         {product.deliveryDays && (
-          <p className="mt-2 inline-flex w-fit items-center gap-1.5 rounded-full bg-emerald-100/80 px-3 py-1 text-xs font-bold text-emerald-700">
+          <p className="mt-2 inline-flex w-fit items-center gap-1 rounded-full bg-emerald-100/80 px-2 py-0.5 text-[10px] font-bold text-emerald-700 sm:mt-2 sm:gap-1.5 sm:px-3 sm:py-1 sm:text-xs">
             ⏱ {product.deliveryDays}
           </p>
         )}
 
-        <ul className="mt-5 mb-8 flex flex-1 flex-col gap-3">
-          {product.description.split(/\.\s+/).filter(Boolean).map((line, i) => (
-            <li key={i} className="flex items-start gap-3 text-sm font-medium leading-relaxed text-slate-700">
-              <div className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 text-[9px] font-bold text-white shadow-sm">
+        {/* Features - compactas en mobile */}
+        <ul className="mt-3 mb-4 flex flex-1 flex-col gap-2 sm:mt-5 sm:mb-8 sm:gap-3">
+          {product.description.split(/\.\s+/).filter(Boolean).slice(0, 4).map((line, i) => (
+            <li key={i} className="flex items-start gap-2 text-xs font-medium leading-relaxed text-slate-700 sm:gap-3 sm:text-sm">
+              <div className="mt-0.5 flex h-3.5 w-3.5 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 text-[8px] font-bold text-white shadow-sm sm:h-4 sm:w-4 sm:text-[9px]">
                 ✓
               </div>
               <span>{line.replace(/\.$/, '')}</span>
@@ -371,13 +374,14 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
           ))}
         </ul>
 
+        {/* CTAs - más grandes para touch */}
         <div className="mt-auto flex flex-col gap-2 relative z-10">
           {product.demoUrl && (
             <a
               href={`${BASE_PATH}${product.demoUrl}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-teal-100 bg-teal-50/50 px-5 py-3 text-xs font-black uppercase tracking-widest text-teal-700 transition-colors hover:bg-teal-100 hover:border-teal-200"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-teal-100 bg-teal-50/50 px-4 py-3 text-xs font-black uppercase tracking-widest text-teal-700 transition-colors hover:bg-teal-100 hover:border-teal-200 sm:px-5"
             >
               <span>👀</span> Probar Demostración
             </a>
@@ -387,18 +391,18 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
               href={`${BASE_PATH}/admin`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-stone-200 bg-white px-5 py-3 text-xs font-black uppercase tracking-widest text-stone-700 transition-colors hover:bg-stone-100 hover:border-stone-300"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-stone-200 bg-white px-4 py-3 text-xs font-black uppercase tracking-widest text-stone-700 transition-colors hover:bg-stone-100 hover:border-stone-300 sm:px-5"
             >
               <span>⚙️</span> Probar Panel Admin
             </a>
           )}
           <button
             onClick={handleAdd}
-            className={`flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-xs font-black uppercase tracking-widest transition-all active:scale-95 ${
+            className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3.5 text-xs font-black uppercase tracking-widest transition-all active:scale-[0.98] sm:py-4 sm:text-sm ${
               added
                 ? 'bg-green-500 text-white shadow-lg shadow-green-500/30'
                 : isPopular
-                  ? 'bg-slate-900 text-white hover:bg-slate-800 shadow-xl shadow-slate-900/20'
+                  ? 'bg-slate-900 text-white hover:bg-slate-800 shadow-lg shadow-slate-900/20'
                   : 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-lg shadow-emerald-500/20'
             }`}
           >
@@ -426,24 +430,24 @@ function AddonServiceCard({ product, catalogSlug }: { product: Product; catalogS
   };
 
   return (
-    <div className="group relative flex flex-col md:flex-row md:items-center justify-between gap-6 rounded-[2rem] bg-white/50 backdrop-blur-md p-6 shadow-sm border border-white transition-all duration-500 hover:bg-white hover:border-emerald-200 hover:shadow-xl hover:-translate-y-1">
+    <div className="group relative flex flex-col rounded-2xl bg-white/50 backdrop-blur-md p-4 shadow-sm border border-white transition-all duration-400 hover:bg-white hover:border-emerald-200 hover:shadow-lg hover:-translate-y-1 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:rounded-[2rem] sm:p-6">
       {bursting && <ConfettiBurst />}
       <div className="flex-1">
-        <div className="flex flex-wrap items-center gap-3">
-          <h4 className="text-lg font-black text-slate-900">{product.name}</h4>
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <h4 className="text-base font-black text-slate-900 sm:text-lg">{product.name}</h4>
           {product.badge && (
-            <span className="rounded-full bg-teal-100 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-teal-700">
+            <span className="rounded-full bg-teal-100 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-teal-700 sm:px-3 sm:py-1 sm:text-[10px]">
               {product.badge}
             </span>
           )}
         </div>
-        <p className="mt-2 text-sm font-medium text-slate-600 leading-relaxed">{product.description}</p>
+        <p className="mt-2 text-xs font-medium text-slate-600 leading-relaxed sm:text-sm">{product.description}</p>
       </div>
-      <div className="text-left md:text-right flex flex-col items-start md:items-end gap-3 md:border-l md:border-slate-200 md:pl-6 pt-4 md:pt-0 border-t border-slate-200 md:border-t-0 mt-2 md:mt-0">
-        <div className="text-2xl font-black text-slate-900">${product.price.toFixed(0)}</div>
+      <div className="text-left flex items-center justify-between gap-3 mt-3 pt-3 border-t border-slate-200 sm:text-right sm:flex-col sm:items-end sm:gap-3 sm:border-l sm:border-slate-200 sm:pl-6 sm:pt-0 sm:mt-0 sm:border-t-0">
+        <div className="text-xl font-black text-slate-900 sm:text-2xl">${product.price.toFixed(0)}</div>
         <button
           onClick={handleAdd}
-          className={`rounded-xl px-5 py-2.5 text-xs font-black uppercase tracking-widest transition-all active:scale-95 ${
+          className={`rounded-lg px-4 py-2 text-xs font-black uppercase tracking-widest transition-all active:scale-95 sm:rounded-xl sm:px-5 sm:py-2.5 ${
             added ? 'bg-green-500 text-white shadow-lg shadow-green-500/30' : 'bg-slate-100 text-slate-700 hover:bg-slate-900 hover:text-white'
           }`}
         >
@@ -609,8 +613,8 @@ function ComparisonTable({ catalog }: { catalog: Catalog }) {
   };
 
   return (
-    <div className="overflow-x-auto">
-      <div className="min-w-[640px] rounded-[2rem] border border-white bg-white/60 p-5 backdrop-blur-md shadow-[0_20px_50px_rgb(0,0,0,0.06)]">
+    <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+      <div className="min-w-[580px] rounded-2xl border border-white bg-white/60 p-3 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.04)] sm:rounded-[2rem] sm:p-5 sm:shadow-[0_20px_50px_rgb(0,0,0,0.06)]">
         {/* Cabecera con los planes */}
         <div className="grid grid-cols-[1.1fr_repeat(3,1fr)] gap-2">
           <div className="flex items-center px-3 text-xs font-black uppercase tracking-widest text-slate-500">Qué incluye</div>
@@ -698,35 +702,35 @@ function FaqSection({ catalog }: { catalog: Catalog }) {
   );
 
   return (
-    <section id="faq" className="relative z-10 mx-auto max-w-4xl animate-fade-in-up scroll-mt-28" style={{ animationDelay: '0.8s' }}>
+    <section id="faq" className="relative z-10 mx-auto max-w-4xl animate-fade-in-up scroll-mt-24 sm:scroll-mt-28" style={{ animationDelay: '0.8s' }}>
       <SectionHeading
         kicker="Sin letra pequeña"
         title="Preguntas Frecuentes"
         sub="Resolvemos tus dudas en lenguaje claro, sin términos informáticos."
       />
 
-      <div className="relative mx-auto mb-6 max-w-xl">
-        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg">🔍</span>
+      <div className="relative mx-auto mb-4 max-w-xl sm:mb-6">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base sm:left-4 sm:text-lg">🔍</span>
         <input
           type="text"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          placeholder="Busca tu duda (ej: dominio, pago, app…)"
-          className="w-full rounded-2xl border border-white bg-white/70 px-11 py-3.5 text-sm font-medium text-slate-700 shadow-sm outline-none backdrop-blur-md transition-all focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20"
+          placeholder="Busca tu duda (ej: dominio, pago…)"
+          className="w-full rounded-xl border border-white bg-white/70 px-9 py-3 text-sm font-medium text-slate-700 shadow-sm outline-none backdrop-blur-md transition-all focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20 sm:rounded-2xl sm:px-11 sm:py-3.5"
         />
       </div>
 
       {faq.length === 0 ? (
-        <p className="text-center font-semibold text-slate-500">No encontramos esa pregunta. ¡Escríbenos por WhatsApp y la respondemos al instante! 💬</p>
+        <p className="text-center font-semibold text-slate-500">No encontramos esa pregunta. ¡Escríbenos por WhatsApp!</p>
       ) : (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2 sm:gap-3">
           {faq.map((f) => (
-            <details key={f.q} name="faq" className="group rounded-[2rem] border border-white bg-white/60 p-6 shadow-sm backdrop-blur-md transition-all hover:shadow-lg hover:-translate-y-0.5">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-lg font-bold text-slate-900 outline-none">
+            <details key={f.q} name="faq" className="group rounded-xl border border-white bg-white/60 p-4 shadow-sm backdrop-blur-md transition-all hover:shadow-md sm:rounded-[2rem] sm:p-6">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-base font-bold text-slate-900 outline-none sm:gap-4 sm:text-lg">
                 <span>{f.q}</span>
-                <span className="flex-shrink-0 text-2xl font-light text-emerald-500 transition-transform duration-300 group-open:rotate-180">↓</span>
+                <span className="flex-shrink-0 text-xl font-light text-emerald-500 transition-transform duration-300 group-open:rotate-180 sm:text-2xl">↓</span>
               </summary>
-              <p className="faq-answer mt-4 font-medium leading-relaxed text-slate-600">{f.a}</p>
+              <p className="faq-answer mt-3 text-sm font-medium leading-relaxed text-slate-600 sm:mt-4">{f.a}</p>
             </details>
           ))}
         </div>
@@ -793,27 +797,27 @@ function StickyNav() {
 function FinalCta({ catalog }: { catalog: Catalog }) {
   const wa = `https://wa.me/${catalog.phone}?text=${encodeURIComponent('Hola, tengo una duda sobre los catálogos digitales.')}`;
   return (
-    <section id="contacto" className="relative z-10 mx-auto max-w-4xl animate-fade-in-up scroll-mt-28" style={{ animationDelay: '0.9s' }}>
-      <div className="relative overflow-hidden rounded-[3rem] bg-gradient-to-br from-emerald-500 via-amber-500 to-teal-500 p-10 text-center text-white shadow-2xl shadow-emerald-500/30 md:p-14">
-        <div className="absolute -left-16 -top-16 h-56 w-56 rounded-full bg-white/10 blur-2xl" />
-        <div className="absolute -bottom-20 -right-16 h-64 w-64 rounded-full bg-white/10 blur-2xl" />
-        <p className="relative text-xs font-black uppercase tracking-[0.3em] text-emerald-100">Empecemos hoy</p>
-        <h2 className="relative mt-3 text-3xl font-black tracking-tight md:text-4xl">¿Listo para tener tu catálogo digital?</h2>
-        <p className="relative mx-auto mt-4 max-w-xl font-medium leading-relaxed text-emerald-50">
-          Si ya lo tienes claro, añade tu plan al carrito. Y si te queda una duda, escríbenos: te respondemos en menos de 24 horas.
+    <section id="contacto" className="relative z-10 mx-auto max-w-4xl animate-fade-in-up scroll-mt-24 sm:scroll-mt-28" style={{ animationDelay: '0.9s' }}>
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 via-amber-500 to-teal-500 p-6 text-center text-white shadow-xl shadow-emerald-500/20 sm:rounded-[3rem] sm:p-10 md:p-14 sm:shadow-2xl sm:shadow-emerald-500/30">
+        <div className="absolute -left-12 -top-12 h-40 w-40 rounded-full bg-white/10 blur-2xl sm:-left-16 sm:-top-16 sm:h-56 sm:w-56" />
+        <div className="absolute -bottom-16 -right-12 h-48 w-48 rounded-full bg-white/10 blur-2xl sm:-bottom-20 sm:-right-16 sm:h-64 sm:w-64" />
+        <p className="relative text-[10px] font-black uppercase tracking-[0.25em] text-emerald-100 sm:text-xs sm:tracking-[0.3em]">Empecemos hoy</p>
+        <h2 className="relative mt-2 text-xl font-black tracking-tight sm:mt-3 sm:text-3xl md:text-4xl">¿Listo para tener tu catálogo digital?</h2>
+        <p className="relative mx-auto mt-3 max-w-lg text-sm font-medium leading-relaxed text-emerald-50 sm:mt-4 sm:max-w-xl sm:text-base">
+          Si ya lo tienes claro, añade tu plan al carrito. Y si te queda una duda, escríbenos.
         </p>
-        <div className="relative mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <div className="relative mt-5 flex flex-col items-center justify-center gap-2.5 sm:mt-8 sm:flex-row sm:gap-3">
           <a
             href={wa}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-2xl bg-white px-8 py-4 text-sm font-black uppercase tracking-widest text-emerald-600 shadow-xl transition-all hover:scale-105 active:scale-95"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-5 py-3.5 text-xs font-black uppercase tracking-widest text-emerald-600 shadow-lg transition-all hover:scale-[1.02] active:scale-95 sm:w-auto sm:rounded-2xl sm:px-8 sm:py-4 sm:text-sm sm:shadow-xl"
           >
             💬 Aún tengo una duda
           </a>
           <button
             onClick={() => goTo('planes')}
-            className="inline-flex items-center gap-2 rounded-2xl border-2 border-white/40 px-8 py-4 text-sm font-black uppercase tracking-widest text-white transition-all hover:bg-white/10 hover:scale-105 active:scale-95"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border-2 border-white/40 px-5 py-3.5 text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-white/10 hover:scale-[1.02] active:scale-95 sm:w-auto sm:rounded-2xl sm:px-8 sm:py-4 sm:text-sm"
           >
             🛒 Ir a los planes
           </button>
@@ -922,34 +926,34 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
           </div>
         </div>
 
-        <div className="relative z-10 mx-auto max-w-7xl px-5 pt-8 pb-8 sm:px-8 lg:pt-24 lg:pb-14">
-          <div className="flex flex-col-reverse items-center gap-8 lg:grid lg:grid-cols-2 lg:items-center lg:gap-14">
+        <div className="relative z-10 mx-auto max-w-7xl px-4 pt-6 pb-6 sm:px-6 lg:pt-20 lg:pb-12">
+          <div className="flex flex-col-reverse items-center gap-6 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12">
             {/* ── Columna texto ── */}
             <div className="w-full text-center lg:text-left animate-fade-in-up">
-              <div className="mb-7 inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/10 px-4 py-2 shadow-lg backdrop-blur-md">
-                <span className="relative flex h-2.5 w-2.5">
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 shadow-lg backdrop-blur-md sm:mb-7 sm:gap-2.5 sm:px-4 sm:py-2">
+                <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-80" />
-                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
                 </span>
-                <span className="text-[11px] font-black uppercase tracking-[0.25em] text-emerald-200">{catalog.tagline}</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-200 sm:text-[11px] sm:tracking-[0.25em]">{catalog.tagline}</span>
               </div>
 
-              <h1 className="text-[2.6rem] font-black leading-[1.05] tracking-tighter sm:text-6xl lg:text-[4.2rem]">
+              <h1 className="text-[2rem] font-black leading-[1.08] tracking-tighter sm:text-5xl lg:text-[4rem]">
                 Tu negocio convertido en un{' '}
                 <span className="bg-gradient-to-r from-amber-200 via-yellow-300 to-emerald-300 bg-clip-text text-transparent">
                   catálogo que enamora
                 </span>
               </h1>
 
-              <p className="mx-auto mt-6 max-w-xl text-base font-medium leading-relaxed text-white/70 sm:text-lg lg:mx-0">
+              <p className="mx-auto mt-4 max-w-lg text-sm font-medium leading-relaxed text-white/70 sm:mt-6 sm:max-w-xl sm:text-base lg:mx-0 lg:text-lg">
                 {catalog.description} Con carrito de pedidos, envío por WhatsApp y panel para editar todo tú mismo. Listo en días, sin comisiones.
               </p>
 
               {/* CTAs */}
-              <div className="mt-9 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
+              <div className="mt-6 flex flex-col gap-2.5 sm:mt-8 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
                 <button
                   onClick={() => goTo('planes')}
-                  className="shine group relative inline-flex items-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-400 px-7 py-4 text-sm font-black uppercase tracking-widest text-emerald-950 shadow-2xl shadow-amber-500/30 ring-1 ring-white/30 transition-all hover:scale-[1.04] hover:shadow-amber-500/50 active:scale-95"
+                  className="shine group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-400 px-5 py-3.5 text-xs font-black uppercase tracking-widest text-emerald-950 shadow-xl shadow-amber-500/30 ring-1 ring-white/30 transition-all hover:scale-[1.03] hover:shadow-amber-500/50 active:scale-95 sm:rounded-2xl sm:px-7 sm:py-4 sm:text-sm"
                 >
                   🛒 Ver planes y precios
                   <span className="transition-transform group-hover:translate-x-1">→</span>
@@ -959,7 +963,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                     href={`${BASE_PATH}${demoPath}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-2xl border border-white/25 bg-white/10 px-6 py-4 text-sm font-black uppercase tracking-widest text-white backdrop-blur-md transition-all hover:bg-white/20 hover:scale-[1.03] active:scale-95"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-5 py-3.5 text-xs font-black uppercase tracking-widest text-white backdrop-blur-md transition-all hover:bg-white/20 hover:scale-[1.02] active:scale-95 sm:rounded-2xl sm:px-6 sm:py-4 sm:text-sm"
                   >
                     👀 Probar una demo
                   </a>
@@ -968,14 +972,34 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                   href={waHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-2xl px-4 py-4 text-sm font-black uppercase tracking-widest text-white/60 transition-colors hover:text-emerald-300"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-xs font-black uppercase tracking-widest text-white/60 transition-colors hover:text-emerald-300 sm:py-4 sm:text-sm"
                 >
                   💬 WhatsApp
                 </a>
               </div>
 
               {/* Stats */}
-              <div className="mt-8 hidden md:grid max-w-xl grid-cols-3 gap-3">
+              <div className="mt-6 grid max-w-lg grid-cols-3 gap-2 sm:mt-8 sm:max-w-xl sm:gap-3 lg:hidden">
+                {[
+                  { icon: '🚫', big: '0%', small: 'comisiones' },
+                  { icon: '⏱', big: '2–7', small: 'días' },
+                  { icon: '🛡', big: '6 meses', small: 'garantía' },
+                ].map((s) => (
+                  <div
+                    key={s.small}
+                    className={`relative rounded-xl px-2 py-3 text-center backdrop-blur-md transition-all sm:rounded-2xl sm:px-3 sm:py-4 ${
+                      s.small === 'garantía'
+                        ? 'border border-amber-400/70 bg-gradient-to-b from-amber-400/20 to-emerald-500/10'
+                        : 'border border-white/15 bg-white/5'
+                    }`}
+                  >
+                    <div className="text-lg sm:text-xl">{s.icon}</div>
+                    <div className="mt-0.5 bg-gradient-to-r from-amber-300 to-yellow-200 bg-clip-text text-lg font-black text-transparent sm:text-2xl">{s.big}</div>
+                    <div className="text-[8px] font-bold uppercase tracking-widest text-white/50 sm:text-[10px]">{s.small}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-8 hidden lg:grid max-w-xl grid-cols-3 gap-3">
                 {[
                   { icon: '🚫', big: '0%', small: 'comisiones' },
                   { icon: '⏱', big: '2–7', small: 'días de entrega' },
@@ -1030,8 +1054,8 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
       </header>
 
       {/* ═══════════ PLANES ═══════════ */}
-      <main className="relative z-10 mx-auto max-w-7xl px-5 py-12">
-        <div className="space-y-28">
+      <main className="relative z-10 mx-auto max-w-7xl px-4 py-8 sm:px-5 sm:py-12">
+        <div className="space-y-16 sm:space-y-28">
           <section id="planes" className="scroll-mt-28">
             <SectionHeading
               kicker="Tres modelos, un objetivo"
@@ -1173,14 +1197,14 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                 sub="Menos de lo que crees. Todo se puede enviar por WhatsApp o foto."
               />
               <Reveal>
-              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
                 {catalog.handoff!.map((h, i) => (
-                  <div key={h.title} className="group rounded-[2rem] border border-white bg-white/60 p-6 text-center shadow-sm backdrop-blur-md transition-all duration-500 hover:-translate-y-2 hover:shadow-xl animate-fade-in-up" style={{ animationDelay: `${i * 0.1}s` }}>
-                    <span className="inline-grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-emerald-100 to-teal-100 text-3xl shadow-inner transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6">
+                  <div key={h.title} className="group rounded-xl border border-white bg-white/60 p-4 text-center shadow-sm backdrop-blur-md transition-all duration-400 hover:-translate-y-1 hover:shadow-md animate-fade-in-up sm:rounded-[2rem] sm:p-6 sm:hover:-translate-y-2 sm:hover:shadow-xl" style={{ animationDelay: `${i * 0.1}s` }}>
+                    <span className="inline-grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-emerald-100 to-teal-100 text-2xl shadow-inner transition-transform duration-400 group-hover:scale-110 sm:h-16 sm:w-16 sm:rounded-2xl sm:text-3xl">
                       {h.icon}
                     </span>
-                    <h3 className="mt-4 font-black text-slate-900">{h.title}</h3>
-                    <p className="mt-2 text-sm font-medium leading-relaxed text-slate-600">{h.text}</p>
+                    <h3 className="mt-3 text-sm font-black text-slate-900 sm:mt-4 sm:text-base">{h.title}</h3>
+                    <p className="mt-1.5 text-xs font-medium leading-relaxed text-slate-600 sm:mt-2 sm:text-sm">{h.text}</p>
                   </div>
                 ))}
               </div>
@@ -1197,15 +1221,15 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                 sub="Un proceso de 5 pasos y tú siempre al tanto. Nada de letra pequeña."
               />
               <Reveal>
-              <div className="relative mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
-                <div className="absolute left-0 right-0 top-10 hidden h-0.5 bg-gradient-to-r from-transparent via-emerald-300 to-transparent md:block" />
+              <div className="relative mx-auto grid max-w-5xl gap-4 sm:gap-6 md:grid-cols-3">
+                <div className="absolute left-0 right-0 top-8 hidden h-0.5 bg-gradient-to-r from-transparent via-emerald-300 to-transparent md:block sm:top-10" />
                 {catalog.process!.map((p, i) => (
-                  <div key={p.title} className="relative rounded-[2rem] border border-white bg-white/60 p-6 shadow-sm backdrop-blur-md transition-all duration-500 hover:-translate-y-1.5 hover:shadow-xl animate-fade-in-up" style={{ animationDelay: `${i * 0.1}s` }}>
-                    <span className="absolute -top-4 left-6 grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 text-sm font-black text-white shadow-lg">
+                  <div key={p.title} className="relative rounded-xl border border-white bg-white/60 p-4 shadow-sm backdrop-blur-md transition-all duration-400 hover:-translate-y-1 hover:shadow-md animate-fade-in-up sm:rounded-[2rem] sm:p-6 sm:hover:-translate-y-1.5 sm:hover:shadow-xl" style={{ animationDelay: `${i * 0.1}s` }}>
+                    <span className="absolute -top-3 left-4 grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 text-xs font-black text-white shadow-lg sm:-top-4 sm:left-6 sm:h-10 sm:w-10 sm:text-sm">
                       {i + 1}
                     </span>
-                    <h3 className="mt-3 font-black text-slate-900">{p.title}</h3>
-                    <p className="mt-2 text-sm font-medium leading-relaxed text-slate-600">{p.text}</p>
+                    <h3 className="mt-2 text-sm font-black text-slate-900 sm:mt-3 sm:text-base">{p.title}</h3>
+                    <p className="mt-1.5 text-xs font-medium leading-relaxed text-slate-600 sm:mt-2 sm:text-sm">{p.text}</p>
                   </div>
                 ))}
               </div>
@@ -1222,14 +1246,14 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                 sub="Todo lo que quieres saber antes de dar el sí, respondido aquí."
               />
               <Reveal>
-                <div className="grid gap-5 md:grid-cols-2">
+                <div className="grid gap-3 sm:grid-cols-2 sm:gap-5">
                   {catalog.payment && (
-                    <div className="rounded-[2rem] border border-white bg-white/60 p-7 shadow-sm backdrop-blur-md transition-shadow hover:shadow-xl">
-                      <h3 className="flex items-center gap-3 text-lg font-black text-slate-900">💳 Formas de pago</h3>
-                      <ul className="mt-4 space-y-2.5">
+                    <div className="rounded-xl border border-white bg-white/60 p-4 shadow-sm backdrop-blur-md transition-shadow hover:shadow-md sm:rounded-[2rem] sm:p-7 sm:hover:shadow-xl">
+                      <h3 className="flex items-center gap-2 text-base font-black text-slate-900 sm:gap-3 sm:text-lg">💳 Formas de pago</h3>
+                      <ul className="mt-3 space-y-2 sm:mt-4 sm:space-y-2.5">
                         {catalog.payment.map((p) => (
-                          <li key={p} className="flex items-start gap-3 text-sm font-medium text-slate-700">
-                            <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-bold text-emerald-600">✓</span>
+                          <li key={p} className="flex items-start gap-2 text-xs font-medium text-slate-700 sm:gap-3 sm:text-sm">
+                            <span className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[9px] font-bold text-emerald-600 sm:h-5 sm:w-5 sm:text-[10px]">✓</span>
                             {p}
                           </li>
                         ))}
@@ -1238,19 +1262,19 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                   )}
 
                   {catalog.guarantee && (
-                    <div className="rounded-[2rem] border border-white bg-gradient-to-br from-emerald-50 to-teal-50 p-7 shadow-sm backdrop-blur-md transition-all hover:-translate-y-1 hover:shadow-xl">
-                      <h3 className="flex items-center gap-3 text-lg font-black text-slate-900">🛡 Garantía</h3>
-                      <p className="mt-4 text-sm font-medium leading-relaxed text-slate-700">{catalog.guarantee}</p>
+                    <div className="rounded-xl border border-white bg-gradient-to-br from-emerald-50 to-teal-50 p-4 shadow-sm backdrop-blur-md transition-all hover:-translate-y-0.5 hover:shadow-md sm:rounded-[2rem] sm:p-7 sm:hover:-translate-y-1 sm:hover:shadow-xl">
+                      <h3 className="flex items-center gap-2 text-base font-black text-slate-900 sm:gap-3 sm:text-lg">🛡 Garantía</h3>
+                      <p className="mt-3 text-xs font-medium leading-relaxed text-slate-700 sm:mt-4 sm:text-sm">{catalog.guarantee}</p>
                     </div>
                   )}
 
                   {catalog.recurringCosts && (
-                    <div className="rounded-[2rem] border border-white bg-white/60 p-7 shadow-sm backdrop-blur-md transition-shadow hover:shadow-xl">
-                      <h3 className="flex items-center gap-3 text-lg font-black text-slate-900">💡 Costos que debes conocer</h3>
-                      <ul className="mt-4 space-y-2.5">
+                    <div className="rounded-xl border border-white bg-white/60 p-4 shadow-sm backdrop-blur-md transition-shadow hover:shadow-md sm:rounded-[2rem] sm:p-7 sm:hover:shadow-xl">
+                      <h3 className="flex items-center gap-2 text-base font-black text-slate-900 sm:gap-3 sm:text-lg">💡 Costos que debes conocer</h3>
+                      <ul className="mt-3 space-y-2 sm:mt-4 sm:space-y-2.5">
                         {catalog.recurringCosts.map((c) => (
-                          <li key={c} className="flex items-start gap-3 text-sm font-medium text-slate-700">
-                            <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-teal-100 text-[10px] font-bold text-teal-600">→</span>
+                          <li key={c} className="flex items-start gap-2 text-xs font-medium text-slate-700 sm:gap-3 sm:text-sm">
+                            <span className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-teal-100 text-[9px] font-bold text-teal-600 sm:h-5 sm:w-5 sm:text-[10px]">→</span>
                             {c}
                           </li>
                         ))}
@@ -1259,9 +1283,9 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                   )}
 
                   {catalog.upgradePolicy && (
-                    <div className="rounded-[2rem] border border-white bg-white/60 p-7 shadow-sm backdrop-blur-md transition-shadow hover:shadow-xl">
-                      <h3 className="flex items-center gap-3 text-lg font-black text-slate-900">🔄 ¿Puedo cambiar de plan después?</h3>
-                      <p className="mt-4 text-sm font-medium leading-relaxed text-slate-700">{catalog.upgradePolicy}</p>
+                    <div className="rounded-xl border border-white bg-white/60 p-4 shadow-sm backdrop-blur-md transition-shadow hover:shadow-md sm:rounded-[2rem] sm:p-7 sm:hover:shadow-xl">
+                      <h3 className="flex items-center gap-2 text-base font-black text-slate-900 sm:gap-3 sm:text-lg">🔄 ¿Puedo cambiar de plan?</h3>
+                      <p className="mt-3 text-xs font-medium leading-relaxed text-slate-700 sm:mt-4 sm:text-sm">{catalog.upgradePolicy}</p>
                     </div>
                   )}
                 </div>

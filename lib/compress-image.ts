@@ -1,9 +1,10 @@
 /**
  * Comprime una imagen a base64 usando canvas.
  * Redimensiona al máximo indicado manteniendo proporción.
+ * Para imágenes PNG (con transparencia), usa WebP para conservarla.
  * @param file     Archivo de imagen original
  * @param maxPx    Ancho/alto máximo en píxeles (default 900)
- * @param quality  Calidad JPEG 0-1 (default 0.78)
+ * @param quality  Calidad 0-1 (default 0.78)
  * @returns        string base64 con data-URL
  */
 export function compressImage(
@@ -46,7 +47,15 @@ export function compressImage(
         // Dibujar el área recortada en el canvas final
         ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, dWidth, dHeight);
 
-        resolve(canvas.toDataURL('image/jpeg', quality));
+        // Detectar si la imagen original es PNG (tiene transparencia)
+        const isPNG = file.type === 'image/png' || file.name.toLowerCase().endsWith('.png');
+        
+        // Usar WebP para PNG (conserva transparencia), JPEG para el resto
+        if (isPNG) {
+          resolve(canvas.toDataURL('image/webp', quality));
+        } else {
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        }
       };
       img.onerror = reject;
       img.src = ev.target!.result as string;
