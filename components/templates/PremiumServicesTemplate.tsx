@@ -13,22 +13,22 @@ function goTo(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-/* Partículas "brasas" del hero (dorado + esmeralda) */
+/* Partículas "brasas" del hero (dorado + cálidas) */
 const EMBERS = Array.from({ length: 22 }).map((_, i) => ({
   left: (i * 47 + 5) % 100,
   size: 3 + (i % 3) * 1.6,
   dur: 9 + ((i * 13) % 10),
   delay: -(i * 1.7),
-  color: i % 3 === 0 ? '#fcd34d' : i % 3 === 1 ? '#34d399' : '#fef3c7',
+  color: i % 3 === 0 ? '#fcd34d' : i % 3 === 1 ? '#f59e0b' : '#fef3c7',
 }));
 
 function SectionHeading({ kicker, title, sub }: { kicker: string; title: string; sub?: string }) {
   return (
     <div className="mb-8 text-center sm:mb-14">
-      <p className="text-[10px] font-black uppercase tracking-[0.25em] text-emerald-500 sm:text-xs sm:tracking-[0.3em]">{kicker}</p>
-      <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-900 sm:mt-3 sm:text-3xl md:text-4xl">{title}</h2>
-      {sub && <p className="mx-auto mt-3 max-w-xl text-sm font-medium text-slate-600 leading-relaxed sm:mt-4 sm:max-w-2xl sm:text-base">{sub}</p>}
-      <div className="mx-auto mt-4 h-1 w-12 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 sm:mt-6 sm:w-20" />
+      <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-amber-600 sm:text-xs sm:tracking-[0.35em]">{kicker}</p>
+      <h2 className="mt-2 text-2xl font-light tracking-wide text-stone-800 sm:mt-3 sm:text-3xl md:text-4xl" style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>{title}</h2>
+      {sub && <p className="mx-auto mt-3 max-w-xl text-sm font-normal text-stone-500 leading-relaxed sm:mt-4 sm:max-w-2xl sm:text-base">{sub}</p>}
+      <div className="mx-auto mt-4 h-px w-16 bg-gradient-to-r from-transparent via-amber-300 to-transparent sm:mt-6 sm:w-24" />
     </div>
   );
 }
@@ -51,41 +51,57 @@ function FilterGroup({
   if (options.length === 0) return null;
 
   return (
-    <div className="mx-auto mb-10 max-w-4xl">
-      <div className="flex flex-wrap items-center justify-center gap-2 rounded-3xl border border-white bg-white/40 p-4 shadow-sm backdrop-blur-md">
-        <span className="text-xs font-black uppercase tracking-widest text-slate-500">{title}:</span>
-        {selected.length > 0 && (
-          <button
-            onClick={onClear}
-            className="rounded-full border border-red-200 bg-red-50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-red-600 transition-colors hover:bg-red-100"
-          >
-            ✕ Limpiar
-          </button>
-        )}
-        {options.map((opt) => {
-          const active = selected.includes(opt.id);
-          return (
+    <div className="mx-auto mb-10 max-w-3xl">
+      <div className="flex flex-col items-center gap-3">
+        {/* Título */}
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-400">{title}</p>
+
+        {/* Chips de filtro */}
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          {options.map((opt) => {
+            const active = selected.includes(opt.id);
+            return (
+              <button
+                key={opt.id}
+                onClick={() => onToggle(opt.id)}
+                aria-pressed={active}
+                aria-label={`Filtrar por: ${opt.label}`}
+                className={`group relative rounded-full px-4 py-2 text-[11px] font-medium tracking-wide transition-all duration-300 active:scale-[0.97] ${
+                  active
+                    ? 'bg-stone-800 text-white shadow-md shadow-stone-800/10'
+                    : 'bg-white text-stone-500 border border-stone-200/80 hover:border-stone-300 hover:text-stone-700 hover:shadow-sm'
+                }`}
+              >
+                <span className="relative z-10 flex items-center gap-1.5">
+                  {opt.label}
+                  {active && (
+                    <svg className="h-3 w-3 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  )}
+                </span>
+              </button>
+            );
+          })}
+
+          {/* Botón limpiar — solo texto, minimalista */}
+          {selected.length > 0 && (
             <button
-              key={opt.id}
-              onClick={() => onToggle(opt.id)}
-              aria-pressed={active}
-              aria-label={`Filtrar por: ${opt.label}`}
-              className={`rounded-full border px-4 py-2 text-xs font-black uppercase tracking-wider transition-all active:scale-95 ${
-                active
-                  ? 'border-emerald-500 bg-emerald-500 text-white shadow-lg shadow-emerald-500/30'
-                  : 'border-white bg-white/80 text-slate-600 hover:border-emerald-300 hover:text-emerald-700'
-              }`}
+              onClick={onClear}
+              className="ml-1 text-[11px] font-medium text-stone-400 underline decoration-stone-300 underline-offset-2 transition-colors hover:text-stone-600"
             >
-              {opt.label}
+              Limpiar
             </button>
-          );
-        })}
+          )}
+        </div>
+
+        {/* Contador de resultados */}
+        {resultCount !== undefined && selected.length > 0 && (
+          <p className="text-[11px] font-normal text-stone-400">
+            {resultCount} {resultCount === 1 ? singularNoun : pluralNoun} {resultCount === 1 ? 'encontrado' : 'encontrados'}
+          </p>
+        )}
       </div>
-      {resultCount !== undefined && selected.length > 0 && (
-        <p className="mt-3 text-center text-xs font-medium text-slate-400">
-          Mostrando {resultCount} {resultCount === 1 ? singularNoun : pluralNoun}.
-        </p>
-      )}
     </div>
   );
 }
@@ -162,7 +178,7 @@ function TiltCard({ children, className = '', max = 10 }: { children: ReactNode;
 /* ─────────────── CONFETI (jugable) ─────────────── */
 
 function ConfettiBurst() {
-  const COLORS = ['#10b981', '#f59e0b', '#14b8a6', '#fbbf24', '#84cc16'];
+  const COLORS = ['#f59e0b', '#d4a574', '#fbbf24', '#e8d5b7', '#c9a96e'];
   return (
     <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden rounded-[2.5rem]">
       {Array.from({ length: 16 }).map((_, i) => {
@@ -171,7 +187,7 @@ function ConfettiBurst() {
         return (
           <span
             key={i}
-            className="absolute left-1/2 top-1/2 h-2.5 w-2.5 animate-confetti rounded-[2px]"
+            className="absolute left-1/2 top-1/2 h-2.5 w-2.5 animate-confetti rounded-full"
             style={{
               backgroundColor: COLORS[i % COLORS.length],
               ['--dx' as string]: `${(Math.cos(angle) * dist).toFixed(0)}px`,
@@ -205,7 +221,7 @@ function PhoneDemo({ demos, catalogSlug }: { demos: HeroDemo[]; catalogSlug: str
 
   return (
     <div className="relative mx-auto w-full max-w-[300px] sm:max-w-[380px] lg:max-w-[400px] animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-      <div className="absolute inset-0 scale-90 rounded-full bg-gradient-to-tr from-emerald-500/40 to-amber-500/40 blur-[90px] animate-blob" />
+      <div className="absolute inset-0 scale-90 rounded-full bg-gradient-to-tr from-amber-400/30 to-rose-300/20 blur-[90px] animate-blob" />
 
       {/* Aviso "tócalo" */}
       <div className="absolute -top-10 left-1/2 z-20 -translate-x-1/2 animate-wiggle">
@@ -243,7 +259,7 @@ function PhoneDemo({ demos, catalogSlug }: { demos: HeroDemo[]; catalogSlug: str
             onClick={(e) => { e.stopPropagation(); setI(idx); }}
             aria-label={`Ver ${dm.name}`}
             className={`h-2.5 rounded-full transition-all duration-300 ${
-              idx === i ? 'w-7 bg-gradient-to-r from-amber-300 to-emerald-300' : 'w-2.5 bg-white/40 hover:bg-white/70'
+              idx === i ? 'w-7 bg-gradient-to-r from-amber-300 to-amber-400' : 'w-2.5 bg-stone-300/40 hover:bg-stone-300/70'
             }`}
           />
         ))}
@@ -251,7 +267,7 @@ function PhoneDemo({ demos, catalogSlug }: { demos: HeroDemo[]; catalogSlug: str
 
       {/* Tarjeta flotante del demo actual */}
       <div className="absolute -right-3 top-1/3 z-20 animate-float rounded-2xl border border-white/30 bg-white/15 px-4 py-3 shadow-2xl backdrop-blur-md" style={{ animationDelay: '1.8s' }}>
-        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-amber-200">{d.tag || 'Demo en vivo'}</p>
+        <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-amber-600">{d.tag || 'Demo en vivo'}</p>
         <p className="text-sm font-black text-white">{d.name}</p>
         {d.demoUrl ? (
           <a
@@ -269,7 +285,7 @@ function PhoneDemo({ demos, catalogSlug }: { demos: HeroDemo[]; catalogSlug: str
       </div>
 
       <div className="absolute -left-4 top-10 z-20 animate-float rounded-2xl border border-white/30 bg-white/15 px-4 py-3 shadow-2xl backdrop-blur-md" style={{ animationDelay: '0.9s' }}>
-        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-emerald-200">Pedido recibido</p>
+        <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-amber-600">Pedido recibido</p>
         <p className="text-sm font-black text-white">✅ Directo a tu WhatsApp</p>
       </div>
     </div>
@@ -308,8 +324,8 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
       onMouseLeave={() => setSpot(null)}
       className={`group relative flex flex-col overflow-hidden rounded-2xl transition-all duration-500 hover:-translate-y-2 sm:rounded-[2.5rem] lg:rounded-[2.5rem] ${
         isPopular
-          ? 'bg-white/80 backdrop-blur-3xl border-2 border-emerald-200 shadow-[0_20px_40px_-10px_rgba(4,120,87,0.25)] sm:border-white sm:shadow-[0_30px_60px_-15px_rgba(4,120,87,0.35)] sm:scale-[1.02] sm:z-10'
-          : 'bg-white/50 backdrop-blur-xl border border-white/80 shadow-[0_4px_20px_rgb(0,0,0,0.04)] hover:bg-white/80 hover:shadow-[0_12px_30px_rgb(0,0,0,0.08)] sm:shadow-[0_8px_30px_rgb(0,0,0,0.06)]'
+          ? 'bg-white/90 backdrop-blur-3xl border-2 border-amber-200 shadow-[0_20px_40px_-10px_rgba(217,165,116,0.2)] sm:border-amber-300 sm:shadow-[0_30px_60px_-15px_rgba(217,165,116,0.25)] sm:scale-[1.02] sm:z-10'
+          : 'bg-white/60 backdrop-blur-xl border border-stone-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:bg-white/80 hover:shadow-[0_12px_30px_rgb(0,0,0,0.06)] sm:shadow-[0_8px_30px_rgb(0,0,0,0.05)]'
       }`}>
 
       {spot && (
@@ -324,12 +340,12 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
       {bursting && <ConfettiBurst />}
 
       {isPopular && (
-        <div className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-gradient-to-br from-emerald-400/20 to-teal-400/20 blur-3xl sm:h-64 sm:w-64" />
+        <div className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-gradient-to-br from-amber-300/20 to-rose-200/20 blur-3xl sm:h-64 sm:w-64" />
       )}
 
       {/* Header de la tarjeta - compacto en mobile */}
-      <div className="relative h-32 w-full overflow-hidden bg-gradient-to-br from-teal-50 via-amber-50 to-teal-50 p-3 flex items-end justify-center border-b border-white/50 sm:h-48 sm:p-4">
-        <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_50%_0%,rgba(16,185,129,0.5),rgba(255,255,255,0))] transition-opacity duration-500 group-hover:opacity-60" />
+      <div className="relative h-32 w-full overflow-hidden bg-gradient-to-br from-amber-50 via-stone-50 to-rose-50 p-3 flex items-end justify-center border-b border-stone-200/40 sm:h-48 sm:p-4">
+        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_50%_0%,rgba(217,165,116,0.5),rgba(255,255,255,0))] transition-opacity duration-500 group-hover:opacity-40" />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={mockupImageSrc}
@@ -340,9 +356,9 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
 
       <div className="flex flex-col flex-1 p-4 sm:p-6 relative z-10">
         <div className="flex justify-between items-start gap-2 sm:gap-4">
-          <h3 className="text-lg font-black text-slate-900 tracking-tight leading-tight sm:text-2xl">{product.name}</h3>
+          <h3 className="text-lg font-light tracking-wide text-stone-800 leading-tight sm:text-2xl" style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>{product.name}</h3>
           {product.badge && (
-            <span className="flex-shrink-0 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.15em] text-white shadow-md sm:px-3 sm:py-1 sm:text-[10px] sm:tracking-[0.2em]">
+            <span className="flex-shrink-0 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.15em] text-white shadow-md sm:px-3 sm:py-1 sm:text-[10px] sm:tracking-[0.2em]">
               {product.badge}
             </span>
           )}
@@ -350,14 +366,14 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
 
         {/* Precio - más prominente */}
         <div className="mt-3 flex items-baseline gap-1.5 sm:mt-2 sm:gap-2">
-          <span className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-br from-slate-900 to-slate-600 sm:text-4xl">
+          <span className="text-3xl font-light tracking-tight text-stone-800 sm:text-4xl" style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>
             ${product.price.toFixed(0)}
           </span>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 sm:text-xs">USD · Pago Único</span>
+          <span className="text-[10px] font-semibold uppercase tracking-widest text-stone-400 sm:text-xs">USD · Pago Único</span>
         </div>
 
         {product.deliveryDays && (
-          <p className="mt-2 inline-flex w-fit items-center gap-1 rounded-full bg-emerald-100/80 px-2 py-0.5 text-[10px] font-bold text-emerald-700 sm:mt-2 sm:gap-1.5 sm:px-3 sm:py-1 sm:text-xs">
+          <p className="mt-2 inline-flex w-fit items-center gap-1 rounded-full bg-amber-50 border border-amber-200/60 px-2 py-0.5 text-[10px] font-semibold text-amber-700 sm:mt-2 sm:gap-1.5 sm:px-3 sm:py-1 sm:text-xs">
             ⏱ {product.deliveryDays}
           </p>
         )}
@@ -365,8 +381,8 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
         {/* Features - compactas en mobile */}
         <ul className="mt-3 mb-4 flex flex-1 flex-col gap-2 sm:mt-5 sm:mb-8 sm:gap-3">
           {product.description.split(/\.\s+/).filter(Boolean).slice(0, 4).map((line, i) => (
-            <li key={i} className="flex items-start gap-2 text-xs font-medium leading-relaxed text-slate-700 sm:gap-3 sm:text-sm">
-              <div className="mt-0.5 flex h-3.5 w-3.5 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 text-[8px] font-bold text-white shadow-sm sm:h-4 sm:w-4 sm:text-[9px]">
+            <li key={i} className="flex items-start gap-2 text-xs font-normal leading-relaxed text-stone-600 sm:gap-3 sm:text-sm">
+              <div className="mt-0.5 flex h-3.5 w-3.5 flex-shrink-0 items-center justify-center rounded-full bg-amber-100 text-[8px] font-bold text-amber-700 sm:h-4 sm:w-4 sm:text-[9px]">
                 ✓
               </div>
               <span>{line.replace(/\.$/, '')}</span>
@@ -381,7 +397,7 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
               href={`${BASE_PATH}${product.demoUrl}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-teal-100 bg-teal-50/50 px-4 py-3 text-xs font-black uppercase tracking-widest text-teal-700 transition-colors hover:bg-teal-100 hover:border-teal-200 sm:px-5"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-xs font-semibold uppercase tracking-widest text-stone-600 transition-colors hover:bg-stone-100 hover:border-stone-300 sm:px-5"
             >
               <span>👀</span> Probar Demostración
             </a>
@@ -391,19 +407,19 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
               href={`${BASE_PATH}/admin`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-stone-200 bg-white px-4 py-3 text-xs font-black uppercase tracking-widest text-stone-700 transition-colors hover:bg-stone-100 hover:border-stone-300 sm:px-5"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-4 py-3 text-xs font-semibold uppercase tracking-widest text-stone-600 transition-colors hover:bg-stone-50 hover:border-stone-300 sm:px-5"
             >
               <span>⚙️</span> Probar Panel Admin
             </a>
           )}
           <button
             onClick={handleAdd}
-            className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3.5 text-xs font-black uppercase tracking-widest transition-all active:scale-[0.98] sm:py-4 sm:text-sm ${
+            className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3.5 text-xs font-semibold uppercase tracking-widest transition-all active:scale-[0.98] sm:py-4 sm:text-sm ${
               added
-                ? 'bg-green-500 text-white shadow-lg shadow-green-500/30'
+                ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20'
                 : isPopular
-                  ? 'bg-slate-900 text-white hover:bg-slate-800 shadow-lg shadow-slate-900/20'
-                  : 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-lg shadow-emerald-500/20'
+                  ? 'bg-stone-800 text-white hover:bg-stone-700 shadow-lg shadow-stone-800/20'
+                  : 'bg-stone-800 text-white hover:bg-stone-700 shadow-lg shadow-stone-800/15'
             }`}
           >
             {added ? '✅ ¡Añadido!' : '🛒 Comprar Ahora'}
@@ -430,25 +446,25 @@ function AddonServiceCard({ product, catalogSlug }: { product: Product; catalogS
   };
 
   return (
-    <div className="group relative flex flex-col rounded-2xl bg-white/50 backdrop-blur-md p-4 shadow-sm border border-white transition-all duration-400 hover:bg-white hover:border-emerald-200 hover:shadow-lg hover:-translate-y-1 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:rounded-[2rem] sm:p-6">
+    <div className="group relative flex flex-col rounded-2xl bg-white/60 backdrop-blur-md p-4 shadow-sm border border-stone-200/60 transition-all duration-400 hover:bg-white hover:border-amber-200 hover:shadow-lg hover:-translate-y-1 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:rounded-[2rem] sm:p-6">
       {bursting && <ConfettiBurst />}
       <div className="flex-1">
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-          <h4 className="text-base font-black text-slate-900 sm:text-lg">{product.name}</h4>
+          <h4 className="text-base font-light tracking-wide text-stone-800 sm:text-lg" style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>{product.name}</h4>
           {product.badge && (
-            <span className="rounded-full bg-teal-100 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-teal-700 sm:px-3 sm:py-1 sm:text-[10px]">
+            <span className="rounded-full bg-amber-50 border border-amber-200/60 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-widest text-amber-700 sm:px-3 sm:py-1 sm:text-[10px]">
               {product.badge}
             </span>
           )}
         </div>
-        <p className="mt-2 text-xs font-medium text-slate-600 leading-relaxed sm:text-sm">{product.description}</p>
+        <p className="mt-2 text-xs font-normal text-stone-500 leading-relaxed sm:text-sm">{product.description}</p>
       </div>
-      <div className="text-left flex items-center justify-between gap-3 mt-3 pt-3 border-t border-slate-200 sm:text-right sm:flex-col sm:items-end sm:gap-3 sm:border-l sm:border-slate-200 sm:pl-6 sm:pt-0 sm:mt-0 sm:border-t-0">
-        <div className="text-xl font-black text-slate-900 sm:text-2xl">${product.price.toFixed(0)}</div>
+      <div className="text-left flex items-center justify-between gap-3 mt-3 pt-3 border-t border-stone-200/60 sm:text-right sm:flex-col sm:items-end sm:gap-3 sm:border-l sm:border-stone-200/60 sm:pl-6 sm:pt-0 sm:mt-0 sm:border-t-0">
+        <div className="text-xl font-light tracking-tight text-stone-800 sm:text-2xl" style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>${product.price.toFixed(0)}</div>
         <button
           onClick={handleAdd}
-          className={`rounded-lg px-4 py-2 text-xs font-black uppercase tracking-widest transition-all active:scale-95 sm:rounded-xl sm:px-5 sm:py-2.5 ${
-            added ? 'bg-green-500 text-white shadow-lg shadow-green-500/30' : 'bg-slate-100 text-slate-700 hover:bg-slate-900 hover:text-white'
+          className={`rounded-lg px-4 py-2 text-xs font-semibold uppercase tracking-widest transition-all active:scale-95 sm:rounded-xl sm:px-5 sm:py-2.5 ${
+            added ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-stone-100 text-stone-700 hover:bg-stone-800 hover:text-white'
           }`}
         >
           {added ? '✓ Añadido' : '+ Agregar'}
@@ -530,28 +546,28 @@ function PlanRecommender({ plans, catalogSlug }: { plans: Product[]; catalogSlug
 
   if (isDone && recommended) {
     return (
-      <div className="mx-auto max-w-2xl rounded-[2.5rem] border border-white bg-white/70 p-8 text-center shadow-[0_20px_50px_rgb(0,0,0,0.08)] backdrop-blur-md animate-fade-in-up">
+      <div className="mx-auto max-w-2xl rounded-[2.5rem] border border-stone-200/60 bg-white/70 p-8 text-center shadow-[0_20px_50px_rgb(0,0,0,0.05)] backdrop-blur-md animate-fade-in-up">
         <div className="text-5xl">🎉</div>
-        <p className="mt-3 text-xs font-black uppercase tracking-[0.3em] text-emerald-500">Nuestra recomendación</p>
-        <h3 className="mt-2 text-3xl font-black text-slate-900">{recommended.name}</h3>
-        <p className="mt-3 font-medium leading-relaxed text-slate-600">{why[recommended.id]}</p>
+        <p className="mt-3 text-xs font-semibold uppercase tracking-[0.3em] text-amber-600">Nuestra recomendación</p>
+        <h3 className="mt-2 text-3xl font-light tracking-wide text-stone-800" style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>{recommended.name}</h3>
+        <p className="mt-3 font-normal leading-relaxed text-stone-500">{why[recommended.id]}</p>
         <div className="mt-5 flex items-baseline justify-center gap-2">
-          <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-emerald-500 to-teal-500">${recommended.price.toFixed(0)}</span>
-          <span className="text-sm font-bold uppercase tracking-widest text-slate-400">pago único</span>
+          <span className="text-4xl font-light tracking-tight text-amber-600" style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>${recommended.price.toFixed(0)}</span>
+          <span className="text-sm font-semibold uppercase tracking-widest text-stone-400">pago único</span>
         </div>
         <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3">
           <button
             onClick={() => { add(catalogSlug, recommended); setAdded(true); setTimeout(() => setAdded(false), 1400); }}
-            className={`rounded-2xl px-6 py-3.5 text-xs font-black uppercase tracking-widest transition-all active:scale-95 ${
-              added ? 'bg-green-500 text-white' : 'bg-slate-900 text-white hover:bg-slate-800 shadow-xl shadow-slate-900/20'
+            className={`rounded-2xl px-6 py-3.5 text-xs font-semibold uppercase tracking-widest transition-all active:scale-95 ${
+              added ? 'bg-amber-500 text-white' : 'bg-stone-800 text-white hover:bg-stone-700 shadow-xl shadow-stone-800/15'
             }`}
           >
             {added ? '✅ ¡Añadido al carrito!' : '🛒 Añadir este plan'}
           </button>
-          <button onClick={() => goTo('planes')} className="rounded-2xl border-2 border-slate-200 px-6 py-3.5 text-xs font-black uppercase tracking-widest text-slate-700 transition-colors hover:border-emerald-300 hover:text-emerald-600">
+          <button onClick={() => goTo('planes')} className="rounded-2xl border border-stone-200 px-6 py-3.5 text-xs font-semibold uppercase tracking-widest text-stone-600 transition-colors hover:border-amber-300 hover:text-amber-700">
             Ver todos los planes
           </button>
-          <button onClick={restart} className="rounded-2xl px-4 py-3.5 text-xs font-bold text-slate-400 transition-colors hover:text-slate-600">
+          <button onClick={restart} className="rounded-2xl px-4 py-3.5 text-xs font-normal text-stone-400 transition-colors hover:text-stone-600">
             ↺ Repetir
           </button>
         </div>
@@ -562,32 +578,32 @@ function PlanRecommender({ plans, catalogSlug }: { plans: Product[]; catalogSlug
   const current = QUIZ[step];
 
   return (
-    <div className="mx-auto max-w-2xl rounded-[2.5rem] border border-white bg-white/70 p-8 shadow-[0_20px_50px_rgb(0,0,0,0.08)] backdrop-blur-md">
+    <div className="mx-auto max-w-2xl rounded-[2.5rem] border border-stone-200/60 bg-white/70 p-8 shadow-[0_20px_50px_rgb(0,0,0,0.05)] backdrop-blur-md">
       {/* Progreso */}
       <div className="mb-6 flex items-center gap-3">
-        <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-200/70">
-          <div className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 transition-all duration-500" style={{ width: `${((step + 1) / total) * 100}%` }} />
+        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-stone-200/70">
+          <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-500" style={{ width: `${((step + 1) / total) * 100}%` }} />
         </div>
-        <span className="text-xs font-black text-slate-500">{step + 1}/{total}</span>
+        <span className="text-xs font-semibold text-stone-400">{step + 1}/{total}</span>
       </div>
 
-      <p className="text-center text-xs font-black uppercase tracking-[0.3em] text-emerald-500">¿No sabes cuál elegir?</p>
-      <h3 className="mt-2 text-center text-2xl font-black text-slate-900">{current.question}</h3>
+      <p className="text-center text-xs font-semibold uppercase tracking-[0.3em] text-amber-600">¿No sabes cuál elegir?</p>
+      <h3 className="mt-2 text-center text-2xl font-light tracking-wide text-stone-800" style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>{current.question}</h3>
 
       <div className="mt-6 flex flex-col gap-3">
         {current.options.map((opt) => (
           <button
             key={opt.label}
             onClick={() => pick(opt)}
-            className="group flex items-center justify-between rounded-2xl border-2 border-slate-100 bg-white px-5 py-4 text-left font-bold text-slate-700 transition-all duration-300 hover:border-emerald-300 hover:bg-emerald-50 hover:shadow-lg active:scale-[0.98]"
+            className="group flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-5 py-4 text-left font-normal text-stone-600 transition-all duration-300 hover:border-amber-300 hover:bg-amber-50 hover:shadow-lg active:scale-[0.98]"
           >
             <span>{opt.label}</span>
-            <span className="text-slate-300 transition-all group-hover:translate-x-1 group-hover:text-emerald-500">→</span>
+            <span className="text-stone-300 transition-all group-hover:translate-x-1 group-hover:text-amber-500">→</span>
           </button>
         ))}
       </div>
 
-      <button onClick={restart} className="mt-5 w-full text-center text-xs font-bold text-slate-400 transition-colors hover:text-slate-600">
+      <button onClick={restart} className="mt-5 w-full text-center text-xs font-normal text-stone-400 transition-colors hover:text-stone-600">
         ↺ Empezar de nuevo
       </button>
     </div>
@@ -614,29 +630,29 @@ function ComparisonTable({ catalog }: { catalog: Catalog }) {
 
   return (
     <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-      <div className="min-w-[580px] rounded-2xl border border-white bg-white/60 p-3 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.04)] sm:rounded-[2rem] sm:p-5 sm:shadow-[0_20px_50px_rgb(0,0,0,0.06)]">
+      <div className="min-w-[580px] rounded-2xl border border-stone-200/60 bg-white/60 p-3 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.03)] sm:rounded-[2rem] sm:p-5 sm:shadow-[0_20px_50px_rgb(0,0,0,0.05)]">
         {/* Cabecera con los planes */}
         <div className="grid grid-cols-[1.1fr_repeat(3,1fr)] gap-2">
-          <div className="flex items-center px-3 text-xs font-black uppercase tracking-widest text-slate-500">Qué incluye</div>
+          <div className="flex items-center px-3 text-xs font-semibold uppercase tracking-widest text-stone-400">Qué incluye</div>
           {plans.map((plan) => {
             const active = selectedId === plan.id;
             return (
               <button
                 key={plan.id}
                 onClick={() => setSelectedId(active ? null : plan.id)}
-                className={`flex flex-col items-center gap-1 rounded-2xl border-2 px-3 py-4 text-center transition-all duration-300 active:scale-95 ${
+                className={`flex flex-col items-center gap-1 rounded-2xl border px-3 py-4 text-center transition-all duration-300 active:scale-95 ${
                   active
-                    ? 'border-emerald-400 bg-gradient-to-b from-emerald-50 to-teal-50 shadow-lg shadow-emerald-500/20 scale-[1.02]'
-                    : 'border-white bg-white hover:border-emerald-200 hover:shadow-md'
+                    ? 'border-amber-300 bg-gradient-to-b from-amber-50 to-rose-50/50 shadow-lg shadow-amber-500/10 scale-[1.02]'
+                    : 'border-stone-200/60 bg-white hover:border-amber-200 hover:shadow-md'
                 }`}
               >
-                <span className="text-xs font-black uppercase tracking-wider text-slate-900">{plan.name}</span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-stone-700">{plan.name}</span>
                 {plan.badge && (
-                  <span className="rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-white">
+                  <span className="rounded-full bg-gradient-to-r from-amber-500 to-amber-600 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-widest text-white">
                     {plan.badge}
                   </span>
                 )}
-                <span className="text-lg font-black text-emerald-600">${plan.price.toFixed(0)}</span>
+                <span className="text-lg font-light text-amber-600" style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>${plan.price.toFixed(0)}</span>
               </button>
             );
           })}
@@ -646,44 +662,44 @@ function ComparisonTable({ catalog }: { catalog: Catalog }) {
         <div className="mt-3 flex flex-col gap-2">
           {rows.map((row, i) => (
             <div key={i}>
-              <div className={`grid grid-cols-[1.1fr_repeat(3,1fr)] items-center gap-2 rounded-2xl px-3 py-2.5 transition-colors ${i % 2 === 0 ? 'bg-slate-50/60' : 'bg-white/60'}`}>
-                <span className="px-1 text-sm font-semibold text-slate-700">{row.feature}</span>
+              <div className={`grid grid-cols-[1.1fr_repeat(3,1fr)] items-center gap-2 rounded-2xl px-3 py-2.5 transition-colors ${i % 2 === 0 ? 'bg-stone-50/60' : 'bg-white/60'}`}>
+                <span className="px-1 text-sm font-normal text-stone-600">{row.feature}</span>
                 {plans.map((plan) => (
-                  <span key={plan.id} className={`text-center ${isIncluded(row, plan.id) ? 'text-emerald-500' : 'text-slate-300'}`}>
+                  <span key={plan.id} className={`text-center ${isIncluded(row, plan.id) ? 'text-amber-500' : 'text-stone-300'}`}>
                     {isIncluded(row, plan.id) ? (
-                      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-xs font-black">✓</span>
+                      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-amber-50 border border-amber-200/60 text-xs font-semibold text-amber-600">✓</span>
                     ) : (
-                      <span className="text-sm font-bold">—</span>
+                      <span className="text-sm font-normal">—</span>
                     )}
                   </span>
                 ))}
               </div>
               {row.note && (
-                <p className="px-4 py-1.5 text-xs font-medium italic text-slate-400">💡 {row.note}</p>
+                <p className="px-4 py-1.5 text-xs font-normal italic text-stone-400">💡 {row.note}</p>
               )}
             </div>
           ))}
         </div>
 
         {/* Barra de resumen al seleccionar un plan */}
-        <div className="mt-4 flex min-h-[4.5rem] items-center justify-between gap-3 rounded-2xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-teal-50 px-5 py-3 transition-all">
+        <div className="mt-4 flex min-h-[4.5rem] items-center justify-between gap-3 rounded-2xl border border-amber-200/60 bg-gradient-to-r from-amber-50 to-rose-50/30 px-5 py-3 transition-all">
           {selected ? (
             <>
               <div className="flex-1">
-                <p className="text-xs font-black uppercase tracking-widest text-emerald-600">✓ Has elegido</p>
-                <p className="font-black text-slate-900">{selected.name} · ${selected.price.toFixed(0)} {selected.deliveryDays && `· ${selected.deliveryDays}`}</p>
+                <p className="text-xs font-semibold uppercase tracking-widest text-amber-600">✓ Has elegido</p>
+                <p className="font-semibold text-stone-800">{selected.name} · ${selected.price.toFixed(0)} {selected.deliveryDays && `· ${selected.deliveryDays}`}</p>
               </div>
               <button
                 onClick={() => handleAdd(selected)}
-                className={`flex-shrink-0 rounded-xl px-5 py-2.5 text-xs font-black uppercase tracking-widest transition-all active:scale-95 ${
-                  added ? 'bg-green-500 text-white shadow-lg shadow-green-500/30' : 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-lg shadow-emerald-500/20'
+                className={`flex-shrink-0 rounded-xl px-5 py-2.5 text-xs font-semibold uppercase tracking-widest transition-all active:scale-95 ${
+                  added ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-stone-800 text-white hover:bg-stone-700 shadow-lg shadow-stone-800/15'
                 }`}
               >
                 {added ? '✅ Añadido' : '🛒 Añadir'}
               </button>
             </>
           ) : (
-            <p className="w-full text-center text-sm font-semibold text-slate-500">
+            <p className="w-full text-center text-sm font-normal text-stone-400">
               👆 Toca una columna para ver qué incluye y añadirlo al carrito
             </p>
           )}
@@ -716,21 +732,21 @@ function FaqSection({ catalog }: { catalog: Catalog }) {
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           placeholder="Busca tu duda (ej: dominio, pago…)"
-          className="w-full rounded-xl border border-white bg-white/70 px-9 py-3 text-sm font-medium text-slate-700 shadow-sm outline-none backdrop-blur-md transition-all focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20 sm:rounded-2xl sm:px-11 sm:py-3.5"
+          className="w-full rounded-xl border border-stone-200/60 bg-white/70 px-9 py-3 text-sm font-normal text-stone-600 shadow-sm outline-none backdrop-blur-md transition-all focus:border-amber-300 focus:ring-2 focus:ring-amber-200/30 sm:rounded-2xl sm:px-11 sm:py-3.5"
         />
       </div>
 
       {faq.length === 0 ? (
-        <p className="text-center font-semibold text-slate-500">No encontramos esa pregunta. ¡Escríbenos por WhatsApp!</p>
+        <p className="text-center font-normal text-stone-400">No encontramos esa pregunta. ¡Escríbenos por WhatsApp!</p>
       ) : (
         <div className="flex flex-col gap-2 sm:gap-3">
           {faq.map((f) => (
-            <details key={f.q} name="faq" className="group rounded-xl border border-white bg-white/60 p-4 shadow-sm backdrop-blur-md transition-all hover:shadow-md sm:rounded-[2rem] sm:p-6">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-base font-bold text-slate-900 outline-none sm:gap-4 sm:text-lg">
+            <details key={f.q} name="faq" className="group rounded-xl border border-stone-200/60 bg-white/60 p-4 shadow-sm backdrop-blur-md transition-all hover:shadow-md sm:rounded-[2rem] sm:p-6">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-base font-normal text-stone-700 outline-none sm:gap-4 sm:text-lg">
                 <span>{f.q}</span>
-                <span className="flex-shrink-0 text-xl font-light text-emerald-500 transition-transform duration-300 group-open:rotate-180 sm:text-2xl">↓</span>
+                <span className="flex-shrink-0 text-xl font-light text-amber-400 transition-transform duration-300 group-open:rotate-180 sm:text-2xl">↓</span>
               </summary>
-              <p className="faq-answer mt-3 text-sm font-medium leading-relaxed text-slate-600 sm:mt-4">{f.a}</p>
+              <p className="faq-answer mt-3 text-sm font-normal leading-relaxed text-stone-500 sm:mt-4">{f.a}</p>
             </details>
           ))}
         </div>
@@ -773,15 +789,15 @@ function StickyNav() {
 
   return (
     <nav className={`fixed left-1/2 top-4 z-50 -translate-x-1/2 transition-all duration-500 ${visible ? 'translate-y-0 opacity-100' : 'pointer-events-none -translate-y-6 opacity-0'}`}>
-      <div className="flex max-w-[95vw] items-center gap-1 overflow-x-auto rounded-full border border-white/60 bg-white/80 px-2 py-1.5 shadow-2xl shadow-slate-900/10 backdrop-blur-xl">
+      <div className="flex max-w-[95vw] items-center gap-1 overflow-x-auto rounded-full border border-stone-200/60 bg-white/80 px-2 py-1.5 shadow-2xl shadow-stone-900/5 backdrop-blur-xl">
         {NAV_LINKS.map((l) => (
           <button
             key={l.id}
             onClick={() => goTo(l.id)}
-            className={`flex-shrink-0 rounded-full px-3 py-1.5 text-xs font-black transition-colors ${
+            className={`flex-shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
               active === l.id
-                ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md shadow-emerald-500/30'
-                : 'text-slate-600 hover:bg-emerald-100 hover:text-emerald-700'
+                ? 'bg-stone-800 text-white shadow-md shadow-stone-800/15'
+                : 'text-stone-500 hover:bg-amber-50 hover:text-amber-700'
             }`}
           >
             {l.label}
@@ -798,12 +814,12 @@ function FinalCta({ catalog }: { catalog: Catalog }) {
   const wa = `https://wa.me/${catalog.phone}?text=${encodeURIComponent('Hola, tengo una duda sobre los catálogos digitales.')}`;
   return (
     <section id="contacto" className="relative z-10 mx-auto max-w-4xl animate-fade-in-up scroll-mt-24 sm:scroll-mt-28" style={{ animationDelay: '0.9s' }}>
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 via-amber-500 to-teal-500 p-6 text-center text-white shadow-xl shadow-emerald-500/20 sm:rounded-[3rem] sm:p-10 md:p-14 sm:shadow-2xl sm:shadow-emerald-500/30">
-        <div className="absolute -left-12 -top-12 h-40 w-40 rounded-full bg-white/10 blur-2xl sm:-left-16 sm:-top-16 sm:h-56 sm:w-56" />
-        <div className="absolute -bottom-16 -right-12 h-48 w-48 rounded-full bg-white/10 blur-2xl sm:-bottom-20 sm:-right-16 sm:h-64 sm:w-64" />
-        <p className="relative text-[10px] font-black uppercase tracking-[0.25em] text-emerald-100 sm:text-xs sm:tracking-[0.3em]">Empecemos hoy</p>
-        <h2 className="relative mt-2 text-xl font-black tracking-tight sm:mt-3 sm:text-3xl md:text-4xl">¿Listo para tener tu catálogo digital?</h2>
-        <p className="relative mx-auto mt-3 max-w-lg text-sm font-medium leading-relaxed text-emerald-50 sm:mt-4 sm:max-w-xl sm:text-base">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-stone-800 via-stone-900 to-stone-800 p-6 text-center text-white shadow-xl shadow-stone-900/20 sm:rounded-[3rem] sm:p-10 md:p-14 sm:shadow-2xl">
+        <div className="absolute -left-12 -top-12 h-40 w-40 rounded-full bg-amber-400/10 blur-2xl sm:-left-16 sm:-top-16 sm:h-56 sm:w-56" />
+        <div className="absolute -bottom-16 -right-12 h-48 w-48 rounded-full bg-amber-400/10 blur-2xl sm:-bottom-20 sm:-right-16 sm:h-64 sm:w-64" />
+        <p className="relative text-[10px] font-semibold uppercase tracking-[0.25em] text-amber-300/80 sm:text-xs sm:tracking-[0.3em]">Empecemos hoy</p>
+        <h2 className="relative mt-2 text-xl font-light tracking-wide sm:mt-3 sm:text-3xl md:text-4xl" style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>¿Listo para tener tu catálogo digital?</h2>
+        <p className="relative mx-auto mt-3 max-w-lg text-sm font-normal leading-relaxed text-stone-300 sm:mt-4 sm:max-w-xl sm:text-base">
           Si ya lo tienes claro, añade tu plan al carrito. Y si te queda una duda, escríbenos.
         </p>
         <div className="relative mt-5 flex flex-col items-center justify-center gap-2.5 sm:mt-8 sm:flex-row sm:gap-3">
@@ -811,13 +827,13 @@ function FinalCta({ catalog }: { catalog: Catalog }) {
             href={wa}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-5 py-3.5 text-xs font-black uppercase tracking-widest text-emerald-600 shadow-lg transition-all hover:scale-[1.02] active:scale-95 sm:w-auto sm:rounded-2xl sm:px-8 sm:py-4 sm:text-sm sm:shadow-xl"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 px-5 py-3.5 text-xs font-semibold uppercase tracking-widest text-white shadow-lg transition-all hover:scale-[1.02] hover:bg-amber-400 active:scale-95 sm:w-auto sm:rounded-2xl sm:px-8 sm:py-4 sm:text-sm sm:shadow-xl"
           >
             💬 Aún tengo una duda
           </a>
           <button
             onClick={() => goTo('planes')}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border-2 border-white/40 px-5 py-3.5 text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-white/10 hover:scale-[1.02] active:scale-95 sm:w-auto sm:rounded-2xl sm:px-8 sm:py-4 sm:text-sm"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 px-5 py-3.5 text-xs font-semibold uppercase tracking-widest text-white/80 transition-all hover:bg-white/10 hover:scale-[1.02] active:scale-95 sm:w-auto sm:rounded-2xl sm:px-8 sm:py-4 sm:text-sm"
           >
             🛒 Ir a los planes
           </button>
@@ -852,15 +868,23 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
       }));
 
   const addonSections = catalog.sections.filter((s) => /servicio|suscripcion/i.test(s.name));
-  const addonBadges = [...new Set(
-    addonSections.flatMap((s) => s.products.map((p) => p.badge ?? '').filter(Boolean))
+
+  const FREQ_LABELS: Record<string, string> = {
+    'monthly': 'Mensual',
+    'yearly': 'Anual',
+    'per-service': 'Por cambio',
+    'one-time': 'Pago único',
+  };
+
+  const addonFrequencies = [...new Set(
+    addonSections.flatMap((s) => s.products.map((p) => p.paymentFrequency).filter(Boolean) as string[])
   )];
 
   const visibleAddonSections = activeAddonBadges.length === 0
     ? addonSections
     : addonSections.map((s) => ({
         ...s,
-        products: s.products.filter((p) => p.badge && activeAddonBadges.includes(p.badge)),
+        products: s.products.filter((p) => p.paymentFrequency && activeAddonBadges.includes(p.paymentFrequency)),
       })).filter((s) => s.products.length > 0);
 
   const toggleFeature = (f: string) =>
@@ -880,22 +904,22 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
   }));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-amber-50 to-teal-50 animate-mesh text-slate-900 selection:bg-emerald-500/30 font-sans overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-amber-50/30 to-rose-50/20 animate-mesh text-stone-800 selection:bg-amber-500/20 font-sans overflow-hidden">
       <StickyNav />
 
       {/* Orbes decorativos */}
-      <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-amber-300/50 rounded-full filter blur-3xl opacity-60 animate-blob" />
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-emerald-300/50 rounded-full filter blur-3xl opacity-60 animate-blob animation-delay-2000" />
-      <div className="absolute -bottom-32 left-20 w-[500px] h-[500px] bg-teal-300/40 rounded-full filter blur-3xl opacity-70 animate-blob animation-delay-4000" />
+      <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-amber-200/30 rounded-full filter blur-3xl opacity-60 animate-blob" />
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-rose-200/20 rounded-full filter blur-3xl opacity-60 animate-blob animation-delay-2000" />
+      <div className="absolute -bottom-32 left-20 w-[500px] h-[500px] bg-amber-100/30 rounded-full filter blur-3xl opacity-70 animate-blob animation-delay-4000" />
 
       {/* ═══════════ HEADER ═══════════ */}
-      <header className="relative z-10 overflow-hidden bg-[#041b14] text-white">
+      <header className="relative z-10 overflow-hidden bg-[#1a1612] text-white">
         {/* Fondo: auroras + rejilla + grano */}
         <div className="absolute inset-0">
-          <div className="absolute -left-[12%] -top-[25%] h-[620px] w-[620px] rounded-full bg-emerald-400/65 blur-[110px] animate-blob" />
-          <div className="absolute right-[-10%] top-[5%] h-[540px] w-[540px] rounded-full bg-amber-400/60 blur-[110px] animate-blob animation-delay-2000" />
-          <div className="absolute bottom-[-20%] left-[35%] h-[520px] w-[520px] rounded-full bg-teal-400/55 blur-[120px] animate-blob animation-delay-4000" />
-          <div className="absolute left-[30%] top-[30%] h-[400px] w-[400px] rounded-full bg-emerald-300/30 blur-[90px] animate-blob animation-delay-2000" />
+          <div className="absolute -left-[12%] -top-[25%] h-[620px] w-[620px] rounded-full bg-amber-500/40 blur-[110px] animate-blob" />
+          <div className="absolute right-[-10%] top-[5%] h-[540px] w-[540px] rounded-full bg-amber-400/35 blur-[110px] animate-blob animation-delay-2000" />
+          <div className="absolute bottom-[-20%] left-[35%] h-[520px] w-[520px] rounded-full bg-rose-400/25 blur-[120px] animate-blob animation-delay-4000" />
+          <div className="absolute left-[30%] top-[30%] h-[400px] w-[400px] rounded-full bg-amber-300/20 blur-[90px] animate-blob animation-delay-2000" />
           <div
             className="absolute inset-0 opacity-20"
             style={{
@@ -930,22 +954,22 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
           <div className="flex flex-col-reverse items-center gap-6 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12">
             {/* ── Columna texto ── */}
             <div className="w-full text-center lg:text-left animate-fade-in-up">
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 shadow-lg backdrop-blur-md sm:mb-7 sm:gap-2.5 sm:px-4 sm:py-2">
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-3 py-1.5 shadow-lg backdrop-blur-md sm:mb-7 sm:gap-2.5 sm:px-4 sm:py-2">
                 <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-80" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-80" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-400" />
                 </span>
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-200 sm:text-[11px] sm:tracking-[0.25em]">{catalog.tagline}</span>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-200/80 sm:text-[11px] sm:tracking-[0.25em]">{catalog.tagline}</span>
               </div>
 
-              <h1 className="text-[2rem] font-black leading-[1.08] tracking-tighter sm:text-5xl lg:text-[4rem]">
+              <h1 className="text-[2rem] font-light leading-[1.1] tracking-wide sm:text-5xl lg:text-[4rem]" style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>
                 Tu negocio convertido en un{' '}
-                <span className="bg-gradient-to-r from-amber-200 via-yellow-300 to-emerald-300 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-amber-200 via-amber-300 to-amber-200 bg-clip-text text-transparent">
                   catálogo que enamora
                 </span>
               </h1>
 
-              <p className="mx-auto mt-4 max-w-lg text-sm font-medium leading-relaxed text-white/70 sm:mt-6 sm:max-w-xl sm:text-base lg:mx-0 lg:text-lg">
+              <p className="mx-auto mt-4 max-w-lg text-sm font-normal leading-relaxed text-white/50 sm:mt-6 sm:max-w-xl sm:text-base lg:mx-0 lg:text-lg">
                 {catalog.description} Con carrito de pedidos, envío por WhatsApp y panel para editar todo tú mismo. Listo en días, sin comisiones.
               </p>
 
@@ -953,7 +977,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
               <div className="mt-6 flex flex-col gap-2.5 sm:mt-8 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
                 <button
                   onClick={() => goTo('planes')}
-                  className="shine group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-400 px-5 py-3.5 text-xs font-black uppercase tracking-widest text-emerald-950 shadow-xl shadow-amber-500/30 ring-1 ring-white/30 transition-all hover:scale-[1.03] hover:shadow-amber-500/50 active:scale-95 sm:rounded-2xl sm:px-7 sm:py-4 sm:text-sm"
+                  className="shine group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 px-5 py-3.5 text-xs font-semibold uppercase tracking-widest text-white shadow-xl shadow-amber-500/20 ring-1 ring-white/10 transition-all hover:scale-[1.03] hover:shadow-amber-500/30 active:scale-95 sm:rounded-2xl sm:px-7 sm:py-4 sm:text-sm"
                 >
                   🛒 Ver planes y precios
                   <span className="transition-transform group-hover:translate-x-1">→</span>
@@ -963,7 +987,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                     href={`${BASE_PATH}${demoPath}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-5 py-3.5 text-xs font-black uppercase tracking-widest text-white backdrop-blur-md transition-all hover:bg-white/20 hover:scale-[1.02] active:scale-95 sm:rounded-2xl sm:px-6 sm:py-4 sm:text-sm"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/8 px-5 py-3.5 text-xs font-semibold uppercase tracking-widest text-white/80 backdrop-blur-md transition-all hover:bg-white/15 hover:scale-[1.02] active:scale-95 sm:rounded-2xl sm:px-6 sm:py-4 sm:text-sm"
                   >
                     👀 Probar una demo
                   </a>
@@ -972,7 +996,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                   href={waHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-xs font-black uppercase tracking-widest text-white/60 transition-colors hover:text-emerald-300 sm:py-4 sm:text-sm"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-xs font-semibold uppercase tracking-widest text-white/40 transition-colors hover:text-amber-300 sm:py-4 sm:text-sm"
                 >
                   💬 WhatsApp
                 </a>
@@ -989,13 +1013,13 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                     key={s.small}
                     className={`relative rounded-xl px-2 py-3 text-center backdrop-blur-md transition-all sm:rounded-2xl sm:px-3 sm:py-4 ${
                       s.small === 'garantía'
-                        ? 'border border-amber-400/70 bg-gradient-to-b from-amber-400/20 to-emerald-500/10'
-                        : 'border border-white/15 bg-white/5'
+                        ? 'border border-amber-400/50 bg-gradient-to-b from-amber-400/15 to-amber-500/5'
+                        : 'border border-white/10 bg-white/5'
                     }`}
                   >
                     <div className="text-lg sm:text-xl">{s.icon}</div>
-                    <div className="mt-0.5 bg-gradient-to-r from-amber-300 to-yellow-200 bg-clip-text text-lg font-black text-transparent sm:text-2xl">{s.big}</div>
-                    <div className="text-[8px] font-bold uppercase tracking-widest text-white/50 sm:text-[10px]">{s.small}</div>
+                    <div className="mt-0.5 bg-gradient-to-r from-amber-200 to-amber-300 bg-clip-text text-lg font-light text-transparent sm:text-2xl" style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>{s.big}</div>
+                    <div className="text-[8px] font-semibold uppercase tracking-widest text-white/40 sm:text-[10px]">{s.small}</div>
                   </div>
                 ))}
               </div>
@@ -1009,12 +1033,12 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                     key={s.small}
                     className={`relative rounded-2xl px-3 py-4 text-center backdrop-blur-md transition-all ${
                       s.small === 'de garantía'
-                        ? 'border border-amber-400/70 bg-gradient-to-b from-amber-400/20 to-emerald-500/10 shadow-[0_0_30px_rgba(251,191,36,0.25)] hover:shadow-[0_0_40px_rgba(251,191,36,0.4)]'
-                        : 'border border-white/15 bg-white/5 hover:border-emerald-400/50 hover:bg-white/10'
+                        ? 'border border-amber-400/50 bg-gradient-to-b from-amber-400/15 to-amber-500/5 shadow-[0_0_30px_rgba(251,191,36,0.15)] hover:shadow-[0_0_40px_rgba(251,191,36,0.25)]'
+                        : 'border border-white/10 bg-white/5 hover:border-amber-400/30 hover:bg-white/8'
                     }`}
                   >
                     {s.small === 'de garantía' && (
-                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-amber-300 to-yellow-400 px-3 py-0.5 text-[9px] font-black uppercase tracking-widest text-emerald-950 shadow-lg">
+                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-amber-400 to-amber-500 px-3 py-0.5 text-[9px] font-semibold uppercase tracking-widest text-white shadow-lg">
                         Reembolso garantizado
                       </span>
                     )}
@@ -1024,8 +1048,8 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                       </span>
                     )}
                     <div className="text-xl">{s.icon}</div>
-                    <div className={`mt-1 bg-gradient-to-r from-amber-300 to-yellow-200 bg-clip-text text-2xl font-black text-transparent ${s.small === 'de garantía' ? 'scale-110' : ''}`}>{s.big}</div>
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-white/50">{s.small}</div>
+                    <div className={`mt-1 bg-gradient-to-r from-amber-200 to-amber-300 bg-clip-text text-2xl font-light text-transparent ${s.small === 'de garantía' ? 'scale-110' : ''}`} style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>{s.big}</div>
+                    <div className="text-[10px] font-semibold uppercase tracking-widest text-white/40">{s.small}</div>
                   </div>
                 ))}
               </div>
@@ -1042,8 +1066,8 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
             <div className="marquee-mask overflow-hidden py-5">
               <div className="animate-marquee flex w-max items-center gap-8 px-4">
                 {[...(catalog.businessTypes ?? []), ...(catalog.businessTypes ?? [])].map((b, i) => (
-                  <span key={i} className="flex items-center gap-2.5 whitespace-nowrap text-sm font-black uppercase tracking-[0.2em] text-white/60">
-                    <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-r from-emerald-400 to-amber-400" />
+                  <span key={i} className="flex items-center gap-2.5 whitespace-nowrap text-sm font-semibold uppercase tracking-[0.2em] text-white/40">
+                    <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500" />
                     {b}
                   </span>
                 ))}
@@ -1064,7 +1088,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
             />
 
             <FilterGroup
-              title="Filtrar por qué incluye"
+              title="¿Qué функци necesitas?"
               options={planFeatures.map((row) => ({ id: row.feature, label: row.feature }))}
               selected={activeFeatures}
               onToggle={toggleFeature}
@@ -1081,13 +1105,13 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                 </div>
               </Reveal>
             ) : (
-              <div className="mx-auto max-w-md rounded-[2.5rem] border border-white bg-white/60 p-8 text-center shadow-sm backdrop-blur-md">
+              <div className="mx-auto max-w-md rounded-[2.5rem] border border-stone-200/60 bg-white/60 p-8 text-center shadow-sm backdrop-blur-md">
                 <p className="text-4xl">🔍</p>
-                <p className="mt-3 font-black text-slate-900">Ningún plan incluye todo lo que marcaste</p>
-                <p className="mt-2 text-sm font-medium text-slate-600">Prueba quitar un filtro o compara los planes para ver qué incluye cada uno.</p>
+                <p className="mt-3 font-semibold text-stone-700">Ningún plan incluye todo lo que marcaste</p>
+                <p className="mt-2 text-sm font-normal text-stone-500">Prueba quitar un filtro o compara los planes para ver qué incluye cada uno.</p>
                 <button
                   onClick={() => setActiveFeatures([])}
-                  className="mt-5 rounded-xl bg-emerald-500 px-6 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-600 active:scale-95"
+                  className="mt-5 rounded-xl bg-stone-800 px-6 py-3 text-xs font-semibold uppercase tracking-widest text-white shadow-lg shadow-stone-800/15 transition-all hover:bg-stone-700 active:scale-95"
                 >
                   ✕ Limpiar filtros
                 </button>
@@ -1103,8 +1127,8 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                   sub="Filtra por tipo de pago: mensual, anual o por cambio."
                 />
                 <FilterGroup
-                  title="Filtrar por tipo de pago"
-                  options={addonBadges.map((b) => ({ id: b, label: b }))}
+                  title="Tipo de cobro"
+                  options={addonFrequencies.map((f) => ({ id: f, label: FREQ_LABELS[f] ?? f }))}
                   selected={activeAddonBadges}
                   onToggle={toggleAddonBadge}
                   onClear={() => setActiveAddonBadges([])}
@@ -1115,7 +1139,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                 {visibleAddonSections.map((section) => (
                   <div key={section.name} className={addonSections.length > 1 ? "mt-14" : ""}>
                     {addonSections.length > 1 && (
-                      <h3 className="mb-5 text-center font-black text-slate-800">{section.name}</h3>
+                      <h3 className="mb-5 text-center font-semibold text-stone-700">{section.name}</h3>
                     )}
                     <Reveal>
                       <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-2">
@@ -1127,12 +1151,12 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                   </div>
                 ))}
                 {visibleAddonSections.length === 0 && (
-                  <div className="mx-auto max-w-md rounded-[2.5rem] border border-white bg-white/60 p-8 text-center shadow-sm backdrop-blur-md">
+                  <div className="mx-auto max-w-md rounded-[2.5rem] border border-stone-200/60 bg-white/60 p-8 text-center shadow-sm backdrop-blur-md">
                     <p className="text-4xl">🔍</p>
-                    <p className="mt-3 font-black text-slate-900">No hay servicios con ese tipo de pago</p>
+                    <p className="mt-3 font-semibold text-stone-700">No hay servicios con ese tipo de pago</p>
                     <button
                       onClick={() => setActiveAddonBadges([])}
-                      className="mt-5 rounded-xl bg-emerald-500 px-6 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-600 active:scale-95"
+                      className="mt-5 rounded-xl bg-stone-800 px-6 py-3 text-xs font-semibold uppercase tracking-widest text-white shadow-lg shadow-stone-800/15 transition-all hover:bg-stone-700 active:scale-95"
                     >
                       ✕ Limpiar filtros
                     </button>
@@ -1180,7 +1204,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
               />
               <div className="mx-auto flex max-w-4xl flex-wrap justify-center gap-3">
                 {catalog.businessTypes!.map((b) => (
-                  <span key={b} className="rounded-full border border-white bg-white/60 px-5 py-2.5 text-sm font-bold text-slate-700 shadow-sm backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white hover:shadow-lg hover:border-emerald-200">
+                  <span key={b} className="rounded-full border border-stone-200/60 bg-white/60 px-5 py-2.5 text-sm font-normal text-stone-600 shadow-sm backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white hover:shadow-lg hover:border-amber-200">
                     {b}
                   </span>
                 ))}
@@ -1199,12 +1223,12 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
               <Reveal>
               <div className="grid gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
                 {catalog.handoff!.map((h, i) => (
-                  <div key={h.title} className="group rounded-xl border border-white bg-white/60 p-4 text-center shadow-sm backdrop-blur-md transition-all duration-400 hover:-translate-y-1 hover:shadow-md animate-fade-in-up sm:rounded-[2rem] sm:p-6 sm:hover:-translate-y-2 sm:hover:shadow-xl" style={{ animationDelay: `${i * 0.1}s` }}>
-                    <span className="inline-grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-emerald-100 to-teal-100 text-2xl shadow-inner transition-transform duration-400 group-hover:scale-110 sm:h-16 sm:w-16 sm:rounded-2xl sm:text-3xl">
+                  <div key={h.title} className="group rounded-xl border border-stone-200/60 bg-white/60 p-4 text-center shadow-sm backdrop-blur-md transition-all duration-400 hover:-translate-y-1 hover:shadow-md animate-fade-in-up sm:rounded-[2rem] sm:p-6 sm:hover:-translate-y-2 sm:hover:shadow-xl" style={{ animationDelay: `${i * 0.1}s` }}>
+                    <span className="inline-grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 text-2xl shadow-inner transition-transform duration-400 group-hover:scale-110 sm:h-16 sm:w-16 sm:rounded-2xl sm:text-3xl">
                       {h.icon}
                     </span>
-                    <h3 className="mt-3 text-sm font-black text-slate-900 sm:mt-4 sm:text-base">{h.title}</h3>
-                    <p className="mt-1.5 text-xs font-medium leading-relaxed text-slate-600 sm:mt-2 sm:text-sm">{h.text}</p>
+                    <h3 className="mt-3 text-sm font-semibold text-stone-700 sm:mt-4 sm:text-base">{h.title}</h3>
+                    <p className="mt-1.5 text-xs font-normal leading-relaxed text-stone-500 sm:mt-2 sm:text-sm">{h.text}</p>
                   </div>
                 ))}
               </div>
@@ -1222,14 +1246,14 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
               />
               <Reveal>
               <div className="relative mx-auto grid max-w-5xl gap-4 sm:gap-6 md:grid-cols-3">
-                <div className="absolute left-0 right-0 top-8 hidden h-0.5 bg-gradient-to-r from-transparent via-emerald-300 to-transparent md:block sm:top-10" />
+                <div className="absolute left-0 right-0 top-8 hidden h-0.5 bg-gradient-to-r from-transparent via-amber-200 to-transparent md:block sm:top-10" />
                 {catalog.process!.map((p, i) => (
-                  <div key={p.title} className="relative rounded-xl border border-white bg-white/60 p-4 shadow-sm backdrop-blur-md transition-all duration-400 hover:-translate-y-1 hover:shadow-md animate-fade-in-up sm:rounded-[2rem] sm:p-6 sm:hover:-translate-y-1.5 sm:hover:shadow-xl" style={{ animationDelay: `${i * 0.1}s` }}>
-                    <span className="absolute -top-3 left-4 grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 text-xs font-black text-white shadow-lg sm:-top-4 sm:left-6 sm:h-10 sm:w-10 sm:text-sm">
+                  <div key={p.title} className="relative rounded-xl border border-stone-200/60 bg-white/60 p-4 shadow-sm backdrop-blur-md transition-all duration-400 hover:-translate-y-1 hover:shadow-md animate-fade-in-up sm:rounded-[2rem] sm:p-6 sm:hover:-translate-y-1.5 sm:hover:shadow-xl" style={{ animationDelay: `${i * 0.1}s` }}>
+                    <span className="absolute -top-3 left-4 grid h-8 w-8 place-items-center rounded-full bg-stone-800 text-xs font-semibold text-white shadow-lg sm:-top-4 sm:left-6 sm:h-10 sm:w-10 sm:text-sm">
                       {i + 1}
                     </span>
-                    <h3 className="mt-2 text-sm font-black text-slate-900 sm:mt-3 sm:text-base">{p.title}</h3>
-                    <p className="mt-1.5 text-xs font-medium leading-relaxed text-slate-600 sm:mt-2 sm:text-sm">{p.text}</p>
+                    <h3 className="mt-2 text-sm font-semibold text-stone-700 sm:mt-3 sm:text-base">{p.title}</h3>
+                    <p className="mt-1.5 text-xs font-normal leading-relaxed text-stone-500 sm:mt-2 sm:text-sm">{p.text}</p>
                   </div>
                 ))}
               </div>
@@ -1248,12 +1272,12 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
               <Reveal>
                 <div className="grid gap-3 sm:grid-cols-2 sm:gap-5">
                   {catalog.payment && (
-                    <div className="rounded-xl border border-white bg-white/60 p-4 shadow-sm backdrop-blur-md transition-shadow hover:shadow-md sm:rounded-[2rem] sm:p-7 sm:hover:shadow-xl">
-                      <h3 className="flex items-center gap-2 text-base font-black text-slate-900 sm:gap-3 sm:text-lg">💳 Formas de pago</h3>
+                    <div className="rounded-xl border border-stone-200/60 bg-white/60 p-4 shadow-sm backdrop-blur-md transition-shadow hover:shadow-md sm:rounded-[2rem] sm:p-7 sm:hover:shadow-xl">
+                      <h3 className="flex items-center gap-2 text-base font-semibold text-stone-700 sm:gap-3 sm:text-lg">💳 Formas de pago</h3>
                       <ul className="mt-3 space-y-2 sm:mt-4 sm:space-y-2.5">
                         {catalog.payment.map((p) => (
-                          <li key={p} className="flex items-start gap-2 text-xs font-medium text-slate-700 sm:gap-3 sm:text-sm">
-                            <span className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[9px] font-bold text-emerald-600 sm:h-5 sm:w-5 sm:text-[10px]">✓</span>
+                          <li key={p} className="flex items-start gap-2 text-xs font-normal text-stone-600 sm:gap-3 sm:text-sm">
+                            <span className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-amber-50 border border-amber-200/60 text-[9px] font-semibold text-amber-600 sm:h-5 sm:w-5 sm:text-[10px]">✓</span>
                             {p}
                           </li>
                         ))}
@@ -1262,19 +1286,19 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                   )}
 
                   {catalog.guarantee && (
-                    <div className="rounded-xl border border-white bg-gradient-to-br from-emerald-50 to-teal-50 p-4 shadow-sm backdrop-blur-md transition-all hover:-translate-y-0.5 hover:shadow-md sm:rounded-[2rem] sm:p-7 sm:hover:-translate-y-1 sm:hover:shadow-xl">
-                      <h3 className="flex items-center gap-2 text-base font-black text-slate-900 sm:gap-3 sm:text-lg">🛡 Garantía</h3>
-                      <p className="mt-3 text-xs font-medium leading-relaxed text-slate-700 sm:mt-4 sm:text-sm">{catalog.guarantee}</p>
+                    <div className="rounded-xl border border-amber-200/60 bg-gradient-to-br from-amber-50 to-rose-50/30 p-4 shadow-sm backdrop-blur-md transition-all hover:-translate-y-0.5 hover:shadow-md sm:rounded-[2rem] sm:p-7 sm:hover:-translate-y-1 sm:hover:shadow-xl">
+                      <h3 className="flex items-center gap-2 text-base font-semibold text-stone-700 sm:gap-3 sm:text-lg">🛡 Garantía</h3>
+                      <p className="mt-3 text-xs font-normal leading-relaxed text-stone-600 sm:mt-4 sm:text-sm">{catalog.guarantee}</p>
                     </div>
                   )}
 
                   {catalog.recurringCosts && (
-                    <div className="rounded-xl border border-white bg-white/60 p-4 shadow-sm backdrop-blur-md transition-shadow hover:shadow-md sm:rounded-[2rem] sm:p-7 sm:hover:shadow-xl">
-                      <h3 className="flex items-center gap-2 text-base font-black text-slate-900 sm:gap-3 sm:text-lg">💡 Costos que debes conocer</h3>
+                    <div className="rounded-xl border border-stone-200/60 bg-white/60 p-4 shadow-sm backdrop-blur-md transition-shadow hover:shadow-md sm:rounded-[2rem] sm:p-7 sm:hover:shadow-xl">
+                      <h3 className="flex items-center gap-2 text-base font-semibold text-stone-700 sm:gap-3 sm:text-lg">💡 Costos que debes conocer</h3>
                       <ul className="mt-3 space-y-2 sm:mt-4 sm:space-y-2.5">
                         {catalog.recurringCosts.map((c) => (
-                          <li key={c} className="flex items-start gap-2 text-xs font-medium text-slate-700 sm:gap-3 sm:text-sm">
-                            <span className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-teal-100 text-[9px] font-bold text-teal-600 sm:h-5 sm:w-5 sm:text-[10px]">→</span>
+                          <li key={c} className="flex items-start gap-2 text-xs font-normal text-stone-600 sm:gap-3 sm:text-sm">
+                            <span className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-amber-50 border border-amber-200/60 text-[9px] font-semibold text-amber-600 sm:h-5 sm:w-5 sm:text-[10px]">→</span>
                             {c}
                           </li>
                         ))}
@@ -1283,9 +1307,9 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                   )}
 
                   {catalog.upgradePolicy && (
-                    <div className="rounded-xl border border-white bg-white/60 p-4 shadow-sm backdrop-blur-md transition-shadow hover:shadow-md sm:rounded-[2rem] sm:p-7 sm:hover:shadow-xl">
-                      <h3 className="flex items-center gap-2 text-base font-black text-slate-900 sm:gap-3 sm:text-lg">🔄 ¿Puedo cambiar de plan?</h3>
-                      <p className="mt-3 text-xs font-medium leading-relaxed text-slate-700 sm:mt-4 sm:text-sm">{catalog.upgradePolicy}</p>
+                    <div className="rounded-xl border border-stone-200/60 bg-white/60 p-4 shadow-sm backdrop-blur-md transition-shadow hover:shadow-md sm:rounded-[2rem] sm:p-7 sm:hover:shadow-xl">
+                      <h3 className="flex items-center gap-2 text-base font-semibold text-stone-700 sm:gap-3 sm:text-lg">🔄 ¿Puedo cambiar de plan?</h3>
+                      <p className="mt-3 text-xs font-normal leading-relaxed text-stone-600 sm:mt-4 sm:text-sm">{catalog.upgradePolicy}</p>
                     </div>
                   )}
                 </div>
@@ -1304,8 +1328,8 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-white/30 bg-white/20 py-12 text-center backdrop-blur-xl">
-        <p className="text-xs font-black uppercase tracking-widest text-slate-500">Powered by Catálogos Digitales</p>
+      <footer className="relative z-10 border-t border-stone-200/40 bg-white/20 py-12 text-center backdrop-blur-xl">
+        <p className="text-xs font-semibold uppercase tracking-widest text-stone-400">Powered by Catálogos Digitales</p>
       </footer>
     </div>
   );
