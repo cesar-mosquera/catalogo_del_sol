@@ -204,7 +204,7 @@ function PhoneDemo({ demos, catalogSlug }: { demos: HeroDemo[]; catalogSlug: str
   const next = () => setI((p) => (p + 1) % demos.length);
 
   return (
-    <div className="relative mx-auto w-full max-w-[400px] animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+    <div className="relative mx-auto w-full max-w-[300px] sm:max-w-[380px] lg:max-w-[400px] animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
       <div className="absolute inset-0 scale-90 rounded-full bg-gradient-to-tr from-emerald-500/40 to-amber-500/40 blur-[90px] animate-blob" />
 
       {/* Aviso "tócalo" */}
@@ -880,17 +880,18 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
       <StickyNav />
 
       {/* Orbes decorativos */}
-      <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-amber-300/30 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob" />
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-300/30 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-2000" />
-      <div className="absolute -bottom-32 left-20 w-[500px] h-[500px] bg-teal-300/30 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-4000" />
+      <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-amber-300/50 rounded-full filter blur-3xl opacity-60 animate-blob" />
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-emerald-300/50 rounded-full filter blur-3xl opacity-60 animate-blob animation-delay-2000" />
+      <div className="absolute -bottom-32 left-20 w-[500px] h-[500px] bg-teal-300/40 rounded-full filter blur-3xl opacity-70 animate-blob animation-delay-4000" />
 
       {/* ═══════════ HEADER ═══════════ */}
       <header className="relative z-10 overflow-hidden bg-[#041b14] text-white">
         {/* Fondo: auroras + rejilla + grano */}
         <div className="absolute inset-0">
-          <div className="absolute -left-[12%] -top-[25%] h-[620px] w-[620px] rounded-full bg-emerald-500/30 blur-[130px] animate-blob" />
-          <div className="absolute right-[-10%] top-[5%] h-[540px] w-[540px] rounded-full bg-amber-500/30 blur-[130px] animate-blob animation-delay-2000" />
-          <div className="absolute bottom-[-20%] left-[35%] h-[520px] w-[520px] rounded-full bg-teal-500/25 blur-[140px] animate-blob animation-delay-4000" />
+          <div className="absolute -left-[12%] -top-[25%] h-[620px] w-[620px] rounded-full bg-emerald-400/65 blur-[110px] animate-blob" />
+          <div className="absolute right-[-10%] top-[5%] h-[540px] w-[540px] rounded-full bg-amber-400/60 blur-[110px] animate-blob animation-delay-2000" />
+          <div className="absolute bottom-[-20%] left-[35%] h-[520px] w-[520px] rounded-full bg-teal-400/55 blur-[120px] animate-blob animation-delay-4000" />
+          <div className="absolute left-[30%] top-[30%] h-[400px] w-[400px] rounded-full bg-emerald-300/30 blur-[90px] animate-blob animation-delay-2000" />
           <div
             className="absolute inset-0 opacity-20"
             style={{
@@ -921,10 +922,10 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
           </div>
         </div>
 
-        <div className="relative z-10 mx-auto max-w-7xl px-5 pt-16 pb-14 sm:px-8 lg:pt-24">
-          <div className="grid items-center gap-14 lg:grid-cols-2">
+        <div className="relative z-10 mx-auto max-w-7xl px-5 pt-8 pb-8 sm:px-8 lg:pt-24 lg:pb-14">
+          <div className="flex flex-col-reverse items-center gap-8 lg:grid lg:grid-cols-2 lg:items-center lg:gap-14">
             {/* ── Columna texto ── */}
-            <div className="text-center lg:text-left animate-fade-in-up">
+            <div className="w-full text-center lg:text-left animate-fade-in-up">
               <div className="mb-7 inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/10 px-4 py-2 shadow-lg backdrop-blur-md">
                 <span className="relative flex h-2.5 w-2.5">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-80" />
@@ -974,7 +975,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
               </div>
 
               {/* Stats */}
-              <div className="mt-10 grid max-w-xl grid-cols-3 gap-3">
+              <div className="mt-8 hidden md:grid max-w-xl grid-cols-3 gap-3">
                 {[
                   { icon: '🚫', big: '0%', small: 'comisiones' },
                   { icon: '⏱', big: '2–7', small: 'días de entrega' },
