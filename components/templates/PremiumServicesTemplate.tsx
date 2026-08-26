@@ -132,6 +132,7 @@ function Reveal({ children, delay = 0, className = '' }: { children: ReactNode; 
     <div
       ref={ref}
       className={className}
+      suppressHydrationWarning
       style={{
         opacity: shown ? 1 : 0,
         transform: shown ? 'none' : 'translateY(28px)',
@@ -788,7 +789,7 @@ function StickyNav() {
   }, []);
 
   return (
-    <nav className={`fixed left-1/2 top-4 z-50 -translate-x-1/2 transition-all duration-500 ${visible ? 'translate-y-0 opacity-100' : 'pointer-events-none -translate-y-6 opacity-0'}`}>
+    <nav className={`fixed left-1/2 top-4 z-40 -translate-x-1/2 transition-all duration-500 ${visible ? 'translate-y-0 opacity-100' : 'pointer-events-none -translate-y-6 opacity-0'}`}>
       <div className="flex max-w-[95vw] items-center gap-1 overflow-x-auto rounded-full border border-stone-200/60 bg-white/80 px-2 py-1.5 shadow-2xl shadow-stone-900/5 backdrop-blur-xl">
         {NAV_LINKS.map((l) => (
           <button
@@ -1088,7 +1089,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
             />
 
             <FilterGroup
-              title="¿Qué функци necesitas?"
+              title="¿Qué funciones necesitas?"
               options={planFeatures.map((row) => ({ id: row.feature, label: row.feature }))}
               selected={activeFeatures}
               onToggle={toggleFeature}
@@ -1248,11 +1249,11 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
               <div className="relative mx-auto grid max-w-5xl gap-4 sm:gap-6 md:grid-cols-3">
                 <div className="absolute left-0 right-0 top-8 hidden h-0.5 bg-gradient-to-r from-transparent via-amber-200 to-transparent md:block sm:top-10" />
                 {catalog.process!.map((p, i) => (
-                  <div key={p.title} className="relative rounded-xl border border-stone-200/60 bg-white/60 p-4 shadow-sm backdrop-blur-md transition-all duration-400 hover:-translate-y-1 hover:shadow-md animate-fade-in-up sm:rounded-[2rem] sm:p-6 sm:hover:-translate-y-1.5 sm:hover:shadow-xl" style={{ animationDelay: `${i * 0.1}s` }}>
+                  <div key={p.title} className="relative rounded-xl border border-stone-200/60 bg-white/60 px-4 pb-4 pt-7 shadow-sm backdrop-blur-md transition-all duration-400 hover:-translate-y-1 hover:shadow-md animate-fade-in-up sm:rounded-[2rem] sm:px-6 sm:pb-6 sm:pt-9 sm:hover:-translate-y-1.5 sm:hover:shadow-xl" style={{ animationDelay: `${i * 0.1}s` }}>
                     <span className="absolute -top-3 left-4 grid h-8 w-8 place-items-center rounded-full bg-stone-800 text-xs font-semibold text-white shadow-lg sm:-top-4 sm:left-6 sm:h-10 sm:w-10 sm:text-sm">
                       {i + 1}
                     </span>
-                    <h3 className="mt-2 text-sm font-semibold text-stone-700 sm:mt-3 sm:text-base">{p.title}</h3>
+                    <h3 className="text-sm font-semibold text-stone-700 sm:text-base">{p.title}</h3>
                     <p className="mt-1.5 text-xs font-normal leading-relaxed text-stone-500 sm:mt-2 sm:text-sm">{p.text}</p>
                   </div>
                 ))}
