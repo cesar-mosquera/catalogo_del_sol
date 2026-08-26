@@ -221,11 +221,11 @@ function PhoneDemo({ demos, catalogSlug }: { demos: HeroDemo[]; catalogSlug: str
   const next = () => setI((p) => (p + 1) % demos.length);
 
   return (
-    <div className="relative mx-auto w-full max-w-[300px] sm:max-w-[380px] lg:max-w-[400px] animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+    <div className="relative mx-auto w-full max-w-[280px] sm:max-w-[380px] lg:max-w-[400px] animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
       <div className="absolute inset-0 scale-90 rounded-full bg-gradient-to-tr from-amber-400/30 to-rose-300/20 blur-[90px] animate-blob" />
 
-      {/* Aviso "tócalo" */}
-      <div className="absolute -top-10 left-1/2 z-20 -translate-x-1/2 animate-wiggle">
+      {/* Aviso "tócalo" — arriba en desktop, abajo en mobile para no cortar */}
+      <div className="hidden sm:block absolute -top-10 left-1/2 z-20 -translate-x-1/2 animate-wiggle">
         <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/40 px-4 py-2 text-[11px] font-black uppercase tracking-widest text-amber-200 shadow-xl backdrop-blur-md">
           👆 Toca el celular <span className="animate-bounce-x">→</span>
         </span>
@@ -266,8 +266,8 @@ function PhoneDemo({ demos, catalogSlug }: { demos: HeroDemo[]; catalogSlug: str
         ))}
       </div>
 
-      {/* Tarjeta flotante del demo actual */}
-      <div className="absolute -right-3 top-1/3 z-20 animate-float rounded-2xl border border-white/30 bg-white/15 px-4 py-3 shadow-2xl backdrop-blur-md" style={{ animationDelay: '1.8s' }}>
+      {/* Tarjeta flotante derecha — solo desktop */}
+      <div className="hidden sm:block absolute -right-3 top-1/3 z-20 animate-float rounded-2xl border border-white/30 bg-white/15 px-4 py-3 shadow-2xl backdrop-blur-md" style={{ animationDelay: '1.8s' }}>
         <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-amber-600">{d.tag || 'Demo en vivo'}</p>
         <p className="text-sm font-black text-white">{d.name}</p>
         {d.demoUrl ? (
@@ -285,9 +285,17 @@ function PhoneDemo({ demos, catalogSlug }: { demos: HeroDemo[]; catalogSlug: str
         )}
       </div>
 
-      <div className="absolute -left-4 top-10 z-20 animate-float rounded-2xl border border-white/30 bg-white/15 px-4 py-3 shadow-2xl backdrop-blur-md" style={{ animationDelay: '0.9s' }}>
+      {/* Tarjeta flotante izquierda — solo desktop */}
+      <div className="hidden sm:block absolute -left-4 top-10 z-20 animate-float rounded-2xl border border-white/30 bg-white/15 px-4 py-3 shadow-2xl backdrop-blur-md" style={{ animationDelay: '0.9s' }}>
         <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-amber-600">Pedido recibido</p>
         <p className="text-sm font-black text-white">✅ Directo a tu WhatsApp</p>
+      </div>
+
+      {/* Badge "tócalo" en mobile — debajo del teléfono */}
+      <div className="mt-8 flex justify-center sm:hidden">
+        <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/40 px-4 py-2 text-[11px] font-black uppercase tracking-widest text-amber-200 shadow-xl backdrop-blur-md">
+          👆 Toca para ver el siguiente
+        </span>
       </div>
     </div>
   );
@@ -344,14 +352,14 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
         <div className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-gradient-to-br from-amber-300/20 to-rose-200/20 blur-3xl sm:h-64 sm:w-64" />
       )}
 
-      {/* Header de la tarjeta - compacto en mobile */}
-      <div className="relative h-32 w-full overflow-hidden bg-gradient-to-br from-amber-50 via-stone-50 to-rose-50 p-3 flex items-end justify-center border-b border-stone-200/40 sm:h-48 sm:p-4">
+      {/* Header de la tarjeta */}
+      <div className="relative h-36 w-full overflow-hidden bg-gradient-to-br from-amber-50 via-stone-50 to-rose-50 flex items-center justify-center border-b border-stone-200/40 sm:h-52">
         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_50%_0%,rgba(217,165,116,0.5),rgba(255,255,255,0))] transition-opacity duration-500 group-hover:opacity-40" />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={mockupImageSrc}
           alt={`Demo ${product.name}`}
-          className="relative z-10 w-auto h-[120%] object-contain drop-shadow-xl transition-all duration-500 transform translate-y-6 group-hover:translate-y-2 group-hover:scale-110 sm:h-[140%] sm:drop-shadow-2xl sm:group-hover:scale-[1.12]"
+          className="relative z-10 h-[82%] w-auto object-contain drop-shadow-lg transition-all duration-500 group-hover:scale-105 sm:h-[95%] sm:drop-shadow-2xl sm:group-hover:scale-[1.08]"
         />
       </div>
 
