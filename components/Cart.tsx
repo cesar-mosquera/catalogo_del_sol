@@ -426,7 +426,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
               {/* Lista de ítems */}
               <div className="space-y-3">
                 {items.length ? items.map((item) => (
-                <div key={item.id} className="flex justify-between gap-3 rounded-2xl bg-stone-50 p-4 dark:bg-stone-800/50">
+                <div key={item.id} className="flex justify-between gap-3 rounded-2xl bg-orange-50/50 border border-orange-100 shadow-sm p-4 dark:bg-stone-800/50 dark:border-stone-700">
                   <div className="flex-1">
                     <span className="text-sm font-medium">{item.quantity} × {item.name}</span>
                     {item.paymentFrequency && (
@@ -478,7 +478,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
 
               {/* Tiempos estimados / pedido programado */}
               {(prepMin > 0 || deliveryMin > 0 || catalog.scheduleOrders) && (
-                <div className="space-y-2 rounded-xl border border-stone-200 bg-stone-50 p-3 dark:bg-stone-800/40">
+                <div className="space-y-2 rounded-xl border border-orange-100 bg-orange-50/40 shadow-sm p-3 dark:bg-stone-800/40 dark:border-stone-700">
                   {prepMin > 0 && (
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-stone-500 dark:text-stone-400">
@@ -525,7 +525,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
 
               {/* Selector de empaque (automático) */}
               {catalog.packaging && packagingQty > 0 && (
-                <div className="flex items-center justify-between rounded-xl border border-stone-200 p-3 bg-stone-50 dark:bg-stone-800/40">
+                <div className="flex items-center justify-between rounded-xl border border-orange-100 bg-orange-50/40 shadow-sm p-3 dark:bg-stone-800/40 dark:border-stone-700">
                   <div>
                     <p className="text-sm font-bold">{catalog.packaging.label}</p>
                     <p className="text-xs text-stone-500">+${catalog.packaging.price.toFixed(2)} c/u</p>
@@ -561,7 +561,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
 
               {/* Sección de ubicación (solo domicilio) */}
               {requiresLocation && !isPickup && (
-                <div className="rounded-xl border border-stone-200 overflow-hidden">
+                <div className="rounded-xl border border-orange-100 bg-orange-50/40 shadow-sm overflow-hidden dark:bg-stone-800/40 dark:border-stone-700">
                   {!manualAddressMode && (
                     <button
                       onClick={() => setShowMap(true)}
@@ -648,7 +648,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
 
               {/* Envío por zona (manual, sin depender del mapa) */}
               {requiresLocation && !isPickup && zones.length > 0 && (
-                <div className="rounded-xl border border-stone-200 p-3 dark:border-stone-700">
+                <div className="rounded-xl border border-orange-100 bg-orange-50/40 shadow-sm p-3 dark:border-stone-700 dark:bg-stone-800/40">
                   <p className="text-xs font-bold text-stone-600 dark:text-stone-300 mb-2">🗺️ ¿Dónde entregamos?</p>
                   <div className="grid grid-cols-2 gap-1.5">
                     <button
@@ -689,7 +689,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
 
               {/* Método de pago */}
               {catalog.paymentMethods && catalog.paymentMethods.length > 0 && (
-                <div className="rounded-xl border border-stone-200 bg-stone-50 p-3 dark:bg-stone-800/40">
+                <div className="rounded-xl border border-orange-100 bg-orange-50/40 shadow-sm p-3 dark:bg-stone-800/40 dark:border-stone-700">
                   <p className="text-xs font-bold text-stone-600 dark:text-stone-300 mb-2">💳 Método de pago</p>
                   <div className="flex flex-wrap gap-1.5">
                     {catalog.paymentMethods.map((m) => (
