@@ -286,10 +286,10 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
                     </div>
                   </div>
                 )}
-                <div className="book-cover-content relative z-10 flex h-full flex-col justify-end p-6 pb-8">
+                <div className="book-cover-content relative z-10 flex h-full flex-col items-center text-center justify-end p-6 pb-32">
                   {catalog.logoImage ? (
-                    <div className="relative mb-auto h-32 w-32 drop-shadow-xl">
-                      <Image src={asset(catalog.logoImage)} alt="Logo" fill priority className="object-contain" sizes="128px" />
+                    <div className="relative mb-auto h-40 w-40 drop-shadow-2xl">
+                      <Image src={asset(catalog.logoImage)} alt="Logo" fill priority className="object-contain" sizes="160px" />
                     </div>
                   ) : (
                     <div className="mb-auto grid h-24 w-24 place-items-center rounded-full border-2 border-dashed border-white/40 bg-white/10">

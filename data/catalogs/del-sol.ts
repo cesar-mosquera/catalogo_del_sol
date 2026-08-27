@@ -3,14 +3,14 @@ import type { Catalog } from '@/lib/catalog-types';
 export const delSol: Catalog = {
   slug: 'del-sol',
   name: 'Pinchos y Chuletas Del Sol',
-  tagline: 'Parrilla al carbón · Cocina ecuatoriana',
+  tagline: '',
   description: 'Menú digital de Pinchos y Chuletas Del Sol.',
   phone: '593969581620',
   address: 'Consulta la dirección al confirmar tu pedido.',
   coverImage: '/img/cover_new.png',
   logoImage: '/img/logo.webp',
   template: 'book',
-  minimumOrder: 5,
+  minimumOrder: 0,
   businessHours: { timezone: 'America/Guayaquil', open: 11, close: 22, openMinute: 30, closeMinute: 30, days: [0, 1, 2, 3, 4, 5, 6] },
   // Coordenadas del restaurante (Guayaquil, Ecuador) — ajusta según tu ubicación real
   location: { lat: -2.1710, lng: -79.9224 },
