@@ -48,8 +48,7 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState('');
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-  const [latitude, setLatitude] = useState('');
-  const [longitude, setLongitude] = useState('');
+
   const [manualMode, setManualMode] = useState(false);
   const [mapReady, setMapReady] = useState(false);
   const [tilesFailed, setTilesFailed] = useState(false);
@@ -167,8 +166,7 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
     setRouteMin(null);
     setRouteState('loading');
     setAddress(null);
-    setLatitude(loc.lat.toFixed(6));
-    setLongitude(loc.lng.toFixed(6));
+
     if (leafletRef.current) {
       // Hace visible el marcador del cliente al asignar ubicación vía GPS/búsqueda/coordenadas
       leafletRef.current.marker.setOpacity(1);
@@ -442,15 +440,7 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
     setSuggestions([]);
   };
 
-  const applyCoordinates = () => {
-    const loc = { lat: Number(latitude), lng: Number(longitude) };
-    if (!isValidLocation(loc)) {
-      setSearchError('Ingresa coordenadas válidas: latitud entre -90 y 90, longitud entre -180 y 180.');
-      return;
-    }
-    setSearchError('');
-    setLocation(loc, 16);
-  };
+
 
   const confirm = () => {
     // Se prefiere confirmar con la ruta por calles calculada (la más larga). Si
@@ -669,11 +659,30 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
         )}
         {manualMode && (
           <div className="space-y-2">
-            <div className="grid grid-cols-2 gap-2">
-              <input value={latitude} onChange={(event) => setLatitude(event.target.value)} inputMode="decimal" placeholder="Latitud" className="min-w-0 rounded-lg border border-stone-300 px-3 py-2 text-sm outline-none focus:border-orange-500" />
-              <input value={longitude} onChange={(event) => setLongitude(event.target.value)} inputMode="decimal" placeholder="Longitud" className="min-w-0 rounded-lg border border-stone-300 px-3 py-2 text-sm outline-none focus:border-orange-500" />
-            </div>
-            <button onClick={applyCoordinates} className="w-full text-sm font-semibold text-orange-600 underline underline-offset-2 text-center">Usar estas coordenadas</button>
+            <p className="text-xs text-stone-500">Pega un enlace de Google Maps, o las coordenadas (ej: -0.2298, -78.5249)</p>
+            <input 
+              value={search} 
+              onChange={(e) => {
+                setSearch(e.target.value);
+                // Intentar extraer coordenadas automáticamente al escribir o pegar
+                const text = e.target.value;
+                let match = text.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+                if (!match) match = text.match(/q=(-?\d+\.\d+),(-?\d+\.\d+)/);
+                if (!match) match = text.match(/ll=(-?\d+\.\d+),(-?\d+\.\d+)/);
+                if (!match) match = text.match(/(-?\d{1,2}\.\d+)[,\s]+(-?\d{1,3}\.\d+)/);
+                
+                if (match) {
+                  const lat = Number(match[1]);
+                  const lng = Number(match[2]);
+                  if (isValidLocation({ lat, lng })) {
+                    setLocation({ lat, lng }, 17);
+                    setSearchError('');
+                  }
+                }
+              }} 
+              placeholder="Pega enlace o coordenadas aquí..." 
+              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm outline-none focus:border-orange-500" 
+            />
           </div>
         )}
 
