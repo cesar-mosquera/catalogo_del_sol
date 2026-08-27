@@ -80,8 +80,8 @@ function generateQuickFilters(catalog: Catalog): { key: string; label: string; t
     }
   }
 
-  // Limitar a 6 filtros máximo para no saturar la UI
-  return filters.slice(0, 6);
+  // Devolvemos todos los filtros (la barra tiene scroll horizontal, así que no hay problema de espacio)
+  return filters;
 }
 
 const matchesFilter = (product: Product, sectionName: string, filter: string, quickFilters: { key: string; type: 'badge' | 'section'; value: string }[]): boolean => {
