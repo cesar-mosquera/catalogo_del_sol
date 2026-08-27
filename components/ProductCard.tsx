@@ -74,6 +74,8 @@ export function ProductCard({
           src={src}
           alt={product.name}
           className="w-full h-auto"
+          loading="lazy"
+          decoding="async"
         />
       ) : (
         <div

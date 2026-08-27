@@ -316,7 +316,7 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
             {hasInfo && renderPage(1,
               <div className="relative h-full w-full bg-white">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={asset(catalog.infoImage!)} alt="" className="h-full w-full object-contain" />
+                <img src={asset(catalog.infoImage!)} alt="" className="h-full w-full object-contain" loading="lazy" decoding="async" />
               </div>
             )}
 
@@ -355,7 +355,7 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
                       <>
                         {catalog.logoImage && (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={asset(catalog.logoImage)} alt="" className="h-20 w-20 object-contain" />
+                          <img src={asset(catalog.logoImage)} alt="" className="h-20 w-20 object-contain" loading="lazy" decoding="async" />
                         )}
                         {back.title && (
                           <h2 className="mt-5 font-serif text-3xl font-bold" style={{ color: t.coverTitle }}>{back.title}</h2>
@@ -379,7 +379,7 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
                       <>
                         {catalog.logoImage && (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={asset(catalog.logoImage)} alt="" className="h-20 w-20 object-contain" />
+                          <img src={asset(catalog.logoImage)} alt="" className="h-20 w-20 object-contain" loading="lazy" decoding="async" />
                         )}
                         <h2 className="mt-5 font-serif text-2xl">Gracias por visitarnos</h2>
                         <p className="mt-3 text-sm text-stone-300">Agrega tus favoritos al carrito y confirma por WhatsApp.</p>
