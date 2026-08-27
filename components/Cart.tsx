@@ -182,6 +182,10 @@ export function Cart({ catalog }: { catalog: Catalog }) {
   // Envío por zona manual (no depende del mapa/OSRM). null = usar mapa.
   const [zone, setZone] = useState<string | null>(null);
   const [cashChange, setCashChange] = useState('');
+  
+  // Escribir calles manualmente sin usar mapa
+  const [manualAddressMode, setManualAddressMode] = useState(false);
+  const [manualAddress, setManualAddress] = useState('');
 
   const packagingQty = useMemo(() => items.reduce((sum, item) => sum + (item.packagingCount ?? 0) * item.quantity, 0), [items]);
 
@@ -218,7 +222,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
   const tooFar       = quote ? !quote.isAvailable : false;
   
   // Si el catálogo requiere envío pero olvidaron configurar las coordenadas, permitimos continuar sin mapa.
-  const hasLocation  = isPickup || selectedZone ? true : (requiresLocation && catalog.location) ? clientLoc !== null : true;
+  const hasLocation  = isPickup || selectedZone ? true : (requiresLocation && catalog.location) ? (clientLoc !== null || (manualAddressMode && manualAddress.trim().length > 0)) : true;
   const open_        = computeIsOpen(catalog);
 
   // Hora aproximada en que estará listo/entregado (se actualiza tras el montaje y cada 30s)
@@ -342,8 +346,14 @@ export function Cart({ catalog }: { catalog: Catalog }) {
       msg += `Tiempo aprox.: ⏱️ ${readyAt}\n`;
     }
 
-    if (isDelivery && !selectedZone && clientLoc) {
-      msg += `\n*Mapa GPS:*\nhttps://maps.google.com/maps?q=${clientLoc.lat},${clientLoc.lng}\n`;
+    // Si hay coordenadas y OSRM, añadimos el link de Google Maps
+    if (clientLoc && !selectedZone && !manualAddressMode) {
+      msg += `\n📍 *Ubicación del cliente:*`;
+      msg += `\nhttps://www.google.com/maps?q=${clientLoc.lat},${clientLoc.lng}`;
+      if (distKm !== null) msg += `\n🛣️ *Distancia:* ${distKm.toFixed(2)} km`;
+    } else if (manualAddressMode && manualAddress.trim()) {
+      msg += `\n📍 *Dirección (Manual):*`;
+      msg += `\n${manualAddress.trim()}`;
     }
 
     // El cobro para el repartidor (repetido para claridad)
@@ -551,30 +561,67 @@ export function Cart({ catalog }: { catalog: Catalog }) {
               {/* Sección de ubicación (solo domicilio) */}
               {requiresLocation && !isPickup && (
                 <div className="rounded-xl border border-stone-200 overflow-hidden">
-                  <button
-                    onClick={() => setShowMap(true)}
-                    className="w-full flex items-center gap-3 p-3 hover:bg-stone-50 transition-colors"
-                  >
-                    <span className="text-2xl">📍</span>
-                    <div className="flex-1 text-left">
-                      {clientLoc ? (
-                        <>
-                          <p className="text-xs font-bold text-green-700">Ubicación seleccionada ✓</p>
-                          <p className="text-xs text-stone-500 mt-0.5">
-                            {distKm !== null ? `${distKm.toFixed(2)} km · ` : ''}Envío: {distKm !== null ? `$${deliveryFee.toFixed(2)}` : '…'}
-                          </p>
-                        </>
+                  {!manualAddressMode && (
+                    <button
+                      onClick={() => setShowMap(true)}
+                      className="w-full flex items-center gap-3 p-3 hover:bg-stone-50 transition-colors"
+                    >
+                      <span className="text-2xl">📍</span>
+                      <div className="flex-1 text-left">
+                        {clientLoc ? (
+                          <>
+                            <p className="text-xs font-bold text-green-700">Ubicación seleccionada ✓</p>
+                            <p className="text-xs text-stone-500 mt-0.5">
+                              {distKm !== null ? `${distKm.toFixed(2)} km · ` : ''}Envío estimado: {distKm !== null ? `$${deliveryFee.toFixed(2)}` : `$${(catalog.deliveryBaseFee ?? 0).toFixed(2)} (Base)`}
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <p className="text-xs font-bold text-stone-700">Fijar en el mapa</p>
+                            <p className="text-xs text-stone-400">GPS o buscar dirección</p>
+                          </>
+                        )}
+                      </div>
+                      <span className="text-stone-400 text-sm">{clientLoc ? '✏' : '→'}</span>
+                    </button>
+                  )}
+
+                  {!clientLoc && (
+                    <div className={`p-3 bg-white ${!manualAddressMode ? 'border-t border-stone-100' : ''}`}>
+                      {!manualAddressMode ? (
+                        <button
+                          onClick={() => setManualAddressMode(true)}
+                          className="w-full text-xs font-bold text-orange-600 hover:text-orange-700 text-left underline underline-offset-2"
+                        >
+                          No encuentro mi dirección, prefiero escribir las calles
+                        </button>
                       ) : (
-                        <>
-                          <p className="text-xs font-bold text-stone-700">Selecciona tu ubicación</p>
-                          <p className="text-xs text-stone-400">GPS o pin en el mapa</p>
-                        </>
+                        <div className="space-y-2">
+                          <label className="text-xs font-bold text-stone-700">Escribe tus calles y referencias:</label>
+                          <textarea
+                            value={manualAddress}
+                            onChange={(e) => setManualAddress(e.target.value)}
+                            placeholder="Ej: Av. 10 de Agosto y Pichincha, casa blanca de dos pisos..."
+                            className="w-full rounded-lg border border-stone-300 p-3 text-sm outline-none focus:border-orange-500 bg-stone-50"
+                            rows={3}
+                          />
+                          <div className="flex justify-between items-center mt-1">
+                            <span className="text-[10px] text-stone-500">
+                              El envío se calculará desde la base (${(catalog.deliveryBaseFee ?? 0).toFixed(2)})
+                            </span>
+                            <button
+                              onClick={() => { setManualAddressMode(false); setManualAddress(''); }}
+                              className="text-[11px] font-bold text-stone-500 hover:text-stone-800 underline"
+                            >
+                              Volver al mapa
+                            </button>
+                          </div>
+                        </div>
                       )}
                     </div>
-                    <span className="text-stone-400 text-sm">{clientLoc ? '✏' : '→'}</span>
-                  </button>
+                  )}
 
-                  {tooFar && maxKm > 0 && (
+                  {tooFar && maxKm > 0 && !manualAddressMode && (
                     <div className="bg-red-50 px-3 py-2 border-t border-red-100">
                       <p className="text-xs text-red-700">
                         ⚠ Fuera del radio de entrega ({maxKm} km). Tu ubicación está a {distKm!.toFixed(1)} km.

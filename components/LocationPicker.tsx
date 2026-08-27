@@ -609,7 +609,7 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
               <div className="flex items-center justify-between gap-2">
                 <p className="text-xs text-red-600">No se pudo calcular la ruta por calles. Reintenta o confirma con distancia estimada.</p>
                 <button
-                  onClick={() => { if (picked) { setRouteState('loading'); setRouteKm(null); fetchRoute(picked); } }}
+                  onClick={() => { if (picked) { setRouteState('loading'); setRouteKm(null); fetchRoute(picked, distKm!); } }}
                   className="shrink-0 rounded-lg bg-red-100 px-2 py-1 text-xs font-bold text-red-700 hover:bg-red-200 transition-colors"
                 >
                   🔄 Reintentar
