@@ -11,12 +11,22 @@ export const delSol: Catalog = {
   logoImage: '/img/logo.webp',
   template: 'book',
   minimumOrder: 5,
-  businessHours: { timezone: 'America/Guayaquil', open: 11, close: 22, days: [0, 1, 2, 3, 4, 5, 6] },
+  businessHours: { timezone: 'America/Guayaquil', open: 11, close: 22, openMinute: 30, closeMinute: 30, days: [0, 1, 2, 3, 4, 5, 6] },
   // Coordenadas del restaurante (Guayaquil, Ecuador) — ajusta según tu ubicación real
   location: { lat: -2.1710, lng: -79.9224 },
-  deliveryBaseFee: 1.00,     // tarifa base $1.00
-  deliveryRatePerKm: 0.50,   // $0.50 por km adicional
-  deliveryMaxKm: 0,          // radio máximo (0 = sin límite para pruebas)
+  requiresShipping: true,
+  allowPickup: true,
+  prepTimeMinutes: 25,
+  deliveryTimeMinutes: 15,
+  scheduleOrders: true,
+  paymentMethods: ['Efectivo', 'Transferencia', 'Tarjeta', 'Pago al recibir'],
+  deliveryBaseFee: 2.00,
+  deliveryIncludedKm: 2,
+  deliveryRatePerKm: 0.50,
+  deliveryMaxKm: 0,
+  integerDistanceMode: 'floor',
+  packaging: { label: 'Empaque (Para llevar)', price: 0.30 },
+  checkoutNote: 'Los pedidos se confirman por WhatsApp.',
   sections: [
     { name: 'Parrilla al carbón', products: [
       { id: 'pincho-pollo', name: 'Pincho de Pollo', price: 3.5, description: 'Pollo marinado en ají y especias criollas, asado al carbón.', image: '/img/pincho_pollo.webp' },
