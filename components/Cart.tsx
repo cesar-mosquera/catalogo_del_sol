@@ -260,62 +260,75 @@ export function Cart({ catalog }: { catalog: Catalog }) {
   const send = () => {
     if (!items.length || !hasLocation || (scheduledAt && scheduleErrorValue)) return;
 
-    const detail = items
-      .map((i) => {
-        const frequency = i.paymentFrequency ? ` · ${formatPaymentFrequency(i.paymentFrequency)}` : '';
-        return `• ${i.quantity} × ${i.name}${frequency} — $${(i.quantity * i.price).toFixed(2)}`;
-      })
-      .join('\n');
+    const isDelivery = !isPickup && requiresLocation;
 
-    const locLine = (!isPickup && requiresLocation && !selectedZone && clientLoc)
-      ? `📍 Entregar en: https://maps.google.com/maps?q=${clientLoc.lat},${clientLoc.lng}\n`
-      : '';
-    const pickupLine = isPickup && catalog.allowPickup
-      ? `🏪 Retirar en el local: ${catalog.address || catalog.name}\n`
-      : '';
-    const zoneLine = selectedZone
-      ? `*🛵 Zona de entrega: ${selectedZone.name} — Envío $${selectedZone.fee.toFixed(2)}*\n`
-      : '';
-    const packagingLine = catalog.packaging && packagingQty > 0
-      ? `📦 ${catalog.packaging.label} (${packagingQty} × $${catalog.packaging.price.toFixed(2)}): $${packagingFeeTotal.toFixed(2)}\n`
-      : '';
-    const distLine = (!isPickup && requiresLocation && !selectedZone && distKm !== null)
-      ? `*🛵 Envío (${distKm.toFixed(2)} km por calles${chargedKm !== null && chargedKm !== distKm ? `, cobrado como ${chargedKm} km` : ''}): $${deliveryFee.toFixed(2)}*\n`
-      : '';
-    const notesLine = notes.trim() ? `📝 Indicaciones: ${notes.trim()}` : '';
-    const checkoutLine = catalog.checkoutNote ? `\n*ℹ️ ${catalog.checkoutNote}*\n` : '';
+    let msg = `*NUEVO PEDIDO - ${catalog.name}*\n\n`;
+    
+    // 1. Detalle de productos
+    msg += `*📝 DETALLE DEL PEDIDO:*\n`;
+    items.forEach((i) => {
+      const frequency = i.paymentFrequency ? ` (${formatPaymentFrequency(i.paymentFrequency)})` : '';
+      msg += `▪ ${i.quantity} × ${i.name}${frequency} — $${(i.quantity * i.price).toFixed(2)}\n`;
+    });
+    msg += `\n`;
 
-    // Tiempo estimado de listo/entrega (o fecha programada por el cliente)
-    const scheduleLine = scheduledAt
-      ? `🗓️ Pedido programado para: ${formatSchedule(scheduledAt)}\n`
-      : readyAt
-      ? (isPickup ? `⏱️ Listo para retirar aprox: ${readyAt}\n` : `⏱️ Entrega estimada aprox: ${readyAt}\n`)
-      : '';
-    const paymentLine = paymentMethod ? `💳 Método de pago: ${paymentMethod}\n` : '';
+    // 2. Resumen financiero (Cálculo exacto)
+    msg += `*📊 RESUMEN:*\n`;
+    msg += `Subtotal: $${subtotal.toFixed(2)}\n`;
+    
+    if (catalog.packaging && packagingQty > 0) {
+      msg += `Empaque (${packagingQty}x): $${packagingFeeTotal.toFixed(2)}\n`;
+    }
+    
+    if (isDelivery) {
+      if (selectedZone) {
+        msg += `Envío (${selectedZone.name}): $${deliveryFee.toFixed(2)}\n`;
+      } else if (distKm !== null) {
+        msg += `Envío (${distKm.toFixed(2)} km): $${deliveryFee.toFixed(2)}\n`;
+      }
+    }
+    
+    msg += `------------------------\n`;
+    msg += `*TOTAL A PAGAR: $${total.toFixed(2)}*\n\n`;
 
-    const message =
-      `Hola, quiero hacer un pedido en *${catalog.name}*:\n\n` +
-      `${detail}\n\n` +
-      `*Subtotal: $${subtotal.toFixed(2)}*\n` +
-      packagingLine +
-      zoneLine +
-      distLine +
-      `*Total${!isPickup && requiresLocation ? ' con envío' : ''}: $${total.toFixed(2)}*\n` +
-      pickupLine +
-      scheduleLine +
-      paymentLine +
-      checkoutLine +
-      locLine + notesLine;
+    // 3. Logística de entrega
+    msg += `*🚚 LOGÍSTICA:*\n`;
+    if (isPickup && catalog.allowPickup) {
+      msg += `Modo: 🏪 Retiro en local\n`;
+      msg += `Dirección: ${catalog.address || catalog.name}\n`;
+    } else if (isDelivery) {
+      msg += `Modo: 🛵 A domicilio\n`;
+    }
 
-    const url = `https://wa.me/${catalog.phone}?text=${encodeURIComponent(message)}`;
+    if (scheduledAt) {
+      msg += `Horario: 🗓️ Programado para ${formatSchedule(scheduledAt)}\n`;
+    } else if (readyAt) {
+      msg += `Tiempo aprox.: ⏱️ ${readyAt}\n`;
+    }
+
+    // 4. Pago e Indicaciones
+    if (paymentMethod) {
+      msg += `\n*💳 MÉTODO DE PAGO:*\n${paymentMethod}\n`;
+    }
+
+    if (isDelivery && !selectedZone && clientLoc) {
+      msg += `\n*📍 UBICACIÓN EXACTA:*\nhttps://maps.google.com/maps?q=${clientLoc.lat},${clientLoc.lng}\n`;
+    }
+
+    if (notes.trim()) {
+      msg += `\n*ℹ️ INDICACIONES:*\n${notes.trim()}\n`;
+    }
+
+    if (catalog.checkoutNote) {
+      msg += `\n_${catalog.checkoutNote}_\n`;
+    }
+
+    const url = `https://wa.me/${catalog.phone}?text=${encodeURIComponent(msg)}`;
     const w = window.open(url, '_blank', 'noopener,noreferrer');
     
     if (w === null) {
-      // El navegador bloqueó la ventana emergente, redirigimos en la misma pestaña
       window.location.assign(url);
-      // No limpiamos el carrito aquí por si el usuario regresa atrás
     } else {
-      // Se abrió correctamente en nueva pestaña, es seguro limpiar el carrito
       clear(catalog.slug);
       setOpen(false);
       setClientLoc(null);
