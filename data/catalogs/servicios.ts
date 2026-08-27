@@ -5,7 +5,7 @@ export const servicios: Catalog = {
   name: 'Catálogos Digitales Pro',
   tagline: 'Desarrollo de Menús y Catálogos Digitales',
   description: 'Adquiere tu propio catálogo digital con carrito de compras, pedidos por WhatsApp y panel de administración.',
-  phone: '593999999999', // Cambia este número
+  phone: '593969581620', // Cambia este número
   address: 'Atención 100% remota',
   coverImage: '/img/cover.webp',
   logoImage: '/img/logo.webp',

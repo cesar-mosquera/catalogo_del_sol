@@ -5,7 +5,7 @@ export const demoMinimal: Catalog = {
   name: 'Café & Aroma',
   tagline: 'Panadería y cafetería de especialidad',
   description: 'Demo única de la plantilla "Minimal". Un menú elegante para cafeterías, panaderías y repostería.',
-  phone: '593999999999',
+  phone: '593969581620',
   address: 'Centro Comercial, Guayaquil',
   coverImage: '/img/demo/cafe-aroma-cover.svg',
   logoImage: '/img/demo/cafe-aroma-logo.svg',

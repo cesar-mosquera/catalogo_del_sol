@@ -5,7 +5,7 @@ export const chifaExcelencia: Catalog = {
   name: 'CHIFA EXCELENCIA',
   tagline: 'Bienvenidos',
   description: 'Menú digital de CHIFA EXCELENCIA: combos, sopas, chaulafán, platos orientales y bebidas.',
-  phone: '593977364021',
+  phone: '593969581620',
   address: 'Av. Maldonado y IS57 (Sector Guamani)',
   coverImage: '/img/portada.webp',
   infoImage: '/img/subportada.webp',

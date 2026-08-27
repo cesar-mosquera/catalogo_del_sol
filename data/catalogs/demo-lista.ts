@@ -5,7 +5,7 @@ export const demoLista: Catalog = {
   name: 'Burger Station',
   tagline: 'Las mejores hamburguesas de la ciudad',
   description: 'Demo única de la plantilla "Lista". Un menú completo para hamburgueserías, pizzerías y comida rápida.',
-  phone: '593999999999',
+  phone: '593969581620',
   address: 'Av. Principal 123, Guayaquil',
   coverImage: '/img/demo/burger-station-cover.svg',
   logoImage: '/img/demo/burger-station-logo.svg',

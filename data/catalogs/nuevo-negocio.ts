@@ -5,7 +5,7 @@ export const nuevoNegocio: Catalog = {
   name: 'Mi Nuevo Negocio',
   tagline: 'Lo mejor en productos y servicios',
   description: 'Catálogo digital de prueba creado para demostración.',
-  phone: '593999999999',
+  phone: '593969581620',
   address: 'Av. Principal y Secundaria',
   coverImage: '/img/demo/nuevo-negocio-cover.svg',
   logoImage: '/img/demo/nuevo-negocio-logo.svg',
