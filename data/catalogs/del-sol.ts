@@ -12,12 +12,13 @@ export const delSol: Catalog = {
   template: 'book',
   minimumOrder: 0,
   theme: {
-    book: {
-      pageBg: '#fef9c3', // yellow-100 (sol claro)
-      pageText: '#713f12', // yellow-900
-      heading: '#d97706', // amber-600
-      headingSplash: 'rgba(253, 230, 138, 0.9)', // amber-200
-    },
+    coverBg: '#0c0a09',
+    coverTitle: '#ffffff',
+    coverTagline: '#fed7aa',
+    pageBg: '#fef9c3', // yellow-100 (sol claro)
+    pageText: '#713f12', // yellow-900
+    heading: '#d97706', // amber-600
+    headingSplash: 'rgba(253, 230, 138, 0.9)', // amber-200
     card: {
       name: 'text-amber-900',
       price: 'text-orange-700',
