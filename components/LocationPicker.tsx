@@ -647,13 +647,19 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
           </p>
         )}
 
-        {/* Entrada manual de coordenadas (siempre visible cuando el mapa falla, colapsable si funciona) */}
         {(!tilesFailed || manualMode) && (
           <button
             onClick={() => setManualMode((v) => !v)}
-            className="w-full text-sm font-semibold text-stone-700 underline underline-offset-2 text-center"
+            className={`w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-bold transition-colors ${
+              manualMode 
+                ? 'bg-stone-200 text-stone-700 hover:bg-stone-300' 
+                : 'bg-stone-100 border border-stone-300 text-stone-700 hover:bg-stone-200'
+            }`}
           >
-            {manualMode ? 'Ocultar coordenadas manuales' : 'Ingresar coordenadas manualmente'}
+            <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+              <path d="M12 2v20m-7-7h14m-14-6h14" />
+            </svg>
+            {manualMode ? 'Ocultar opciones manuales' : 'Escribir coordenadas manualmente'}
           </button>
         )}
         {tilesFailed && !manualMode && (
