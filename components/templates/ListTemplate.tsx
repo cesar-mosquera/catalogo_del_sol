@@ -268,8 +268,7 @@ export function ListTemplate({ catalog }: { catalog: Catalog }) {
 
   return (
     <main
-      className="mx-auto max-w-4xl space-y-12 px-4 py-6"
-      style={{ backgroundColor: theme?.pageBg, minHeight: '100vh', color: theme?.pageText }}
+      className="mx-auto max-w-4xl space-y-12 px-4 py-6 bg-background text-foreground min-h-screen"
     >
       <BusinessHeader catalog={catalog} clean={!!catalog.theme} />
 
@@ -300,8 +299,8 @@ export function ListTemplate({ catalog }: { catalog: Catalog }) {
           id="list-sticky-bar"
           className="sticky top-0 -mx-4 z-20 border-b px-4 py-3 shadow-sm"
           style={{
-            backgroundColor: theme?.pageBg ?? '#fafaf9',
-            borderColor: theme?.headingSplash ?? '#e7e5e4',
+            backgroundColor: theme?.pageBg ?? 'var(--bg, #fafaf9)',
+            borderColor: theme?.headingSplash ?? 'var(--heading-splash, #e7e5e4)',
           }}
         >
           {/* Fila única: buscador + botón categorías */}

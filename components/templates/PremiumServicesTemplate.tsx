@@ -26,7 +26,7 @@ function SectionHeading({ kicker, title, sub }: { kicker: string; title: string;
   return (
     <div className="mb-8 text-center sm:mb-14">
       <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-amber-600 sm:text-xs sm:tracking-[0.35em]">{kicker}</p>
-      <h2 className="mt-2 text-2xl font-light tracking-wide text-stone-800 sm:mt-3 sm:text-3xl md:text-4xl" style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>{title}</h2>
+      <h2 className="mt-2 text-2xl font-light tracking-wide font-display sm:mt-3 sm:text-3xl md:text-4xl">{title}</h2>
       {sub && <p className="mx-auto mt-3 max-w-xl text-sm font-normal text-stone-500 leading-relaxed sm:mt-4 sm:max-w-2xl sm:text-base">{sub}</p>}
       <div className="mx-auto mt-4 h-px w-16 bg-gradient-to-r from-transparent via-amber-300 to-transparent sm:mt-6 sm:w-24" />
     </div>
@@ -401,7 +401,7 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
 
       <div className="flex flex-col flex-1 p-4 sm:p-6 relative z-10">
         <div className="flex justify-between items-start gap-2 sm:gap-4">
-          <h3 className="text-lg font-light tracking-wide text-stone-800 leading-tight sm:text-2xl" style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>{product.name}</h3>
+          <h3 className="text-lg font-light tracking-wide font-display leading-tight sm:text-2xl">{product.name}</h3>
           {product.badge && (
             <span className="flex-shrink-0 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.15em] text-white shadow-md sm:px-3 sm:py-1 sm:text-[10px] sm:tracking-[0.2em]">
               {product.badge}
@@ -411,7 +411,7 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
 
         {/* Precio - más prominente */}
         <div className="mt-3 flex items-baseline gap-1.5 sm:mt-2 sm:gap-2">
-          <span className="text-3xl font-light tracking-tight text-stone-800 sm:text-4xl" style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>
+          <span className="text-3xl font-light tracking-tight text-stone-800 sm:text-4xl font-display">
             ${product.price.toFixed(0)}
           </span>
           <span className="text-[10px] font-semibold uppercase tracking-widest text-stone-400 sm:text-xs">USD · Pago Único</span>
@@ -495,7 +495,7 @@ function AddonServiceCard({ product, catalogSlug }: { product: Product; catalogS
       {bursting && <ConfettiBurst />}
       <div className="flex-1">
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-          <h4 className="text-base font-light tracking-wide text-stone-800 sm:text-lg" style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>{product.name}</h4>
+          <h4 className="text-base font-light tracking-wide font-display sm:text-lg">{product.name}</h4>
           {product.badge && (
             <span className="rounded-full bg-amber-50 border border-amber-200/60 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-widest text-amber-700 sm:px-3 sm:py-1 sm:text-[10px]">
               {product.badge}
@@ -505,7 +505,7 @@ function AddonServiceCard({ product, catalogSlug }: { product: Product; catalogS
         <p className="mt-2 text-xs font-normal text-stone-500 leading-relaxed sm:text-sm">{product.description}</p>
       </div>
       <div className="text-left flex items-center justify-between gap-3 mt-3 pt-3 border-t border-stone-200/60 sm:text-right sm:flex-col sm:items-end sm:gap-3 sm:border-l sm:border-stone-200/60 sm:pl-6 sm:pt-0 sm:mt-0 sm:border-t-0">
-        <div className="text-xl font-light tracking-tight text-stone-800 sm:text-2xl" style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>${product.price.toFixed(0)}</div>
+        <div className="text-xl font-light tracking-tight font-display sm:text-2xl">${product.price.toFixed(0)}</div>
         <button
           onClick={handleAdd}
           className={`rounded-lg px-4 py-2 text-xs font-semibold uppercase tracking-widest transition-all active:scale-95 sm:rounded-xl sm:px-5 sm:py-2.5 ${
@@ -594,10 +594,10 @@ function PlanRecommender({ plans, catalogSlug }: { plans: Product[]; catalogSlug
       <div className="mx-auto max-w-2xl rounded-[2.5rem] border border-stone-200/60 bg-white/70 p-8 text-center shadow-[0_20px_50px_rgb(0,0,0,0.05)] backdrop-blur-md animate-fade-in-up">
         <div className="text-5xl">🎉</div>
         <p className="mt-3 text-xs font-semibold uppercase tracking-[0.3em] text-amber-600">Nuestra recomendación</p>
-        <h3 className="mt-2 text-3xl font-light tracking-wide text-stone-800" style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>{recommended.name}</h3>
+        <h3 className="mt-2 text-3xl font-light tracking-wide font-display text-stone-800">{recommended.name}</h3>
         <p className="mt-3 font-normal leading-relaxed text-stone-500">{why[recommended.id]}</p>
         <div className="mt-5 flex items-baseline justify-center gap-2">
-          <span className="text-4xl font-light tracking-tight text-amber-600" style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>${recommended.price.toFixed(0)}</span>
+          <span className="text-4xl font-light tracking-tight text-amber-600 font-display">${recommended.price.toFixed(0)}</span>
           <span className="text-sm font-semibold uppercase tracking-widest text-stone-400">pago único</span>
         </div>
         <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3">
@@ -633,7 +633,7 @@ function PlanRecommender({ plans, catalogSlug }: { plans: Product[]; catalogSlug
       </div>
 
       <p className="text-center text-xs font-semibold uppercase tracking-[0.3em] text-amber-600">¿No sabes cuál elegir?</p>
-      <h3 className="mt-2 text-center text-2xl font-light tracking-wide text-stone-800" style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>{current.question}</h3>
+      <h3 className="mt-2 text-center text-2xl font-light tracking-wide font-display text-stone-800">{current.question}</h3>
 
       <div className="mt-6 flex flex-col gap-3">
         {current.options.map((opt) => (
@@ -697,7 +697,7 @@ function ComparisonTable({ catalog }: { catalog: Catalog }) {
                     {plan.badge}
                   </span>
                 )}
-                <span className="text-lg font-light text-amber-600" style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>${plan.price.toFixed(0)}</span>
+                <span className="text-lg font-light text-amber-600 font-display">${plan.price.toFixed(0)}</span>
               </button>
             );
           })}
@@ -1007,7 +1007,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                 <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-200/80 sm:text-[11px] sm:tracking-[0.25em]">{catalog.tagline}</span>
               </div>
 
-              <h1 className="text-[2rem] font-light leading-[1.1] tracking-wide sm:text-5xl lg:text-[4rem]" style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>
+              <h1 className="text-[2rem] font-light leading-[1.1] tracking-wide sm:text-5xl lg:text-[4rem] font-display">
                 Tu negocio convertido en un{' '}
                 <span className="bg-gradient-to-r from-amber-200 via-amber-300 to-amber-200 bg-clip-text text-transparent">
                   catálogo que enamora
@@ -1063,7 +1063,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                     }`}
                   >
                     <div className="text-lg sm:text-xl">{s.icon}</div>
-                    <div className="mt-0.5 bg-gradient-to-r from-amber-200 to-amber-300 bg-clip-text text-lg font-light text-transparent sm:text-2xl" style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>{s.big}</div>
+                    <div className="mt-0.5 bg-gradient-to-r from-amber-200 to-amber-300 bg-clip-text text-lg font-light text-transparent font-display sm:text-2xl">{s.big}</div>
                     <div className="text-[8px] font-semibold uppercase tracking-widest text-white/40 sm:text-[10px]">{s.small}</div>
                   </div>
                 ))}
@@ -1093,7 +1093,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                       </span>
                     )}
                     <div className="text-xl">{s.icon}</div>
-                    <div className={`mt-1 bg-gradient-to-r from-amber-200 to-amber-300 bg-clip-text text-2xl font-light text-transparent ${s.small === 'de garantía' ? 'scale-110' : ''}`} style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>{s.big}</div>
+                    <div className={`mt-1 bg-gradient-to-r from-amber-200 to-amber-300 bg-clip-text text-2xl font-light text-transparent font-display ${s.small === 'de garantía' ? 'scale-110' : ''}`}>{s.big}</div>
                     <div className="text-[10px] font-semibold uppercase tracking-widest text-white/40">{s.small}</div>
                   </div>
                 ))}
