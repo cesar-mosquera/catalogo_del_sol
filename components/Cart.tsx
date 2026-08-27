@@ -276,6 +276,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
     if (!items.length || !hasLocation || (scheduledAt && scheduleErrorValue)) return;
 
     const isDelivery = !isPickup && requiresLocation;
+    // eslint-disable-next-line react-hooks/purity
     const orderId = Math.random().toString(36).substring(2, 6).toUpperCase();
 
     let msg = `*NUEVO PEDIDO - ${catalog.name}*\n`;
