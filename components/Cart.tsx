@@ -246,6 +246,16 @@ export function Cart({ catalog }: { catalog: Catalog }) {
     return result.valid ? '' : result.error ?? '';
   }, [scheduledAt, catalog.businessHours]);
 
+  // Bloquear el scroll del fondo cuando el carrito está abierto
+  useEffect(() => {
+    if (open || showMap) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [open, showMap]);
+
   const onClickMode = (m: 'delivery' | 'pickup') => {
     setMode(m);
     // Al cambiar a retiro no hacen falta datos de envío
