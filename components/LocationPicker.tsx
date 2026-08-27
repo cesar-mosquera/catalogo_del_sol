@@ -94,14 +94,26 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
   };
 
   /* ── Ruta real por calles (OSRM, sin llave) ── */
-  const fetchRoute = async (loc: LatLng) => {
-    const from = restaurantLocation;
+  const fetchRoute = async (loc: LatLng, straightDist: number) => {
+    // Si la distancia en línea recta es enorme (> 100km), OSRM seguramente fallará o tardará mucho.
+    // Lo saltamos y usamos la línea recta para que las demos no se bloqueen.
+    if (straightDist > 100) {
+      setRouteState('error');
+      setRouteKm(null);
+      return;
+    }
+
     const url =
-      `https://router.project-osrm.org/route/v1/driving/${from.lng},${from.lat};${loc.lng},${loc.lat}` +
+      `https://router.project-osrm.org/route/v1/driving/${restaurantLocation.lng},${restaurantLocation.lat};${loc.lng},${loc.lat}` +
       `?overview=full&steps=false&geometries=geojson&alternatives=true`;
     const seq = pickSeq.current;
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
+
     try {
-      const res = await fetch(url);
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeoutId);
       const data = await res.json();
       // Esta respuesta ya no corresponde a la ubicación elegida → se descarta
       if (seq !== pickSeq.current) return;
@@ -124,6 +136,7 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
         }).addTo(map);
       }
     } catch {
+      clearTimeout(timeoutId);
       if (seq !== pickSeq.current) return;
       setRouteState('error');
       setRouteKm(null);
@@ -174,7 +187,7 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
       leafletRef.current.map.setView([loc.lat, loc.lng], zoom);
     }
     applyStraight(loc);
-    fetchRoute(loc);
+    fetchRoute(loc, straightDist);
     fetchAddress(loc);
   };
 
