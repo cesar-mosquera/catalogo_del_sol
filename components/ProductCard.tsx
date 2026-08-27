@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import type { Product, CardTheme } from '@/lib/catalog-types';
 import { asset } from '@/lib/asset';
 import { BASE_PATH } from '@/lib/base-path';
@@ -69,13 +70,13 @@ export function ProductCard({
     <article className={`overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ${t.ring} flex flex-col h-full`}>
       {/* Imagen */}
       {src ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
+        <Image
           src={src}
           alt={product.name}
-          className="w-full h-auto"
+          className="w-full h-auto object-cover"
+          width={400}
+          height={400}
           loading="lazy"
-          decoding="async"
         />
       ) : (
         <div
