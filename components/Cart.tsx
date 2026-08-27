@@ -181,6 +181,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
   const [scheduledAt, setScheduledAt] = useState('');
   // Envío por zona manual (no depende del mapa/OSRM). null = usar mapa.
   const [zone, setZone] = useState<string | null>(null);
+  const [cashChange, setCashChange] = useState('');
 
   const packagingQty = useMemo(() => items.reduce((sum, item) => sum + (item.packagingCount ?? 0) * item.quantity, 0), [items]);
 
@@ -261,8 +262,10 @@ export function Cart({ catalog }: { catalog: Catalog }) {
     if (!items.length || !hasLocation || (scheduledAt && scheduleErrorValue)) return;
 
     const isDelivery = !isPickup && requiresLocation;
+    const orderId = Math.random().toString(36).substring(2, 6).toUpperCase();
 
-    let msg = `*NUEVO PEDIDO - ${catalog.name}*\n\n`;
+    let msg = `*NUEVO PEDIDO - ${catalog.name}*\n`;
+    msg += `*# PEDIDO: ${orderId}*\n\n`;
     
     // 1. Detalle de productos
     msg += `*📝 DETALLE DEL PEDIDO:*\n`;
@@ -272,7 +275,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
     });
     msg += `\n`;
 
-    // 2. Resumen financiero (Cálculo exacto)
+    // 2. Resumen financiero
     msg += `*📊 RESUMEN:*\n`;
     msg += `Subtotal: $${subtotal.toFixed(2)}\n`;
     
@@ -291,8 +294,31 @@ export function Cart({ catalog }: { catalog: Catalog }) {
     msg += `------------------------\n`;
     msg += `*TOTAL A PAGAR: $${total.toFixed(2)}*\n\n`;
 
-    // 3. Logística de entrega
-    msg += `*🚚 LOGÍSTICA:*\n`;
+    // 3. Pago y Vuelto
+    if (paymentMethod) {
+      msg += `*💳 MÉTODO DE PAGO:*\n${paymentMethod}\n`;
+      if (paymentMethod.toLowerCase().includes('efectivo') && cashChange) {
+        msg += `⚠️ _Llevar vuelto para $${Number(cashChange).toFixed(2)}_\n`;
+      }
+      msg += `\n`;
+    }
+
+    // 4. Notas del cliente (si afectan la preparación)
+    if (notes.trim()) {
+      msg += `*ℹ️ INDICACIONES DEL CLIENTE:*\n${notes.trim()}\n\n`;
+    }
+
+    if (catalog.checkoutNote) {
+      msg += `_${catalog.checkoutNote}_\n\n`;
+    }
+
+    // ----------------------------------------------------
+    // SEGUNDA PARTE: FICHA DE ENTREGA PARA EL REPARTIDOR
+    // ----------------------------------------------------
+    msg += `=======================\n`;
+    msg += `*📍 FICHA DE ENTREGA (Repartidor)*\n`;
+    msg += `*# PEDIDO: ${orderId}*\n\n`;
+
     if (isPickup && catalog.allowPickup) {
       msg += `Modo: 🏪 Retiro en local\n`;
       msg += `Dirección: ${catalog.address || catalog.name}\n`;
@@ -306,21 +332,16 @@ export function Cart({ catalog }: { catalog: Catalog }) {
       msg += `Tiempo aprox.: ⏱️ ${readyAt}\n`;
     }
 
-    // 4. Pago e Indicaciones
-    if (paymentMethod) {
-      msg += `\n*💳 MÉTODO DE PAGO:*\n${paymentMethod}\n`;
-    }
-
     if (isDelivery && !selectedZone && clientLoc) {
-      msg += `\n*📍 UBICACIÓN EXACTA:*\nhttps://maps.google.com/maps?q=${clientLoc.lat},${clientLoc.lng}\n`;
+      msg += `\n*Mapa GPS:*\nhttps://maps.google.com/maps?q=${clientLoc.lat},${clientLoc.lng}\n`;
     }
 
-    if (notes.trim()) {
-      msg += `\n*ℹ️ INDICACIONES:*\n${notes.trim()}\n`;
-    }
-
-    if (catalog.checkoutNote) {
-      msg += `\n_${catalog.checkoutNote}_\n`;
+    // El cobro para el repartidor (repetido para claridad)
+    if (isDelivery) {
+      msg += `\n*💰 COBRAR AL CLIENTE: $${total.toFixed(2)}*\n`;
+      if (paymentMethod?.toLowerCase().includes('efectivo') && cashChange) {
+        msg += `(El cliente paga con $${Number(cashChange).toFixed(2)})\n`;
+      }
     }
 
     const url = `https://wa.me/${catalog.phone}?text=${encodeURIComponent(msg)}`;
@@ -336,6 +357,7 @@ export function Cart({ catalog }: { catalog: Catalog }) {
       setNotes('');
       setScheduledAt('');
       setZone(null);
+      setCashChange('');
     }
   };
 
@@ -626,6 +648,22 @@ export function Cart({ catalog }: { catalog: Catalog }) {
                       </button>
                     ))}
                   </div>
+                  {paymentMethod?.toLowerCase().includes('efectivo') && (
+                    <div className="mt-3 pt-3 border-t border-stone-200 dark:border-stone-700">
+                      <p className="text-[11px] font-bold text-stone-600 dark:text-stone-400 mb-1.5">¿Con cuánto vas a pagar? (Para llevarte vuelto)</p>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500 font-bold">$</span>
+                        <input
+                          type="number"
+                          step="0.01"
+                          placeholder={(Math.ceil(total / 5) * 5).toFixed(2)}
+                          value={cashChange}
+                          onChange={(e) => setCashChange(e.target.value)}
+                          className="w-full rounded-lg border border-stone-300 pl-7 pr-3 py-2 text-sm outline-none focus:border-orange-500 bg-white dark:bg-stone-900 dark:border-stone-600"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
               </div>
