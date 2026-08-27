@@ -22,9 +22,8 @@ export function BusinessHeader({ catalog, clean = false }: { catalog: Catalog; c
     return (
       <header className="overflow-hidden rounded-[2.2rem] shadow-2xl">
         {catalog.coverImage ? (
-          <div className="relative w-full aspect-[2/1] sm:aspect-[3/1]">
-            <Image src={asset(catalog.coverImage)} alt={catalog.name} fill priority className="object-cover" sizes="100vw" />
-          </div>
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img src={asset(catalog.coverImage)} alt={catalog.name} className="block w-full h-auto" style={{ width: '100%', height: 'auto' }} />
         ) : (
           <div className="grid aspect-[3/4] w-full place-items-center bg-stone-900">
             <span className="text-xs font-bold uppercase tracking-[0.25em] text-white/40">{catalog.name}</span>
