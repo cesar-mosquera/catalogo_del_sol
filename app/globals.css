@@ -81,12 +81,7 @@ button, input, textarea { font: inherit; }
     padding: 22px 22px calc(28px + env(safe-area-inset-bottom)) !important;
   }
 
-  .book-cover-content > img {
-    height: 56px;
-    width: 56px;
-  }
-
-  .book-cover-content h1 { font-size: 1.9rem; }
+  .book-cover-content h1 { font-size: 2.2rem; }
 
   .notebook-menu-page {
     padding: 20px 14px calc(38px + env(safe-area-inset-bottom)) 26px !important;

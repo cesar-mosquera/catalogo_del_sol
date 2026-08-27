@@ -289,17 +289,21 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
                 <div className="book-cover-content relative z-10 flex h-full flex-col justify-end p-6 pb-8">
                   {catalog.logoImage ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={asset(catalog.logoImage)} alt="" className="mb-auto h-16 w-16 object-contain drop-shadow-lg" />
+                    <img src={asset(catalog.logoImage)} alt="" className="mb-auto h-32 w-32 object-contain drop-shadow-xl" />
                   ) : (
-                    <div className="mb-auto grid h-16 w-16 place-items-center rounded-full border-2 border-dashed border-white/40 bg-white/10">
+                    <div className="mb-auto grid h-24 w-24 place-items-center rounded-full border-2 border-dashed border-white/40 bg-white/10">
                       <svg viewBox="0 0 24 24" className="h-7 w-7 fill-current text-white/50" aria-hidden="true">
                         <path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm1 2v6.6l3-2.2 3 3 4-4L20 14V7H5Zm4.5 3a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
                       </svg>
                     </div>
                   )}
                   <p className="text-[10px] font-bold uppercase tracking-[0.25em] opacity-60">Menú Digital</p>
-                  <h1 className="mt-1 font-serif text-3xl font-bold leading-tight drop-shadow" style={{ color: t.coverTitle }}>{catalog.name}</h1>
-                  <p className="mt-1 text-sm drop-shadow" style={{ color: t.coverTagline }}>{catalog.tagline}</p>
+                  <h1 className="mt-2 font-sans text-[2.75rem] font-extrabold leading-[0.95] tracking-tight drop-shadow-xl" style={{ color: t.coverTitle }}>
+                    {catalog.name}
+                  </h1>
+                  <p className="mt-3 text-[15px] font-semibold tracking-wide drop-shadow-lg" style={{ color: t.coverTagline }}>
+                    {catalog.tagline}
+                  </p>
                   <div className="mt-6 flex items-center gap-1 text-xs opacity-50">
                     <span>Desliza para ver el menú</span>
                     <span className="animate-bounce-x ml-1">→</span>
