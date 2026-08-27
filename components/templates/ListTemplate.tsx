@@ -10,26 +10,49 @@ import { computeIsOpen, formatBusinessHours } from '@/lib/delivery';
 // Normaliza texto para buscar sin importar tildes/mayúsculas
 const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-// Emojis para filtros comunes (se usan cuando se detecta un badge o sección conocida)
+// Emojis para filtros comunes (palabras clave)
 const FILTER_EMOJIS: Record<string, string> = {
   'popular': '🔥',
-  'más vendidos': '🔥',
+  'vendido': '🔥',
   'combo': '🍱',
+  'sopa': '🥣',
+  'arroz': '🍚',
+  'tallarin': '🍝',
+  'tallarín': '🍝',
+  'oriental': '🥢',
+  'extra': '🍟',
+  'porcion': '🍟',
+  'porción': '🍟',
   'bebida': '🥤',
-  'mariscos': '🦐',
+  'gaseosa': '🥤',
+  'jugo': '🧃',
+  'marisco': '🦐',
   'pescado': '🐟',
+  'pollo': '🍗',
+  'carne': '🥩',
+  'chancho': '🥓',
   'nuevo': '✨',
   'chef': '👨‍🍳',
-  'recomendada': '👍',
+  'recomendad': '👍',
   'vegetariano': '🥬',
   'vegano': '🌱',
   'postre': '🍰',
   'cafetería': '☕',
+  'cafe': '☕',
   'panadería': '🥐',
   'servicio': '🛠️',
   'mensual': '📅',
   'anual': '📅',
 };
+
+function getEmojiFor(text: string): string | undefined {
+  if (!text) return undefined;
+  const t = norm(text);
+  for (const [key, emoji] of Object.entries(FILTER_EMOJIS)) {
+    if (t.includes(norm(key))) return emoji;
+  }
+  return undefined;
+}
 
 // Genera filtros dinámicos según el contenido del catálogo
 function generateQuickFilters(catalog: Catalog): { key: string; label: string; type: 'badge' | 'section'; value: string }[] {
@@ -43,7 +66,7 @@ function generateQuickFilters(catalog: Catalog): { key: string; label: string; t
       // Agregar badge como filtro
       if (product.badge && !seenBadges.has(product.badge.toLowerCase())) {
         seenBadges.add(product.badge.toLowerCase());
-        const emoji = FILTER_EMOJIS[product.badge.toLowerCase()] || '🏷️';
+        const emoji = getEmojiFor(product.badge) || '🏷️';
         filters.push({
           key: `badge-${product.badge.toLowerCase().replace(/\s+/g, '-')}`,
           label: `${emoji} ${product.badge}`,
@@ -61,15 +84,18 @@ function generateQuickFilters(catalog: Catalog): { key: string; label: string; t
         sectionLower.includes('combo') ||
         sectionLower.includes('bebida') ||
         sectionLower.includes('postre') ||
-        sectionLower.includes('café') ||
         sectionLower.includes('cafe') ||
         sectionLower.includes('servicio') ||
-        sectionLower.includes('adicional') ||
+        sectionLower.includes('sopa') ||
+        sectionLower.includes('arroz') ||
+        sectionLower.includes('tallarin') ||
+        sectionLower.includes('oriental') ||
+        sectionLower.includes('extra') ||
         section.products.length >= 2; // Secciones con varios productos
 
       if (isFilterableSection) {
         seenSections.add(sectionLower);
-        const emoji = FILTER_EMOJIS[sectionLower] || '📋';
+        const emoji = getEmojiFor(section.name) || '📋';
         filters.push({
           key: `section-${sectionLower.replace(/\s+/g, '-')}`,
           label: `${emoji} ${section.name}`,
