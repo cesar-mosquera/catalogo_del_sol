@@ -49,7 +49,7 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
   const pages = useMemo(() => {
     const pgs: { sectionName: string; products: Product[]; isContinued: boolean; note?: string }[] = [];
     catalog.sections.forEach(sec => {
-      const chunkSize = 1; // 1 producto por página para que la imagen sea grande y no haya scroll
+      const chunkSize = 2; // 2 productos por página como pidió el usuario
       for (let i = 0; i < sec.products.length; i += chunkSize) {
         pgs.push({
           sectionName: sec.name,
@@ -340,10 +340,10 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
                   )}
                 </div>
                 
-                <div className="flex-1 h-full min-h-0 w-full overflow-hidden">
+                <div className="flex-1 h-full min-h-0 w-full overflow-y-auto no-scrollbar pb-6">
                   {page.products.map(p => (
-                    <div key={p.id} className="h-full">
-                      <ProductCard product={p} catalogSlug={catalog.slug} compact={false} theme={catalog.theme?.card} />
+                    <div key={p.id} className="mb-6 last:mb-0">
+                      <ProductCard product={p} catalogSlug={catalog.slug} compact={true} theme={catalog.theme?.card} />
                     </div>
                   ))}
                 </div>

@@ -7,7 +7,7 @@ export const delSol: Catalog = {
   description: 'Menú digital de Pinchos y Chuletas Del Sol.',
   phone: '593969581620',
   address: 'Consulta la dirección al confirmar tu pedido.',
-  coverImage: '/img/cover.webp',
+  coverImage: '/img/cover_new.png',
   logoImage: '/img/logo.webp',
   template: 'book',
   minimumOrder: 5,
