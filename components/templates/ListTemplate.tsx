@@ -214,6 +214,7 @@ export function ListTemplate({ catalog }: { catalog: Catalog }) {
   const quickFilters = useMemo(() => generateQuickFilters(catalog), [catalog]);
 
   const [query,    setQuery]    = useState('');
+  const [showAutocomplete, setShowAutocomplete] = useState(false);
   const [filter,   setFilter]   = useState('todos');
   const [showTop,  setShowTop]  = useState(false);
   const [drawer,   setDrawer]   = useState(false);
@@ -227,6 +228,20 @@ export function ListTemplate({ catalog }: { catalog: Catalog }) {
 
   const isFiltering = query.trim() !== '' || filter !== 'todos';
   const nq = norm(query.trim());
+
+  const autocompleteSuggestions = useMemo(() => {
+    if (!showAutocomplete || !nq) return [];
+    const matches: Product[] = [];
+    for (const sec of catalog.sections) {
+      for (const p of sec.products) {
+        if (norm(p.name).includes(nq)) {
+          matches.push(p);
+          if (matches.length >= 5) return matches;
+        }
+      }
+    }
+    return matches;
+  }, [catalog.sections, nq, showAutocomplete]);
 
   const sections = useMemo(() => {
     if (!isFiltering) return catalog.sections.map((section, idx) => ({ ...section, idx }));
@@ -320,6 +335,8 @@ export function ListTemplate({ catalog }: { catalog: Catalog }) {
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
+                onFocus={() => setShowAutocomplete(true)}
+                onBlur={() => setTimeout(() => setShowAutocomplete(false), 200)}
                 placeholder="Busca tu plato…"
                 className="w-full rounded-full border bg-white/80 py-2 pl-10 pr-8 text-sm outline-none focus:border-transparent focus:ring-2"
                 style={{
@@ -335,6 +352,29 @@ export function ListTemplate({ catalog }: { catalog: Catalog }) {
                 >
                   ×
                 </button>
+              )}
+              {/* Sugerencias de Autocompletado */}
+              {showAutocomplete && autocompleteSuggestions.length > 0 && (
+                <ul className="absolute left-0 right-0 top-[calc(100%+8px)] z-50 overflow-hidden rounded-xl border border-stone-200 bg-white shadow-xl">
+                  {autocompleteSuggestions.map((p) => (
+                    <li key={p.id}>
+                      <button
+                        className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm hover:bg-orange-50 active:bg-orange-100 transition-colors"
+                        onClick={() => {
+                          setQuery(p.name);
+                          setShowAutocomplete(false);
+                        }}
+                      >
+                        <span className="text-stone-400">
+                          <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current">
+                            <path d="M10 2a8 8 0 1 0 4.9 14.3l5.4 5.4 1.4-1.4-5.4-5.4A8 8 0 0 0 10 2Zm0 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12Z" />
+                          </svg>
+                        </span>
+                        <span className="font-semibold text-stone-700 truncate">{p.name}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
               )}
             </div>
 
