@@ -358,8 +358,8 @@ export function ListTemplate({ catalog }: { catalog: Catalog }) {
             </button>
           </div>
 
-          {/* Filtros rápidos en fila scrollable */}
-          <div ref={filterScrollRef} className="no-scrollbar mt-2.5 flex gap-2 overflow-x-auto pb-0.5">
+          {/* Filtros rápidos en 2 filas scrollables */}
+          <div ref={filterScrollRef} className="no-scrollbar mt-2.5 grid grid-rows-2 grid-flow-col gap-2 overflow-x-auto pb-0.5 auto-cols-max">
             {[{ key: 'todos', label: '☰ Todo' }, ...quickFilters].map((f) => (
               <button
                 key={f.key}
