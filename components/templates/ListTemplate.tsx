@@ -269,6 +269,10 @@ export function ListTemplate({ catalog }: { catalog: Catalog }) {
   return (
     <main
       className="mx-auto max-w-4xl space-y-12 px-4 py-6 bg-background text-foreground min-h-screen"
+      style={{
+        backgroundColor: theme?.pageBg,
+        color: theme?.pageText,
+      }}
     >
       <BusinessHeader catalog={catalog} clean={!!catalog.theme} />
 
