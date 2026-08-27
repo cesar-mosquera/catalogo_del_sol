@@ -567,7 +567,8 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
       </div>
 
       {/* Panel inferior */}
-      <div className="flex-shrink-0 space-y-2.5 border-t border-stone-200 bg-white px-4 pt-3 pb-4 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] overflow-y-auto" style={{ maxHeight: 'min(46vh, 320px)' }}>
+      <div className="flex-shrink-0 flex flex-col border-t border-stone-200 bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.08)]" style={{ maxHeight: 'min(50vh, 350px)' }}>
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-2.5 px-4 pt-3 pb-2">
         {/* Botón GPS */}
         <button
           onClick={locateUser}
@@ -670,23 +671,28 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
           </div>
         )}
 
-        <button
-          onClick={confirm}
-          disabled={!picked || outOfRange || (routeKm === null && routeState !== 'error' && !manualMode)}
-          className="w-full rounded-xl bg-orange-600 py-3 text-sm font-bold text-white shadow-lg shadow-orange-600/25 transition-all hover:bg-orange-700 active:scale-[0.99] disabled:bg-stone-300 disabled:shadow-none disabled:cursor-not-allowed"
-        >
-          {outOfRange
-            ? '⚠️ Fuera del radio de entrega'
-            : routeKm === null
-              ? (picked
-                  ? (routeState === 'error'
-                      ? 'Confirmar con distancia estimada ✓'
-                      : manualMode
-                        ? 'Confirmar con coordenadas manuales ✓'
-                        : '⏳ Calculando ruta… espera')
-                  : 'Selecciona tu punto en el mapa o usa GPS')
-              : 'Confirmar esta ubicación ✓'}
-        </button>
+        </div>
+        
+        {/* Botón de confirmación (siempre visible) */}
+        <div className="flex-shrink-0 bg-white px-4 pb-4 pt-2">
+          <button
+            onClick={confirm}
+            disabled={!picked || outOfRange || (routeKm === null && routeState !== 'error' && !manualMode)}
+            className="w-full rounded-xl bg-orange-600 py-3 text-sm font-bold text-white shadow-lg shadow-orange-600/25 transition-all hover:bg-orange-700 active:scale-[0.99] disabled:bg-stone-300 disabled:shadow-none disabled:cursor-not-allowed"
+          >
+            {outOfRange
+              ? '⚠️ Fuera del radio de entrega'
+              : routeKm === null
+                ? (picked
+                    ? (routeState === 'error'
+                        ? 'Confirmar con distancia estimada ✓'
+                        : manualMode
+                          ? 'Confirmar con coordenadas manuales ✓'
+                          : '⏳ Calculando ruta… espera')
+                    : 'Selecciona tu punto en el mapa o usa GPS')
+                : 'Confirmar esta ubicación ✓'}
+          </button>
+        </div>
       </div>
     </div>
   );
