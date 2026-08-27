@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useMemo } from 'react';
+import Image from 'next/image';
 import type { Catalog, Product } from '@/lib/catalog-types';
 import { asset } from '@/lib/asset';
 import { ProductCard } from '@/components/ProductCard';
@@ -271,8 +272,7 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
               <div className={`relative flex h-full flex-col overflow-hidden text-white`} style={{ backgroundColor: t.coverBg }}>
                 {catalog.coverImage && (
                   <>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={asset(catalog.coverImage)} alt="" className="absolute inset-0 h-full w-full object-cover" style={{ opacity: 0.9 }} />
+                    <Image src={asset(catalog.coverImage)} alt="" fill priority className="object-cover" style={{ opacity: 0.9 }} sizes="100vw" />
                     <div className="absolute inset-x-0 bottom-0 h-3/5" style={{ background: 'linear-gradient(to top,rgba(0,0,0,0.85) 0%,transparent 100%)' }} />
                   </>
                 )}
@@ -288,8 +288,9 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
                 )}
                 <div className="book-cover-content relative z-10 flex h-full flex-col justify-end p-6 pb-8">
                   {catalog.logoImage ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={asset(catalog.logoImage)} alt="" className="mb-auto h-32 w-32 object-contain drop-shadow-xl" />
+                    <div className="relative mb-auto h-32 w-32 drop-shadow-xl">
+                      <Image src={asset(catalog.logoImage)} alt="Logo" fill priority className="object-contain" sizes="128px" />
+                    </div>
                   ) : (
                     <div className="mb-auto grid h-24 w-24 place-items-center rounded-full border-2 border-dashed border-white/40 bg-white/10">
                       <svg viewBox="0 0 24 24" className="h-7 w-7 fill-current text-white/50" aria-hidden="true">

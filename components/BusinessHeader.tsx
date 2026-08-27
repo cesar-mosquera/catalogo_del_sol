@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import type { Catalog } from '@/lib/catalog-types';
 import { asset } from '@/lib/asset';
 import { computeIsOpen, formatBusinessHours } from '@/lib/delivery';
@@ -21,8 +22,9 @@ export function BusinessHeader({ catalog, clean = false }: { catalog: Catalog; c
     return (
       <header className="overflow-hidden rounded-[2.2rem] shadow-2xl">
         {catalog.coverImage ? (
-          /* eslint-disable-next-line @next/next/no-img-element */
-          <img src={asset(catalog.coverImage)} alt={catalog.name} className="block w-full h-auto" />
+          <div className="relative w-full aspect-[2/1] sm:aspect-[3/1]">
+            <Image src={asset(catalog.coverImage)} alt={catalog.name} fill priority className="object-cover" sizes="100vw" />
+          </div>
         ) : (
           <div className="grid aspect-[3/4] w-full place-items-center bg-stone-900">
             <span className="text-xs font-bold uppercase tracking-[0.25em] text-white/40">{catalog.name}</span>
@@ -35,16 +37,13 @@ export function BusinessHeader({ catalog, clean = false }: { catalog: Catalog; c
   return (
     <header className="relative overflow-hidden rounded-[2.2rem] text-white shadow-2xl">
       {/* Fondo: portada con degradado oscuro */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      {catalog.coverImage && <img src={asset(catalog.coverImage)} alt="" className="absolute inset-0 h-full w-full object-cover" />}
+      {catalog.coverImage && <Image src={asset(catalog.coverImage)} alt="" fill priority className="object-cover" sizes="100vw" />}
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/55 to-black/30" />
 
       <div className="relative flex flex-col items-center gap-4 px-5 py-10 text-center sm:py-12">
-        {/* Logo */}
         {catalog.logoImage ? (
-          <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-white/95 shadow-xl ring-4 ring-white/30">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={asset(catalog.logoImage)} alt={catalog.name} className="h-full w-full object-contain" />
+          <div className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-white/95 shadow-xl ring-4 ring-white/30">
+            <Image src={asset(catalog.logoImage)} alt={catalog.name} fill priority className="object-contain" sizes="80px" />
           </div>
         ) : (
           <div className="grid h-20 w-20 place-items-center rounded-full border-2 border-dashed border-white/40 bg-white/10 shadow-xl">
