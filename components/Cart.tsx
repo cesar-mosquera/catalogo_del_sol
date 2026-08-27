@@ -365,9 +365,11 @@ export function Cart({ catalog }: { catalog: Catalog }) {
               <button onClick={() => setOpen(false)} aria-label="Cerrar" className="text-xl opacity-60 hover:opacity-100">✕</button>
             </div>
 
-            {/* Lista de ítems */}
-            <div className="mt-4 flex-1 overflow-auto space-y-3 pr-2">
-              {items.length ? items.map((item) => (
+            {/* Contenido scrolleable (ítems + opciones de envío/pago) */}
+            <div className="mt-4 flex-1 overflow-auto space-y-4 pr-2 pb-2">
+              {/* Lista de ítems */}
+              <div className="space-y-3">
+                {items.length ? items.map((item) => (
                 <div key={item.id} className="flex justify-between gap-3 rounded-2xl bg-stone-50 p-4 dark:bg-stone-800/50">
                   <div className="flex-1">
                     <span className="text-sm font-medium">{item.quantity} × {item.name}</span>
@@ -391,10 +393,10 @@ export function Cart({ catalog }: { catalog: Catalog }) {
               )) : (
                 <p className="text-stone-400 text-sm text-center py-8">Tu carrito está vacío.</p>
               )}
-            </div>
+              </div>
 
-            {/* Footer con resumen y ubicación */}
-            <div className="flex-shrink-0 border-t pt-4 space-y-3 mt-2">
+              {/* --- Opciones de envío y pago --- */}
+              <div className="space-y-3 pt-4 border-t">
 
               {/* Selector de entrega: retiro en local o domicilio */}
               {showModeToggle && (
@@ -613,6 +615,11 @@ export function Cart({ catalog }: { catalog: Catalog }) {
                   </div>
                 </div>
               )}
+              </div>
+            </div>
+
+            {/* Footer Fijo (Total y Botón) */}
+            <div className="flex-shrink-0 border-t pt-4 space-y-3 mt-2 bg-white dark:bg-stone-900">
 
               {/* Total */}
               {(!requiresLocation || isPickup || clientLoc || selectedZone) && !tooFar && (
