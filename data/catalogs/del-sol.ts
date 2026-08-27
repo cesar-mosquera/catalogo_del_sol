@@ -11,6 +11,24 @@ export const delSol: Catalog = {
   logoImage: '/img/logo.webp',
   template: 'book',
   minimumOrder: 0,
+  theme: {
+    book: {
+      pageBg: '#fef9c3', // yellow-100 (sol claro)
+      pageText: '#713f12', // yellow-900
+      heading: '#d97706', // amber-600
+      headingSplash: 'rgba(253, 230, 138, 0.9)', // amber-200
+    },
+    card: {
+      name: 'text-amber-900',
+      price: 'text-orange-700',
+      priceBox: 'bg-orange-50 ring-1 ring-orange-200',
+      accent: 'bg-orange-500',
+      accentHover: 'hover:bg-orange-600',
+      badgeBg: 'bg-yellow-400',
+      badgeText: 'text-yellow-950',
+      ring: 'ring-orange-200',
+    }
+  },
   businessHours: { timezone: 'America/Guayaquil', open: 11, close: 22, openMinute: 30, closeMinute: 30, days: [0, 1, 2, 3, 4, 5, 6] },
   // Coordenadas del restaurante (Guayaquil, Ecuador) — ajusta según tu ubicación real
   location: { lat: -2.1710, lng: -79.9224 },

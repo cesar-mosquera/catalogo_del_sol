@@ -73,14 +73,14 @@ export function ProductCard({
         <Image
           src={src}
           alt={product.name}
-          className={`w-full object-cover ${compact ? 'h-36' : 'h-auto'}`}
+          className={`w-full object-cover shrink-0 ${compact ? 'h-24' : 'h-auto'}`}
           width={400}
           height={400}
           loading="lazy"
         />
       ) : (
         <div
-          className={`grid w-full place-items-center border-b border-dashed ${compact ? 'h-32' : 'h-40'} ${
+          className={`grid w-full shrink-0 place-items-center border-b border-dashed ${compact ? 'h-24' : 'h-40'} ${
             t.priceBox ? 'border-[#e9b873]' : 'border-stone-200'
           }`}
           style={{ background: 'linear-gradient(180deg,#ffffff 0%,#f3e5c8 100%)' }}
@@ -94,10 +94,10 @@ export function ProductCard({
         </div>
       )}
 
-      <div className="flex flex-1 flex-col gap-2 p-4">
+      <div className={`flex flex-1 flex-col min-h-0 ${compact ? 'p-2.5 gap-1.5' : 'p-4 gap-2'}`}>
         {/* Nombre y precio */}
         <div className="flex items-start justify-between gap-2">
-          <h3 className={`font-bold ${t.name}`}>{product.name}</h3>
+          <h3 className={`font-bold leading-tight ${compact ? 'text-sm' : 'text-base'} ${t.name}`}>{product.name}</h3>
           <span className={`whitespace-nowrap font-bold ${t.priceBox} ${t.price}`}>
             {product.variants && !selectedVariantId ? (
               // Rango de precios visible antes de elegir opción
@@ -121,13 +121,13 @@ export function ProductCard({
 
         {/* Badge */}
         {product.badge && (
-          <span className={`w-fit rounded-full px-2 py-0.5 text-xs font-semibold ${t.badgeBg} ${t.badgeText}`}>
+          <span className={`w-fit rounded-full px-2 py-0.5 text-[10px] font-semibold ${t.badgeBg} ${t.badgeText}`}>
             {product.badge}
           </span>
         )}
 
         {/* Descripción */}
-        <p className="text-sm text-stone-600">{product.description}</p>
+        <p className={`text-stone-600 leading-snug overflow-y-auto no-scrollbar ${compact ? 'text-xs line-clamp-2' : 'text-sm'}`}>{product.description}</p>
 
         <div className="mt-auto flex flex-col gap-3">
           {/* Selector de variantes (Medio / Completo) — obligatorio */}
