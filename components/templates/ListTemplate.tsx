@@ -308,7 +308,7 @@ export function ListTemplate({ catalog }: { catalog: Catalog }) {
       {catalog.infoImage && (
         <div className="overflow-hidden rounded-[2.2rem] shadow-2xl ring-1" style={{ backgroundColor: '#ffffff' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={asset(catalog.infoImage)} alt="Información" className="w-full object-contain" />
+          <img src={asset(catalog.infoImage)} alt="Información" className="w-full object-contain" loading="lazy" decoding="async" />
         </div>
       )}
 
