@@ -272,8 +272,8 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
               <div className={`relative flex h-full flex-col overflow-hidden text-white`} style={{ backgroundColor: t.coverBg }}>
                 {catalog.coverImage && (
                   <>
-                    <Image src={asset(catalog.coverImage)} alt="" fill priority className="object-cover" style={{ opacity: 0.9 }} sizes="100vw" />
-                    <div className="absolute inset-x-0 bottom-0 h-3/5" style={{ background: 'linear-gradient(to top,rgba(0,0,0,0.85) 0%,transparent 100%)' }} />
+                    <Image src={asset(catalog.coverImage)} alt="" fill priority className="object-cover" sizes="100vw" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-black/20" />
                   </>
                 )}
                 {!catalog.coverImage && (
@@ -286,9 +286,9 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
                     </div>
                   </div>
                 )}
-                <div className="book-cover-content relative z-10 flex h-full flex-col items-center text-center justify-end p-6 pb-32">
+                <div className="book-cover-content relative z-10 flex h-full flex-col items-center text-center justify-center p-6">
                   {catalog.logoImage ? (
-                    <div className="relative mb-auto h-40 w-40 drop-shadow-2xl">
+                    <div className="relative mb-6 h-40 w-40 drop-shadow-2xl">
                       <Image src={asset(catalog.logoImage)} alt="Logo" fill priority className="object-contain" sizes="160px" />
                     </div>
                   ) : (
