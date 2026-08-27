@@ -67,7 +67,7 @@ export function ProductCard({
   };
 
   return (
-    <article className={`overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ${t.ring} flex flex-col h-full`}>
+    <article className={`overflow-y-auto no-scrollbar rounded-2xl bg-white shadow-sm ring-1 ${t.ring} flex flex-col h-full`}>
       {/* Imagen */}
       {src ? (
         <Image

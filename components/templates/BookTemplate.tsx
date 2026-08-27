@@ -49,13 +49,13 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
   const pages = useMemo(() => {
     const pgs: { sectionName: string; products: Product[]; isContinued: boolean; note?: string }[] = [];
     catalog.sections.forEach(sec => {
-      const chunkSize = 2; // Máximo 2 productos por página para evitar scroll vertical
+      const chunkSize = 1; // 1 producto por página para que la imagen sea grande y no haya scroll
       for (let i = 0; i < sec.products.length; i += chunkSize) {
         pgs.push({
           sectionName: sec.name,
           products: sec.products.slice(i, i + chunkSize),
           isContinued: i > 0,
-          note: i === 0 ? sec.note : undefined,
+          note: sec.note
         });
       }
     });
@@ -324,25 +324,31 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
             {/* SECCIONES */}
             {pages.map((page, si) => renderPage(si + 1 + secOffset,
               <div
-                className={`notebook-menu-page relative h-full overflow-hidden p-4 pb-10 flex flex-col ${themed ? 'menu-flat' : ''}`}
+                className={`notebook-menu-page relative h-full overflow-hidden p-4 pb-8 flex flex-col ${themed ? 'menu-flat' : ''}`}
                 style={{ backgroundColor: t.pageBg, '--menu-page-bg': t.pageBg } as React.CSSProperties}
               >
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-60" style={{ color: t.pageText }}>{catalog.name}</p>
-                <div className="relative mt-2 w-fit mb-2">
-                  <span className="absolute -inset-x-2 -inset-y-1 -rotate-2 rounded-lg" style={{ backgroundColor: t.headingSplash }} aria-hidden="true" />
-                  <h2 className="relative font-serif text-xl font-bold" style={{ color: t.heading }}>
-                    {page.sectionName} {page.isContinued && <span className="text-sm font-normal opacity-50">(cont.)</span>}
-                  </h2>
+                <div className="flex-none mb-3">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-60" style={{ color: t.pageText }}>{catalog.name}</p>
+                  <div className="relative mt-2 w-fit mb-2">
+                    <span className="absolute -inset-x-2 -inset-y-1 -rotate-2 rounded-lg" style={{ backgroundColor: t.headingSplash }} aria-hidden="true" />
+                    <h2 className="relative font-serif text-xl font-bold" style={{ color: t.heading }}>
+                      {page.sectionName} {page.isContinued && <span className="text-sm font-normal opacity-50">(cont.)</span>}
+                    </h2>
+                  </div>
+                  {page.note && (
+                    <p className="mb-2 text-xs italic opacity-70" style={{ color: t.pageText }}>{page.note}</p>
+                  )}
                 </div>
-                {page.note && (
-                  <p className="mb-2 text-xs italic opacity-70" style={{ color: t.pageText }}>{page.note}</p>
-                )}
-                <div className="space-y-3 flex-1">
+                
+                <div className="flex-1 h-full min-h-0 w-full overflow-hidden">
                   {page.products.map(p => (
-                    <ProductCard key={p.id} product={p} catalogSlug={catalog.slug} compact theme={catalog.theme?.card} />
+                    <div key={p.id} className="h-full">
+                      <ProductCard product={p} catalogSlug={catalog.slug} compact={false} theme={catalog.theme?.card} />
+                    </div>
                   ))}
                 </div>
-                <p className="mt-4 text-center text-[10px] opacity-50" style={{ color: t.pageText }}>← desliza para ver más →</p>
+                
+                <p className="mt-4 text-center text-[10px] opacity-50 flex-none" style={{ color: t.pageText }}>← desliza para ver más →</p>
               </div>
             ))}
 
