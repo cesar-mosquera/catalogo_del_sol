@@ -100,7 +100,7 @@ export const chifaExcelencia: Catalog = {
       { id: 'wantun-clasico', name: 'Wantán frito clásico (10 unidades)', price: 4.80, description: '', image: '/img/wantan-clasico.webp' },
       { id: 'wantun-camaron-queso', name: 'Wantán relleno camarón y queso (10 unidades)', price: 6.50, description: '', image: '' },
       { id: 'wantun-cangrejo-queso', name: 'Wantán relleno cangrejo y queso (10 unidades)', price: 6.50, description: '', image: '' },
-      { id: 'rollos-primavera', name: 'Rollos primavera (8 unidades)', price: 6.50, description: '', image: '' },
+      { id: 'rollos-primavera', name: 'Rollos primavera (8 unidades)', price: 6.50, description: '', image: '/img/rollo_primavera.webp' },
       { id: 'wantun-mosaico', name: 'Wantán mosaico (12 unidades)', price: 8.50, description: '', image: '' },
       { id: 'con-lu-wantun', name: 'Con Lu Wantán (wantán frito con salsa agridulce)', price: 8.50, description: '', image: '' },
       { id: 'alitas-bbq', name: 'Alitas BBQ (con papas fritas y ensalada)', price: 8.50, description: '', image: '' },
