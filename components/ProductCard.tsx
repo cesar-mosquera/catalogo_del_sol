@@ -65,7 +65,7 @@ export function ProductCard({
     setAdded(false);
     remove(catalogSlug, selectedVariantId || product.id);
   };  return (
-    <article className={`overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ${t.ring} flex ${compact ? 'flex-row h-[140px]' : 'flex-col h-full overflow-y-auto no-scrollbar'}`}>
+    <article className={`overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ${t.ring} flex ${compact ? 'flex-row h-full max-h-[220px]' : 'flex-col h-full overflow-y-auto no-scrollbar'}`}>
       {/* Imagen */}
       {src ? (
         <div className={compact ? 'w-2/5 h-full shrink-0 relative overflow-hidden' : 'w-full'}>
