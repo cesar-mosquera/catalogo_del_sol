@@ -65,24 +65,24 @@ export function ProductCard({
     setAdded(false);
     remove(catalogSlug, selectedVariantId || product.id);
   };  return (
-    <article className={`relative overflow-hidden rounded-2xl shadow-sm ring-1 flex ${compact ? 'flex-row h-full items-stretch p-2 gap-2.5 bg-white/70 backdrop-blur-md ' + t.ring : 'flex-col h-full bg-white overflow-y-auto no-scrollbar ' + t.ring}`}>
+    <article className={`relative overflow-hidden rounded-2xl shadow-sm ring-1 flex flex-col h-full transition-all ${compact ? 'bg-white/80 backdrop-blur-md p-1.5' : 'bg-white'} ${t.ring}`}>
       {/* Imagen */}
       {src ? (
-        <div className={compact ? 'relative w-[88px] h-[88px] shrink-0 self-center' : 'w-full'}>
-          {compact && (
-            <>
-              <div className="absolute -inset-2 rounded-full bg-gradient-to-tr from-orange-300/40 to-yellow-100/60 blur-md pointer-events-none"></div>
-              <svg className="absolute -bottom-3 -left-2 w-8 h-8 text-orange-400 rotate-[-15deg] opacity-70 pointer-events-none z-10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M11.644 1.59a.75.75 0 01.712 0l9.75 5.25a.75.75 0 010 1.32l-9.75 5.25a.75.75 0 01-.712 0l-9.75-5.25a.75.75 0 010-1.32l9.75-5.25z" />
-                <path d="M3.265 10.602l7.668 4.129a2.25 2.25 0 002.134 0l7.668-4.13a.75.75 0 01.712 1.32l-7.668 4.13a3.75 3.75 0 01-3.556 0l-7.668-4.13a.75.75 0 01.712-1.32z" />
-              </svg>
-            </>
-          )}
-          <div className={`relative overflow-hidden w-full h-full ${compact ? 'rounded-xl border-[3px] border-white shadow-md rotate-[-2deg] transition-transform hover:rotate-0' : ''}`}>
+        <div className={`w-full shrink-0 ${compact ? 'p-1.5 pb-0' : ''}`}>
+          <div className={`relative w-full overflow-hidden ${compact ? 'aspect-[4/3] rounded-xl shadow-md border-[3px] border-white rotate-[-1deg] bg-white' : 'aspect-[4/3] rounded-t-xl'}`}>
+            {compact && (
+              <>
+                <div className="absolute -inset-4 rounded-full bg-gradient-to-tr from-orange-400/30 to-yellow-200/50 blur-xl pointer-events-none"></div>
+                <svg className="absolute -bottom-2 -left-2 w-8 h-8 text-orange-400 rotate-[-10deg] opacity-80 pointer-events-none z-10 drop-shadow-md" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M11.644 1.59a.75.75 0 01.712 0l9.75 5.25a.75.75 0 010 1.32l-9.75 5.25a.75.75 0 01-.712 0l-9.75-5.25a.75.75 0 010-1.32l9.75-5.25z" />
+                  <path d="M3.265 10.602l7.668 4.129a2.25 2.25 0 002.134 0l7.668-4.13a.75.75 0 01.712 1.32l-7.668 4.13a3.75 3.75 0 01-3.556 0l-7.668-4.13a.75.75 0 01.712-1.32z" />
+                </svg>
+              </>
+            )}
             <Image
               src={src}
               alt={product.name}
-              className={`w-full object-cover ${compact ? 'absolute inset-0 h-full' : 'h-auto max-h-56'}`}
+              className="absolute inset-0 h-full w-full object-cover transition-transform hover:scale-105"
               width={400}
               height={400}
               loading="lazy"
@@ -91,7 +91,7 @@ export function ProductCard({
         </div>
       ) : (
         <div
-          className={`grid shrink-0 place-items-center border-dashed ${compact ? 'w-[88px] h-[88px] self-center rounded-xl border' : 'w-full h-40 border-b'} ${
+          className={`grid shrink-0 place-items-center border-dashed w-full ${compact ? 'aspect-[4/3] rounded-xl border-[3px] border-white m-1.5' : 'h-40 border-b'} ${
             t.priceBox ? 'border-[#e9b873]' : 'border-stone-200'
           }`}
           style={{ background: 'linear-gradient(180deg,#ffffff 0%,#f3e5c8 100%)' }}
@@ -105,34 +105,35 @@ export function ProductCard({
         </div>
       )}
 
-      <div className={`flex flex-1 flex-col min-h-0 min-w-0 ${compact ? 'py-0.5 justify-center h-full z-10' : 'p-4 gap-2'}`}>
-        {/* Nombre y precio */}
-        <div className={`flex ${compact ? 'flex-col items-start gap-0' : 'items-start justify-between gap-1'}`}>
-          <h3 className={`font-bold leading-tight line-clamp-1 ${compact ? 'text-[12px] font-serif tracking-tight' : 'text-base line-clamp-2'} ${t.name}`}>{product.name}</h3>
-          
-          {!compact && product.description && (
-            <p className="text-sm text-stone-600 leading-snug mb-2 line-clamp-2">
-              {product.description}
-            </p>
-          )}
-
-          <span className={`whitespace-nowrap font-bold ${compact ? 'w-fit' : ''} ${t.priceBox} ${t.price}`}>
+      {/* Info */}
+      <div className={`flex flex-1 flex-col ${compact ? 'p-3 pt-2 gap-1' : 'p-4 gap-2'}`}>
+        <div className="flex items-start justify-between gap-2">
+          <h3 className={`font-bold leading-tight ${compact ? 'text-[13px] font-serif line-clamp-2' : 'text-base line-clamp-2'} ${t.name}`}>
+            {product.name}
+          </h3>
+          <span className={`whitespace-nowrap font-bold shrink-0 ${t.priceBox} ${t.price}`}>
             {product.variants && !selectedVariantId ? (
-              <span className="text-[10px] text-stone-500">
+              <span className="text-[11px] text-stone-500">
                 ${Math.min(...product.variants.map(v => v.price)).toFixed(2)} - ${Math.max(...product.variants.map(v => v.price)).toFixed(2)}
               </span>
             ) : (
-              <span className={`${product.priceNote && !product.variants ? 'text-xs' : (compact ? 'text-[11px]' : 'text-base')}`}>
+              <span className={`${product.priceNote && !product.variants ? 'text-xs' : (compact ? 'text-sm' : 'text-base')}`}>
                 ${displayPrice.toFixed(2)}
               </span>
             )}
           </span>
         </div>
 
+        {product.description && (
+          <p className={`text-stone-600 leading-snug flex-1 ${compact ? 'text-[11px] mt-0.5 line-clamp-3 italic opacity-90' : 'text-sm mb-2 line-clamp-2'}`}>
+            {product.description}
+          </p>
+        )}
+
         {/* Variantes & Botón */}
-        <div className={`mt-auto flex ${compact ? 'flex-row items-center gap-1.5' : 'flex-col gap-2'}`}>
+        <div className={`mt-auto pt-2 flex flex-col gap-2`}>
           {product.variants && product.variants.length > 0 && (
-            <div className={compact ? 'flex-1 min-w-0' : ''}>
+            <div>
               <select
                 value={selectedVariantId}
                 onChange={(e) => {
@@ -140,7 +141,7 @@ export function ProductCard({
                   setError(false);
                 }}
                 className={`w-full rounded-lg border bg-stone-50 font-semibold outline-none focus:ring-1 transition-colors ${
-                  compact ? 'px-1.5 py-0.5 text-[10px] truncate' : 'px-3 py-1.5 text-sm'
+                  compact ? 'px-2 py-1 text-xs truncate' : 'px-3 py-1.5 text-sm'
                 } ${
                   error
                     ? 'border-red-500 ring-1 ring-red-500 text-red-700'
@@ -162,7 +163,7 @@ export function ProductCard({
             </div>
           )}
 
-          <div className={`flex items-center ${compact ? 'shrink-0' : 'gap-2'}`}>
+          <div className={`flex items-center gap-2`}>
             {!compact && product.demoUrl && (
               <a
                 href={`/menu${product.demoUrl}`}
@@ -174,17 +175,17 @@ export function ProductCard({
               </a>
             )}
             {quantity > 0 ? (
-              <div className={`flex items-center gap-0.5 ${compact ? 'rounded-md px-1 py-0.5' : 'flex-1 justify-between rounded-xl px-1.5 py-1'} text-white shadow-sm transition-colors duration-100 ${added ? 'bg-green-600' : t.accent}`}>
-                <button onClick={handleRemove} className={`grid ${compact ? 'h-5 w-5 text-[10px] rounded' : 'h-8 w-8 text-lg rounded-lg'} place-items-center font-bold transition-colors hover:bg-white/20 active:scale-90`}>−</button>
-                <span className={`${compact ? 'min-w-3 text-[10px]' : 'min-w-4 text-sm'} text-center font-black`}>{added ? '✓' : quantity}</span>
-                <button onClick={handleAdd} className={`grid ${compact ? 'h-5 w-5 text-[10px] rounded' : 'h-8 w-8 text-lg rounded-lg'} place-items-center font-bold transition-colors hover:bg-white/20 active:scale-90`}>+</button>
+              <div className={`flex-1 flex items-center justify-between rounded-xl px-2 py-1 text-white shadow-sm transition-colors duration-100 ${added ? 'bg-green-600' : t.accent}`}>
+                <button onClick={handleRemove} className="grid h-8 w-8 text-lg rounded-lg place-items-center font-bold transition-colors hover:bg-white/20 active:scale-90">−</button>
+                <span className={`text-center font-black ${compact ? 'text-xs' : 'text-sm'}`}>{added ? '✓' : quantity}</span>
+                <button onClick={handleAdd} className="grid h-8 w-8 text-lg rounded-lg place-items-center font-bold transition-colors hover:bg-white/20 active:scale-90">+</button>
               </div>
             ) : (
               <button
                 onClick={handleAdd}
-                className={`font-bold transition-colors duration-100 whitespace-nowrap ${compact ? 'rounded-md px-2 py-0.5 text-[10px]' : 'flex-1 rounded-xl px-3 py-2 text-sm'} ${added ? 'bg-green-600 text-white' : `${t.accent} ${t.accentHover} text-white`}`}
+                className={`flex-1 font-bold rounded-xl transition-colors duration-100 whitespace-nowrap ${compact ? 'py-1.5 text-xs' : 'px-3 py-2 text-sm'} ${added ? 'bg-green-600 text-white shadow-md shadow-green-600/30' : `${t.accent} ${t.accentHover} text-white shadow-md shadow-orange-500/20`}`}
               >
-                {added ? (compact ? '✓' : '¡Agregado!') : (compact ? '+ Agregar' : 'Agregar')}
+                {added ? '✓ ¡Agregado!' : '+ Agregar al pedido'}
               </button>
             )}
           </div>

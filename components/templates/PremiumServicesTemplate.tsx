@@ -675,7 +675,7 @@ function ComparisonTable({ catalog }: { catalog: Catalog }) {
 
   return (
     <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-      <div className="min-w-[580px] rounded-2xl border border-stone-200/60 bg-white/60 p-3 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.03)] sm:rounded-[2rem] sm:p-5 sm:shadow-[0_20px_50px_rgb(0,0,0,0.05)]">
+      <div className="min-w-[580px] rounded-2xl border border-stone-200/60 bg-white/60 p-2 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.03)] sm:rounded-2xl sm:p-4 sm:shadow-[0_20px_50px_rgb(0,0,0,0.05)]">
         {/* Cabecera con los planes */}
         <div className="grid grid-cols-[1.1fr_repeat(3,1fr)] gap-2">
           <div className="flex items-center px-3 text-xs font-semibold uppercase tracking-widest text-stone-400">Qué incluye</div>
@@ -763,7 +763,7 @@ function FaqSection({ catalog }: { catalog: Catalog }) {
   );
 
   return (
-    <section id="faq" className="relative z-10 mx-auto max-w-4xl animate-fade-in-up scroll-mt-24 sm:scroll-mt-28" style={{ animationDelay: '0.8s' }}>
+    <section id="faq" className="relative z-10 mx-auto max-w-4xl animate-fade-in-up scroll-mt-20 sm:scroll-mt-24" style={{ animationDelay: '0.8s' }}>
       <SectionHeading
         kicker="Sin letra pequeña"
         title="Preguntas Frecuentes"
@@ -786,7 +786,7 @@ function FaqSection({ catalog }: { catalog: Catalog }) {
       ) : (
         <div className="flex flex-col gap-2 sm:gap-3">
           {faq.map((f) => (
-            <details key={f.q} name="faq" className="group rounded-xl border border-stone-200/60 bg-white/60 p-4 shadow-sm backdrop-blur-md transition-all hover:shadow-md sm:rounded-[2rem] sm:p-6">
+            <details key={f.q} name="faq" className="group rounded-xl border border-stone-200/60 bg-white/60 p-3 shadow-sm backdrop-blur-md transition-all hover:shadow-md sm:rounded-2xl sm:p-4">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-base font-normal text-stone-700 outline-none sm:gap-4 sm:text-lg">
                 <span>{f.q}</span>
                 <span className="flex-shrink-0 text-xl font-light text-teal-400 transition-transform duration-300 group-open:rotate-180 sm:text-2xl">↓</span>
@@ -859,7 +859,7 @@ function FinalCta({ catalog }: { catalog: Catalog }) {
   const wa = `https://wa.me/${catalog.phone}?text=${encodeURIComponent('Hola, tengo una duda sobre los catálogos digitales.')}`;
   return (
     <section id="contacto" className="relative z-10 mx-auto max-w-4xl animate-fade-in-up scroll-mt-24 sm:scroll-mt-28" style={{ animationDelay: '0.9s' }}>
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-stone-800 via-stone-900 to-stone-800 p-6 text-center text-white shadow-xl shadow-stone-900/20 sm:rounded-[3rem] sm:p-10 md:p-14 sm:shadow-2xl">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-stone-800 via-stone-900 to-stone-800 p-5 text-center text-white shadow-xl shadow-stone-900/20 sm:rounded-3xl sm:p-8 md:p-10 sm:shadow-2xl">
         <div className="absolute -left-12 -top-12 h-40 w-40 rounded-full bg-teal-400/10 blur-2xl sm:-left-16 sm:-top-16 sm:h-56 sm:w-56" />
         <div className="absolute -bottom-16 -right-12 h-48 w-48 rounded-full bg-teal-400/10 blur-2xl sm:-bottom-20 sm:-right-16 sm:h-64 sm:w-64" />
         <p className="relative text-[10px] font-semibold uppercase tracking-[0.25em] text-teal-300/80 sm:text-xs sm:tracking-[0.3em]">Empecemos hoy</p>
@@ -962,13 +962,13 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
       <div className="absolute -bottom-32 left-20 w-[500px] h-[500px] bg-teal-50/20 rounded-full filter blur-3xl opacity-50 animate-blob animation-delay-4000" />
 
       {/* ═══════════ HEADER ═══════════ */}
-      <header className="relative z-10 overflow-hidden bg-[#0f2b28] text-white">
+      <header className="relative z-10 overflow-hidden bg-gradient-to-b from-stone-900 to-stone-800 text-white">
         {/* Fondo: auroras + rejilla + grano */}
         <div className="absolute inset-0">
-          <div className="absolute -left-[12%] -top-[25%] h-[620px] w-[620px] rounded-full bg-teal-500/40 blur-[110px] animate-blob" />
-          <div className="absolute right-[-10%] top-[5%] h-[540px] w-[540px] rounded-full bg-teal-400/35 blur-[110px] animate-blob animation-delay-2000" />
-          <div className="absolute bottom-[-20%] left-[35%] h-[520px] w-[520px] rounded-full bg-cyan-400/25 blur-[120px] animate-blob animation-delay-4000" />
-          <div className="absolute left-[30%] top-[30%] h-[400px] w-[400px] rounded-full bg-teal-300/20 blur-[90px] animate-blob animation-delay-2000" />
+          <div className="absolute -left-[12%] -top-[25%] h-[620px] w-[620px] rounded-full bg-amber-400/20 blur-[110px] animate-blob" />
+          <div className="absolute right-[-10%] top-[5%] h-[540px] w-[540px] rounded-full bg-orange-300/15 blur-[110px] animate-blob animation-delay-2000" />
+          <div className="absolute bottom-[-20%] left-[35%] h-[520px] w-[520px] rounded-full bg-yellow-300/10 blur-[120px] animate-blob animation-delay-4000" />
+          <div className="absolute left-[30%] top-[30%] h-[400px] w-[400px] rounded-full bg-amber-200/10 blur-[90px] animate-blob animation-delay-2000" />
           <div
             className="absolute inset-0 opacity-20"
             style={{
@@ -1005,15 +1005,15 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
             <div className="w-full text-center lg:text-left animate-fade-in-up lg:col-start-1 lg:row-start-1 lg:self-end">
               <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-3 py-1.5 shadow-lg backdrop-blur-md sm:mb-7 sm:gap-2.5 sm:px-4 sm:py-2">
                 <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal-400 opacity-80" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-teal-400" />
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-80" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-400" />
                 </span>
-                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-teal-200/80 sm:text-[11px] sm:tracking-[0.25em]">{catalog.tagline}</span>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-200/80 sm:text-[11px] sm:tracking-[0.25em]">{catalog.tagline}</span>
               </div>
 
               <h1 className="text-[2rem] font-light leading-[1.1] tracking-wide sm:text-5xl lg:text-[4rem] font-display">
                 Tu negocio convertido en un{' '}
-                <span className="bg-gradient-to-r from-teal-200 via-teal-300 to-teal-200 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-amber-200 via-amber-300 to-amber-200 bg-clip-text text-transparent">
                   catálogo que enamora
                 </span>
               </h1>
@@ -1135,7 +1135,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
       {/* ═══════════ PLANES ═══════════ */}
       <main className="relative z-10 mx-auto max-w-7xl px-4 py-6 sm:px-5 sm:py-8">
         <div className="space-y-10 sm:space-y-14">
-          <section id="planes" className="scroll-mt-28">
+          <section id="planes" className="scroll-mt-20">
             <SectionHeading
               kicker="Tres modelos, un objetivo"
               title="Elige el catálogo perfecto para tu negocio"
@@ -1229,7 +1229,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
 
           {/* ═══════════ RECOMENDADOR ═══════════ */}
           {plans.length > 0 && (
-            <section id="recomendador" className="scroll-mt-28">
+            <section id="recomendador" className="scroll-mt-20">
               <SectionHeading
                 kicker="30 segundos"
                 title="¿No sabes cuál elegir? Te ayudamos"
@@ -1243,7 +1243,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
 
           {/* ═══════════ COMPARACIÓN ═══════════ */}
           {(catalog.comparison?.length ?? 0) > 0 && (
-            <section id="comparar" className="scroll-mt-28">
+            <section id="comparar" className="scroll-mt-20">
               <SectionHeading
                 kicker="Todo claro"
                 title="Compara los planes de un vistazo"
@@ -1257,7 +1257,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
 
           {/* ═══════════ PARA QUÉ NEGOCIOS ═══════════ */}
           {(catalog.businessTypes?.length ?? 0) > 0 && (
-            <section id="negocios" className="scroll-mt-28">
+            <section id="negocios" className="scroll-mt-20">
               <SectionHeading
                 kicker="¿Es para mi negocio?"
                 title="Hecho para negocios como el tuyo"
@@ -1275,21 +1275,21 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
 
           {/* ═══════════ QUÉ NECESITAS ENTREGARME ═══════════ */}
           {(catalog.handoff?.length ?? 0) > 0 && (
-            <section id="entregar" className="scroll-mt-28">
+            <section id="entregar" className="scroll-mt-20">
               <SectionHeading
                 kicker="Nada complicado"
                 title="¿Qué necesitas entregarme para empezar?"
                 sub="Menos de lo que crees. Todo se puede enviar por WhatsApp o foto."
               />
               <Reveal>
-              <div className="grid gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
+              <div className="grid gap-2 sm:grid-cols-2 sm:gap-3 lg:grid-cols-4">
                 {catalog.handoff!.map((h, i) => (
-                  <div key={h.title} className="group rounded-xl border border-stone-200/60 bg-white/60 p-4 text-center shadow-sm backdrop-blur-md transition-all duration-400 hover:-translate-y-1 hover:shadow-md animate-fade-in-up sm:rounded-[2rem] sm:p-6 sm:hover:-translate-y-2 sm:hover:shadow-xl" style={{ animationDelay: `${i * 0.1}s` }}>
-                    <span className="inline-grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-teal-50 to-teal-100 text-2xl shadow-inner transition-transform duration-400 group-hover:scale-110 sm:h-16 sm:w-16 sm:rounded-2xl sm:text-3xl">
+                  <div key={h.title} className="group rounded-xl border border-stone-200/60 bg-white/60 p-3 text-center shadow-sm backdrop-blur-md transition-all duration-400 hover:-translate-y-1 hover:shadow-md animate-fade-in-up sm:rounded-2xl sm:p-4 sm:hover:-translate-y-2 sm:hover:shadow-xl" style={{ animationDelay: `${i * 0.1}s` }}>
+                    <span className="inline-grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-teal-50 to-teal-100 text-xl shadow-inner transition-transform duration-400 group-hover:scale-110 sm:h-12 sm:w-12 sm:rounded-2xl sm:text-2xl">
                       {h.icon}
                     </span>
-                    <h3 className="mt-3 text-sm font-semibold text-stone-700 sm:mt-4 sm:text-base">{h.title}</h3>
-                    <p className="mt-1.5 text-xs font-normal leading-relaxed text-stone-500 sm:mt-2 sm:text-sm">{h.text}</p>
+                    <h3 className="mt-2 text-xs font-semibold text-stone-700 sm:mt-3 sm:text-sm">{h.title}</h3>
+                    <p className="mt-1 text-[10px] font-normal leading-relaxed text-stone-500 sm:mt-1.5 sm:text-xs">{h.text}</p>
                   </div>
                 ))}
               </div>
@@ -1299,7 +1299,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
 
           {/* ═══════════ PROCESO ═══════════ */}
           {(catalog.process?.length ?? 0) > 0 && (
-            <section id="proceso" className="scroll-mt-28">
+            <section id="proceso" className="scroll-mt-20">
               <SectionHeading
                 kicker="Simple y sin sorpresas"
                 title="¿Qué pasa después de tu compra?"
@@ -1324,7 +1324,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
 
           {/* ═══════════ PAGO, GARANTÍA Y COSTOS ═══════════ */}
           {(catalog.payment?.length || catalog.guarantee || catalog.recurringCosts?.length || catalog.upgradePolicy) ? (
-            <section id="pagos" className="scroll-mt-28">
+            <section id="pagos" className="scroll-mt-20">
               <SectionHeading
                 kicker="Transparencia total"
                 title="Pago, garantía y costos que debes conocer"
@@ -1354,9 +1354,9 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                   )}
 
                   {catalog.recurringCosts && (
-                    <div className="rounded-xl border border-stone-200/60 bg-white/60 p-4 shadow-sm backdrop-blur-md transition-shadow hover:shadow-md sm:rounded-[2rem] sm:p-7 sm:hover:shadow-xl">
-                      <h3 className="flex items-center gap-2 text-base font-semibold text-stone-700 sm:gap-3 sm:text-lg">💡 Costos que debes conocer</h3>
-                      <ul className="mt-3 space-y-2 sm:mt-4 sm:space-y-2.5">
+                    <div className="rounded-xl border border-stone-200/60 bg-white/60 p-3 shadow-sm backdrop-blur-md transition-shadow hover:shadow-md sm:rounded-2xl sm:p-5 sm:hover:shadow-xl">
+                      <h3 className="flex items-center gap-2 text-sm font-semibold text-stone-700 sm:gap-3 sm:text-base">💡 Costos que debes conocer</h3>
+                      <ul className="mt-2 space-y-1.5 sm:mt-3 sm:space-y-2">
                         {catalog.recurringCosts.map((c) => (
                           <li key={c} className="flex items-start gap-2 text-xs font-normal text-stone-600 sm:gap-3 sm:text-sm">
                             <span className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-teal-50 border border-teal-200/60 text-[9px] font-semibold text-teal-600 sm:h-5 sm:w-5 sm:text-[10px]">→</span>
@@ -1368,9 +1368,9 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                   )}
 
                   {catalog.upgradePolicy && (
-                    <div className="rounded-xl border border-stone-200/60 bg-white/60 p-4 shadow-sm backdrop-blur-md transition-shadow hover:shadow-md sm:rounded-[2rem] sm:p-7 sm:hover:shadow-xl">
-                      <h3 className="flex items-center gap-2 text-base font-semibold text-stone-700 sm:gap-3 sm:text-lg">🔄 ¿Puedo cambiar de plan?</h3>
-                      <p className="mt-3 text-xs font-normal leading-relaxed text-stone-600 sm:mt-4 sm:text-sm">{catalog.upgradePolicy}</p>
+                    <div className="rounded-xl border border-stone-200/60 bg-white/60 p-3 shadow-sm backdrop-blur-md transition-shadow hover:shadow-md sm:rounded-2xl sm:p-5 sm:hover:shadow-xl">
+                      <h3 className="flex items-center gap-2 text-sm font-semibold text-stone-700 sm:gap-3 sm:text-base">🔄 ¿Puedo cambiar de plan?</h3>
+                      <p className="mt-2 text-xs font-normal leading-relaxed text-stone-600 sm:mt-3 sm:text-sm">{catalog.upgradePolicy}</p>
                     </div>
                   )}
                 </div>
@@ -1389,7 +1389,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-stone-200/40 bg-white/20 py-12 text-center backdrop-blur-xl">
+      <footer className="relative z-10 border-t border-stone-200/40 bg-white/20 py-6 text-center backdrop-blur-xl">
         <p className="text-xs font-semibold uppercase tracking-widest text-stone-400">Powered by Catálogos Digitales</p>
       </footer>
     </div>
