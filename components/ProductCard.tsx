@@ -119,29 +119,59 @@ export function ProductCard({
         {/* Variantes & Botón */}
         <div className="mt-auto flex flex-col gap-2">
           {product.variants && product.variants.length > 0 && (
-            <select
-              value={selectedVariantId}
-              onChange={(e) => { setSelectedVariantId(e.target.value); setError(false); }}
-              className={`w-full rounded-lg border bg-stone-50 px-2 py-1 text-xs font-semibold outline-none focus:ring-1 ${error ? 'border-red-500 ring-red-500' : 'border-stone-200'}`}
-            >
-              <option value="" disabled>Elegir opción...</option>
-              {product.variants.map(v => <option key={v.id} value={v.id}>{v.name} — ${v.price.toFixed(2)}</option>)}
-            </select>
+            <div>
+              <select
+                value={selectedVariantId}
+                onChange={(e) => {
+                  setSelectedVariantId(e.target.value);
+                  setError(false);
+                }}
+                className={`w-full rounded-lg border bg-stone-50 font-semibold outline-none focus:ring-1 transition-colors ${
+                  compact ? 'px-2 py-1 text-xs' : 'px-3 py-1.5 text-sm'
+                } ${
+                  error
+                    ? 'border-red-500 ring-1 ring-red-500 text-red-700'
+                    : 'border-stone-200 text-stone-700 focus:border-orange-500 focus:ring-orange-500'
+                }`}
+              >
+                <option value="" disabled>Seleccionar opción...</option>
+                {product.variants.map(v => (
+                  <option key={v.id} value={v.id}>
+                    {v.name} — ${v.price.toFixed(2)}
+                  </option>
+                ))}
+              </select>
+              {error && !compact && (
+                <p className="mt-1 text-xs font-semibold text-red-600">
+                  ⚠ Elige una opción
+                </p>
+              )}
+            </div>
           )}
 
           <div className="flex items-center gap-2">
+            {product.demoUrl && !compact && (
+              <a
+                href={`/menu${product.demoUrl}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 rounded-xl bg-stone-100 px-3 py-2 text-center text-sm font-semibold text-stone-700 transition-colors hover:bg-stone-200"
+              >
+                👀 Ver Demo
+              </a>
+            )}
             {quantity > 0 ? (
-              <div className={`flex flex-1 items-center justify-between gap-1 rounded-lg px-1.5 py-1 text-white shadow-sm transition-colors duration-100 ${added ? 'bg-green-600' : t.accent}`}>
-                <button onClick={handleRemove} className="grid h-6 w-6 place-items-center rounded text-base font-bold transition-colors hover:bg-white/20">−</button>
-                <span className="min-w-4 text-center text-xs font-black">{added ? '✓' : quantity}</span>
-                <button onClick={handleAdd} className="grid h-6 w-6 place-items-center rounded text-base font-bold transition-colors hover:bg-white/20">+</button>
+              <div className={`flex flex-1 items-center justify-between gap-1 ${compact ? 'rounded-lg px-1.5 py-1' : 'rounded-xl px-1.5 py-1'} text-white shadow-sm transition-colors duration-100 ${added ? 'bg-green-600' : t.accent}`}>
+                <button onClick={handleRemove} className={`grid ${compact ? 'h-6 w-6 text-base rounded' : 'h-8 w-8 text-lg rounded-lg'} place-items-center font-bold transition-colors hover:bg-white/20 active:scale-90`}>−</button>
+                <span className={`min-w-4 text-center font-black ${compact ? 'text-xs' : 'text-sm'}`}>{added ? '✓' : quantity}</span>
+                <button onClick={handleAdd} className={`grid ${compact ? 'h-6 w-6 text-base rounded' : 'h-8 w-8 text-lg rounded-lg'} place-items-center font-bold transition-colors hover:bg-white/20 active:scale-90`}>+</button>
               </div>
             ) : (
               <button
                 onClick={handleAdd}
-                className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-bold transition-colors duration-100 ${added ? 'bg-green-600 text-white' : `${t.accent} ${t.accentHover} text-white`}`}
+                className={`flex-1 font-bold transition-colors duration-100 ${compact ? 'rounded-lg px-2 py-1.5 text-xs' : 'rounded-xl px-3 py-2 text-sm'} ${added ? 'bg-green-600 text-white' : `${t.accent} ${t.accentHover} text-white`}`}
               >
-                {added ? 'Agregado ✓' : 'Agregar'}
+                {added ? (compact ? 'Agregado ✓' : '¡Agregado!') : 'Agregar'}
               </button>
             )}
           </div>
