@@ -25,10 +25,10 @@ const EMBERS = Array.from({ length: 22 }).map((_, i) => ({
 function SectionHeading({ kicker, title, sub }: { kicker: string; title: string; sub?: string }) {
   return (
     <div className="mb-5 text-center sm:mb-8">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-teal-600 sm:text-xs sm:tracking-[0.35em]">{kicker}</p>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-amber-600 sm:text-xs sm:tracking-[0.35em]">{kicker}</p>
       <h2 className="mt-1 text-xl font-light tracking-wide font-display sm:mt-2 sm:text-2xl md:text-3xl">{title}</h2>
       {sub && <p className="mx-auto mt-2 max-w-xl text-xs font-normal text-stone-500 leading-relaxed sm:mt-3 sm:max-w-2xl sm:text-sm">{sub}</p>}
-      <div className="mx-auto mt-3 h-px w-12 bg-gradient-to-r from-transparent via-teal-300 to-transparent sm:mt-4 sm:w-20" />
+      <div className="mx-auto mt-3 h-px w-12 bg-gradient-to-r from-transparent via-amber-300 to-transparent sm:mt-4 sm:w-20" />
     </div>
   );
 }
@@ -259,11 +259,11 @@ function PhoneDemo({ demos, catalogSlug }: { demos: HeroDemo[]; catalogSlug: str
 
   return (
     <div className="relative mx-auto w-full max-w-[280px] sm:max-w-[380px] lg:max-w-[400px] animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-      <div className="absolute inset-0 scale-90 rounded-full bg-gradient-to-tr from-teal-400/30 to-cyan-300/20 blur-[90px] animate-blob" />
+      <div className="absolute inset-0 scale-90 rounded-full bg-gradient-to-tr from-amber-400/30 to-orange-300/20 blur-[90px] animate-blob" />
 
       {/* Aviso "tócalo" — arriba en desktop, abajo en mobile para no cortar */}
       <div className="hidden sm:block absolute -top-10 left-1/2 z-20 -translate-x-1/2 animate-wiggle">
-        <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/40 px-4 py-2 text-[11px] font-black uppercase tracking-widest text-teal-200 shadow-xl backdrop-blur-md">
+        <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/40 px-4 py-2 text-[11px] font-black uppercase tracking-widest text-amber-200 shadow-xl backdrop-blur-md">
           👆 Toca el celular <span className="animate-bounce-x">→</span>
         </span>
       </div>
@@ -296,7 +296,7 @@ function PhoneDemo({ demos, catalogSlug }: { demos: HeroDemo[]; catalogSlug: str
             onClick={(e) => { e.stopPropagation(); setI(idx); }}
             aria-label={`Ver ${dm.name}`}
             className={`h-2.5 rounded-full transition-all duration-300 ${
-              idx === i ? 'w-7 bg-gradient-to-r from-teal-300 to-teal-400' : 'w-2.5 bg-stone-300/40 hover:bg-stone-300/70'
+              idx === i ? 'w-7 bg-gradient-to-r from-amber-300 to-orange-400' : 'w-2.5 bg-stone-300/40 hover:bg-stone-300/70'
             }`}
           />
         ))}
@@ -304,14 +304,14 @@ function PhoneDemo({ demos, catalogSlug }: { demos: HeroDemo[]; catalogSlug: str
 
       {/* Tarjeta flotante derecha — solo desktop */}
       <div className="hidden sm:block absolute -right-3 top-1/3 z-20 animate-float rounded-2xl border border-white/30 bg-white/15 px-4 py-3 shadow-2xl backdrop-blur-md" style={{ animationDelay: '1.8s' }}>
-        <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-teal-600">{d.tag || 'Demo en vivo'}</p>
+        <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-amber-500">{d.tag || 'Demo en vivo'}</p>
         <p className="text-sm font-black text-white">{d.name}</p>
         {d.demoUrl ? (
           <a
             href={`${BASE_PATH}${d.demoUrl}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-1 inline-flex items-center gap-1 text-[11px] font-black text-emerald-300 hover:text-teal-200"
+            className="mt-1 inline-flex items-center gap-1 text-[11px] font-black text-amber-300 hover:text-amber-200"
             onClick={(e) => e.stopPropagation()}
           >
             Probar en vivo →
@@ -323,13 +323,13 @@ function PhoneDemo({ demos, catalogSlug }: { demos: HeroDemo[]; catalogSlug: str
 
       {/* Tarjeta flotante izquierda — solo desktop */}
       <div className="hidden sm:block absolute -left-4 top-10 z-20 animate-float rounded-2xl border border-white/30 bg-white/15 px-4 py-3 shadow-2xl backdrop-blur-md" style={{ animationDelay: '0.9s' }}>
-        <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-teal-600">Pedido recibido</p>
+        <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-amber-500">Pedido recibido</p>
         <p className="text-sm font-black text-white">✅ Directo a tu WhatsApp</p>
       </div>
 
       {/* Badge "tócalo" en mobile — debajo del teléfono */}
       <div className="mt-8 flex justify-center sm:hidden">
-        <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/40 px-4 py-2 text-[11px] font-black uppercase tracking-widest text-teal-200 shadow-xl backdrop-blur-md">
+        <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/40 px-4 py-2 text-[11px] font-black uppercase tracking-widest text-amber-200 shadow-xl backdrop-blur-md">
           👆 Toca para ver el siguiente
         </span>
       </div>
@@ -369,7 +369,7 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
       onMouseLeave={() => setSpot(null)}
       className={`group relative flex flex-col overflow-hidden rounded-2xl transition-all duration-500 hover:-translate-y-2 sm:rounded-[2.5rem] lg:rounded-[2.5rem] ${
         isPopular
-          ? 'bg-white/90 backdrop-blur-3xl border-2 border-teal-200 shadow-[0_20px_40px_-10px_rgba(217,165,116,0.2)] sm:border-teal-300 sm:shadow-[0_30px_60px_-15px_rgba(217,165,116,0.25)] sm:scale-[1.02] sm:z-10'
+          ? 'bg-white/90 backdrop-blur-3xl border-2 border-amber-200 shadow-[0_20px_40px_-10px_rgba(217,165,116,0.2)] sm:border-amber-300 sm:shadow-[0_30px_60px_-15px_rgba(217,165,116,0.25)] sm:scale-[1.02] sm:z-10'
           : 'bg-white/60 backdrop-blur-xl border border-stone-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:bg-white/80 hover:shadow-[0_12px_30px_rgb(0,0,0,0.06)] sm:shadow-[0_8px_30px_rgb(0,0,0,0.05)]'
       }`}>
 
@@ -385,11 +385,11 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
       {bursting && <ConfettiBurst />}
 
       {isPopular && (
-        <div className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-gradient-to-br from-teal-300/20 to-cyan-200/20 blur-3xl sm:h-64 sm:w-64" />
+        <div className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-gradient-to-br from-amber-300/20 to-orange-200/20 blur-3xl sm:h-64 sm:w-64" />
       )}
 
       {/* Header de la tarjeta */}
-      <div className="relative h-36 w-full overflow-hidden bg-gradient-to-br from-teal-50 via-stone-50 to-cyan-50 flex items-center justify-center border-b border-stone-200/40 sm:h-52">
+      <div className="relative h-36 w-full overflow-hidden bg-gradient-to-br from-amber-50 via-stone-50 to-orange-50 flex items-center justify-center border-b border-stone-200/40 sm:h-52">
         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_50%_0%,rgba(217,165,116,0.5),rgba(255,255,255,0))] transition-opacity duration-500 group-hover:opacity-40" />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -403,7 +403,7 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
         <div className="flex justify-between items-start gap-2 sm:gap-4">
           <h3 className="text-lg font-light tracking-wide font-display leading-tight sm:text-2xl">{product.name}</h3>
           {product.badge && (
-            <span className="flex-shrink-0 rounded-full bg-gradient-to-r from-teal-500 to-teal-600 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.15em] text-white shadow-md sm:px-3 sm:py-1 sm:text-[10px] sm:tracking-[0.2em]">
+            <span className="flex-shrink-0 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.15em] text-white shadow-md sm:px-3 sm:py-1 sm:text-[10px] sm:tracking-[0.2em]">
               {product.badge}
             </span>
           )}
@@ -418,7 +418,7 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
         </div>
 
         {product.deliveryDays && (
-          <p className="mt-2 inline-flex w-fit items-center gap-1 rounded-full bg-teal-50 border border-teal-200/60 px-2 py-0.5 text-[10px] font-semibold text-teal-700 sm:mt-2 sm:gap-1.5 sm:px-3 sm:py-1 sm:text-xs">
+          <p className="mt-2 inline-flex w-fit items-center gap-1 rounded-full bg-amber-50 border border-amber-200/60 px-2 py-0.5 text-[10px] font-semibold text-amber-700 sm:mt-2 sm:gap-1.5 sm:px-3 sm:py-1 sm:text-xs">
             ⏱ {product.deliveryDays}
           </p>
         )}
@@ -427,7 +427,7 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
         <ul className="mt-2 mb-3 flex flex-1 flex-col gap-1.5 sm:mt-4 sm:mb-5 sm:gap-2">
           {product.description.split(/\.\s+/).filter(Boolean).slice(0, 4).map((line, i) => (
             <li key={i} className="flex items-start gap-2 text-xs font-normal leading-relaxed text-stone-600 sm:gap-3 sm:text-sm">
-              <div className="mt-0.5 flex h-3.5 w-3.5 flex-shrink-0 items-center justify-center rounded-full bg-teal-100 text-[8px] font-bold text-teal-700 sm:h-4 sm:w-4 sm:text-[9px]">
+              <div className="mt-0.5 flex h-3.5 w-3.5 flex-shrink-0 items-center justify-center rounded-full bg-amber-100 text-[8px] font-bold text-amber-700 sm:h-4 sm:w-4 sm:text-[9px]">
                 ✓
               </div>
               <span>{line.replace(/\.$/, '')}</span>
@@ -491,13 +491,13 @@ function AddonServiceCard({ product, catalogSlug }: { product: Product; catalogS
   };
 
   return (
-    <div className="group relative flex flex-col rounded-2xl bg-white/60 backdrop-blur-md p-4 shadow-sm border border-stone-200/60 transition-all duration-400 hover:bg-white hover:border-teal-200 hover:shadow-lg hover:-translate-y-1 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:rounded-[2rem] sm:p-6">
+    <div className="group relative flex flex-col rounded-2xl bg-white/60 backdrop-blur-md p-4 shadow-sm border border-stone-200/60 transition-all duration-400 hover:bg-white hover:border-amber-200 hover:shadow-lg hover:-translate-y-1 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:rounded-2xl sm:p-5">
       {bursting && <ConfettiBurst />}
       <div className="flex-1">
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-          <h4 className="text-base font-light tracking-wide font-display sm:text-lg">{product.name}</h4>
+          <h4 className="text-sm font-light tracking-wide font-display sm:text-base">{product.name}</h4>
           {product.badge && (
-            <span className="rounded-full bg-teal-50 border border-teal-200/60 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-widest text-teal-700 sm:px-3 sm:py-1 sm:text-[10px]">
+            <span className="rounded-full bg-amber-50 border border-amber-200/60 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-widest text-amber-700 sm:px-3 sm:py-1 sm:text-[10px]">
               {product.badge}
             </span>
           )}
@@ -509,7 +509,7 @@ function AddonServiceCard({ product, catalogSlug }: { product: Product; catalogS
         <button
           onClick={handleAdd}
           className={`rounded-lg px-4 py-2 text-xs font-semibold uppercase tracking-widest transition-all active:scale-95 sm:rounded-xl sm:px-5 sm:py-2.5 ${
-            added ? 'bg-teal-500 text-white shadow-lg shadow-teal-500/20' : 'bg-stone-100 text-stone-700 hover:bg-stone-800 hover:text-white'
+            added ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-stone-100 text-stone-700 hover:bg-stone-800 hover:text-white'
           }`}
         >
           {added ? '✓ Añadido' : '+ Agregar'}
@@ -591,28 +591,28 @@ function PlanRecommender({ plans, catalogSlug }: { plans: Product[]; catalogSlug
 
   if (isDone && recommended) {
     return (
-      <div className="mx-auto max-w-2xl rounded-[2.5rem] border border-stone-200/60 bg-white/70 p-8 text-center shadow-[0_20px_50px_rgb(0,0,0,0.05)] backdrop-blur-md animate-fade-in-up">
-        <div className="text-5xl">🎉</div>
-        <p className="mt-3 text-xs font-semibold uppercase tracking-[0.3em] text-teal-600">Nuestra recomendación</p>
-        <h3 className="mt-2 text-3xl font-light tracking-wide font-display text-stone-800">{recommended.name}</h3>
-        <p className="mt-3 font-normal leading-relaxed text-stone-500">{why[recommended.id]}</p>
-        <div className="mt-5 flex items-baseline justify-center gap-2">
-          <span className="text-4xl font-light tracking-tight text-teal-600 font-display">${recommended.price.toFixed(0)}</span>
+      <div className="mx-auto max-w-2xl rounded-2xl border border-stone-200/60 bg-white/70 p-6 text-center shadow-[0_20px_50px_rgb(0,0,0,0.05)] backdrop-blur-md animate-fade-in-up">
+        <div className="text-4xl">🎉</div>
+        <p className="mt-2 text-xs font-semibold uppercase tracking-[0.3em] text-amber-600">Nuestra recomendación</p>
+        <h3 className="mt-2 text-2xl font-light tracking-wide font-display text-stone-800">{recommended.name}</h3>
+        <p className="mt-2 font-normal leading-relaxed text-stone-500">{why[recommended.id]}</p>
+        <div className="mt-4 flex items-baseline justify-center gap-2">
+          <span className="text-3xl font-light tracking-tight text-amber-600 font-display">${recommended.price.toFixed(0)}</span>
           <span className="text-sm font-semibold uppercase tracking-widest text-stone-400">pago único</span>
         </div>
-        <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3">
+        <div className="mt-5 flex flex-col sm:flex-row justify-center gap-3">
           <button
             onClick={() => { add(catalogSlug, recommended); setAdded(true); setTimeout(() => setAdded(false), 1400); }}
-            className={`rounded-2xl px-6 py-3.5 text-xs font-semibold uppercase tracking-widest transition-all active:scale-95 ${
-              added ? 'bg-teal-500 text-white' : 'bg-stone-800 text-white hover:bg-stone-700 shadow-xl shadow-stone-800/15'
+            className={`rounded-2xl px-6 py-3 text-xs font-semibold uppercase tracking-widest transition-all active:scale-95 ${
+              added ? 'bg-amber-500 text-white' : 'bg-stone-800 text-white hover:bg-stone-700 shadow-xl shadow-stone-800/15'
             }`}
           >
             {added ? '✅ ¡Añadido al carrito!' : '🛒 Añadir este plan'}
           </button>
-          <button onClick={() => goTo('planes')} className="rounded-2xl border border-stone-200 px-6 py-3.5 text-xs font-semibold uppercase tracking-widest text-stone-600 transition-colors hover:border-teal-300 hover:text-teal-700">
+          <button onClick={() => goTo('planes')} className="rounded-2xl border border-stone-200 px-6 py-3 text-xs font-semibold uppercase tracking-widest text-stone-600 transition-colors hover:border-amber-300 hover:text-amber-700">
             Ver todos los planes
           </button>
-          <button onClick={restart} className="rounded-2xl px-4 py-3.5 text-xs font-normal text-stone-400 transition-colors hover:text-stone-600">
+          <button onClick={restart} className="rounded-2xl px-4 py-3 text-xs font-normal text-stone-400 transition-colors hover:text-stone-600">
             ↺ Repetir
           </button>
         </div>
@@ -623,19 +623,19 @@ function PlanRecommender({ plans, catalogSlug }: { plans: Product[]; catalogSlug
   const current = QUIZ[step];
 
   return (
-    <div className="mx-auto max-w-2xl rounded-[2.5rem] border border-stone-200/60 bg-white/70 p-8 shadow-[0_20px_50px_rgb(0,0,0,0.05)] backdrop-blur-md">
+    <div className="mx-auto max-w-2xl rounded-2xl border border-stone-200/60 bg-white/70 p-6 shadow-[0_20px_50px_rgb(0,0,0,0.05)] backdrop-blur-md">
       {/* Progreso */}
-      <div className="mb-6 flex items-center gap-3">
+      <div className="mb-4 flex items-center gap-3">
         <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-stone-200/70">
-          <div className="h-full rounded-full bg-gradient-to-r from-teal-400 to-teal-500 transition-all duration-500" style={{ width: `${((step + 1) / total) * 100}%` }} />
+          <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-500" style={{ width: `${((step + 1) / total) * 100}%` }} />
         </div>
         <span className="text-xs font-semibold text-stone-400">{step + 1}/{total}</span>
       </div>
 
-      <p className="text-center text-xs font-semibold uppercase tracking-[0.3em] text-teal-600">¿No sabes cuál elegir?</p>
-      <h3 className="mt-2 text-center text-2xl font-light tracking-wide font-display text-stone-800">{current.question}</h3>
+      <p className="text-center text-xs font-semibold uppercase tracking-[0.3em] text-amber-600">¿No sabes cuál elegir?</p>
+      <h3 className="mt-2 text-center text-xl font-light tracking-wide font-display text-stone-800">{current.question}</h3>
 
-      <div className="mt-6 flex flex-col gap-3">
+      <div className="mt-5 flex flex-col gap-2">
         {current.options.map((opt) => (
           <button
             key={opt.label}
@@ -841,8 +841,8 @@ function StickyNav() {
             onClick={() => goTo(l.id)}
             className={`flex-shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
               active === l.id
-                ? 'bg-stone-800 text-white shadow-md shadow-stone-800/15'
-                : 'text-stone-500 hover:bg-teal-50 hover:text-teal-700'
+                ? 'bg-amber-600 text-white shadow-md shadow-amber-600/15'
+                : 'text-stone-500 hover:bg-amber-50 hover:text-amber-700'
             }`}
           >
             {l.label}
@@ -860,9 +860,9 @@ function FinalCta({ catalog }: { catalog: Catalog }) {
   return (
     <section id="contacto" className="relative z-10 mx-auto max-w-4xl animate-fade-in-up scroll-mt-24 sm:scroll-mt-28" style={{ animationDelay: '0.9s' }}>
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-stone-800 via-stone-900 to-stone-800 p-5 text-center text-white shadow-xl shadow-stone-900/20 sm:rounded-3xl sm:p-8 md:p-10 sm:shadow-2xl">
-        <div className="absolute -left-12 -top-12 h-40 w-40 rounded-full bg-teal-400/10 blur-2xl sm:-left-16 sm:-top-16 sm:h-56 sm:w-56" />
-        <div className="absolute -bottom-16 -right-12 h-48 w-48 rounded-full bg-teal-400/10 blur-2xl sm:-bottom-20 sm:-right-16 sm:h-64 sm:w-64" />
-        <p className="relative text-[10px] font-semibold uppercase tracking-[0.25em] text-teal-300/80 sm:text-xs sm:tracking-[0.3em]">Empecemos hoy</p>
+        <div className="absolute -left-12 -top-12 h-40 w-40 rounded-full bg-amber-400/10 blur-2xl sm:-left-16 sm:-top-16 sm:h-56 sm:w-56" />
+        <div className="absolute -bottom-16 -right-12 h-48 w-48 rounded-full bg-orange-400/10 blur-2xl sm:-bottom-20 sm:-right-16 sm:h-64 sm:w-64" />
+        <p className="relative text-[10px] font-semibold uppercase tracking-[0.25em] text-amber-300/80 sm:text-xs sm:tracking-[0.3em]">Empecemos hoy</p>
         <h2 className="relative mt-2 text-xl font-light tracking-wide sm:mt-3 sm:text-3xl md:text-4xl" style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>¿Listo para tener tu catálogo digital?</h2>
         <p className="relative mx-auto mt-3 max-w-lg text-sm font-normal leading-relaxed text-stone-300 sm:mt-4 sm:max-w-xl sm:text-base">
           Si ya lo tienes claro, añade tu plan al carrito. Y si te queda una duda, escríbenos.
@@ -872,7 +872,7 @@ function FinalCta({ catalog }: { catalog: Catalog }) {
             href={wa}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-teal-500 px-5 py-3.5 text-xs font-semibold uppercase tracking-widest text-white shadow-lg transition-all hover:scale-[1.02] hover:bg-teal-400 active:scale-95 sm:w-auto sm:rounded-2xl sm:px-8 sm:py-4 sm:text-sm sm:shadow-xl"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 px-5 py-3.5 text-xs font-semibold uppercase tracking-widest text-white shadow-lg transition-all hover:scale-[1.02] hover:bg-amber-400 active:scale-95 sm:w-auto sm:rounded-2xl sm:px-8 sm:py-4 sm:text-sm sm:shadow-xl"
           >
             💬 Aún tengo una duda
           </a>
@@ -1035,7 +1035,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
               <div className="mt-6 flex flex-col gap-2.5 sm:mt-8 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
                 <button
                   onClick={() => goTo('planes')}
-                  className="shine group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-teal-400 to-teal-500 px-5 py-3.5 text-xs font-semibold uppercase tracking-widest text-white shadow-xl shadow-teal-500/20 ring-1 ring-white/10 transition-all hover:scale-[1.03] hover:shadow-teal-500/30 active:scale-95 sm:rounded-2xl sm:px-7 sm:py-4 sm:text-sm"
+                  className="shine group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-3.5 text-xs font-semibold uppercase tracking-widest text-white shadow-xl shadow-amber-500/20 ring-1 ring-white/10 transition-all hover:scale-[1.03] hover:shadow-amber-500/30 active:scale-95 sm:rounded-2xl sm:px-7 sm:py-4 sm:text-sm"
                 >
                   🛒 Ver planes y precios
                   <span className="transition-transform group-hover:translate-x-1">→</span>
@@ -1054,7 +1054,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                   href={waHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-xs font-semibold uppercase tracking-widest text-white/40 transition-colors hover:text-teal-300 sm:py-4 sm:text-sm"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-xs font-semibold uppercase tracking-widest text-white/40 transition-colors hover:text-amber-300 sm:py-4 sm:text-sm"
                 >
                   💬 WhatsApp
                 </a>
@@ -1071,12 +1071,12 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                     key={s.small}
                     className={`relative rounded-xl px-2 py-3 text-center backdrop-blur-md transition-all sm:rounded-2xl sm:px-3 sm:py-4 ${
                       s.small === 'garantía'
-                        ? 'border border-teal-400/50 bg-gradient-to-b from-teal-400/15 to-teal-500/5'
+                        ? 'border border-amber-400/50 bg-gradient-to-b from-amber-400/15 to-orange-500/5'
                         : 'border border-white/10 bg-white/5'
                     }`}
                   >
                     <div className="text-lg sm:text-xl">{s.icon}</div>
-                    <div className="mt-0.5 bg-gradient-to-r from-teal-200 to-teal-300 bg-clip-text text-lg font-light text-transparent font-display sm:text-2xl">{s.big}</div>
+                    <div className="mt-0.5 bg-gradient-to-r from-amber-200 to-amber-300 bg-clip-text text-lg font-light text-transparent font-display sm:text-2xl">{s.big}</div>
                     <div className="text-[8px] font-semibold uppercase tracking-widest text-white/40 sm:text-[10px]">{s.small}</div>
                   </div>
                 ))}
@@ -1091,22 +1091,22 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                     key={s.small}
                     className={`relative rounded-2xl px-3 py-4 text-center backdrop-blur-md transition-all ${
                       s.small === 'de garantía'
-                        ? 'border border-teal-400/50 bg-gradient-to-b from-teal-400/15 to-teal-500/5 shadow-[0_0_30px_rgba(251,191,36,0.15)] hover:shadow-[0_0_40px_rgba(251,191,36,0.25)]'
-                        : 'border border-white/10 bg-white/5 hover:border-teal-400/30 hover:bg-white/8'
+                        ? 'border border-amber-400/50 bg-gradient-to-b from-amber-400/15 to-orange-500/5 shadow-[0_0_30px_rgba(251,191,36,0.15)] hover:shadow-[0_0_40px_rgba(251,191,36,0.25)]'
+                        : 'border border-white/10 bg-white/5 hover:border-amber-400/30 hover:bg-white/8'
                     }`}
                   >
                     {s.small === 'de garantía' && (
-                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-teal-400 to-teal-500 px-3 py-0.5 text-[9px] font-semibold uppercase tracking-widest text-white shadow-lg">
+                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-3 py-0.5 text-[9px] font-semibold uppercase tracking-widest text-white shadow-lg">
                         Reembolso garantizado
                       </span>
                     )}
                     {s.small === 'de garantía' && (
                       <span className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
-                        <span className="absolute inline-flex h-3 w-3 -right-1 -top-1 animate-ping rounded-full bg-teal-300/80" />
+                        <span className="absolute inline-flex h-3 w-3 -right-1 -top-1 animate-ping rounded-full bg-amber-300/80" />
                       </span>
                     )}
                     <div className="text-xl">{s.icon}</div>
-                    <div className={`mt-1 bg-gradient-to-r from-teal-200 to-teal-300 bg-clip-text text-2xl font-light text-transparent font-display ${s.small === 'de garantía' ? 'scale-110' : ''}`}>{s.big}</div>
+                    <div className={`mt-1 bg-gradient-to-r from-amber-200 to-amber-300 bg-clip-text text-2xl font-light text-transparent font-display ${s.small === 'de garantía' ? 'scale-110' : ''}`}>{s.big}</div>
                     <div className="text-[10px] font-semibold uppercase tracking-widest text-white/40">{s.small}</div>
                   </div>
                 ))}
@@ -1122,7 +1122,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
               <div className="animate-marquee flex w-max items-center gap-8 px-4">
                 {[...(catalog.businessTypes ?? []), ...(catalog.businessTypes ?? [])].map((b, i) => (
                   <span key={i} className="flex items-center gap-2.5 whitespace-nowrap text-sm font-semibold uppercase tracking-[0.2em] text-white/40">
-                    <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-r from-teal-400 to-teal-500" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500" />
                     {b}
                   </span>
                 ))}
