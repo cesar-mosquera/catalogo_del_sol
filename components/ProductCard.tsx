@@ -65,7 +65,7 @@ export function ProductCard({
     setAdded(false);
     remove(catalogSlug, selectedVariantId || product.id);
   };  return (
-    <article className={`overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ${t.ring} flex ${compact ? 'flex-row h-full max-h-[220px] items-center p-2 gap-2' : 'flex-col h-full overflow-y-auto no-scrollbar'}`}>
+    <article className={`overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ${t.ring} flex ${compact ? 'flex-row h-[140px] items-center p-2 gap-2' : 'flex-col h-full overflow-y-auto no-scrollbar'}`}>
       {/* Imagen */}
       {src ? (
         <div className={compact ? 'w-[110px] h-[110px] shrink-0 relative overflow-hidden rounded-xl' : 'w-full'}>
@@ -94,17 +94,17 @@ export function ProductCard({
         </div>
       )}
 
-      <div className={`flex flex-1 flex-col min-h-0 ${compact ? 'py-1 justify-center' : 'p-4 gap-2'}`}>
+      <div className={`flex flex-1 flex-col min-h-0 ${compact ? 'py-1 justify-center h-full' : 'p-4 gap-2'}`}>
         {/* Nombre y precio */}
-        <div className="flex items-start justify-between gap-1">
+        <div className={`flex ${compact ? 'flex-col items-start gap-1' : 'items-start justify-between gap-1'}`}>
           <h3 className={`font-bold leading-tight line-clamp-2 ${compact ? 'text-xs' : 'text-base'} ${t.name}`}>{product.name}</h3>
-          <span className={`whitespace-nowrap font-bold ${t.priceBox} ${t.price}`}>
+          <span className={`whitespace-nowrap font-bold ${compact ? 'w-fit' : ''} ${t.priceBox} ${t.price}`}>
             {product.variants && !selectedVariantId ? (
               <span className="text-[11px] text-stone-500">
                 ${Math.min(...product.variants.map(v => v.price)).toFixed(2)} - ${Math.max(...product.variants.map(v => v.price)).toFixed(2)}
               </span>
             ) : (
-              <span className={`${product.priceNote && !product.variants ? 'text-xs' : (compact ? 'text-sm' : 'text-base')}`}>
+              <span className={`${product.priceNote && !product.variants ? 'text-xs' : (compact ? 'text-xs px-1.5 py-0.5 rounded-md' : 'text-base')}`}>
                 ${displayPrice.toFixed(2)}
               </span>
             )}
