@@ -23,11 +23,13 @@ export function ProductCard({
   compact = false,
   catalogSlug,
   theme,
+  alternate = false,
 }: {
   product: Product;
   compact?: boolean;
   catalogSlug: string;
   theme?: CardTheme;
+  alternate?: boolean;
 }) {
   const add = useCart((state) => state.add);
   const remove = useCart((state) => state.remove);
@@ -65,11 +67,11 @@ export function ProductCard({
     setAdded(false);
     remove(catalogSlug, selectedVariantId || product.id);
   };  return (
-    <article className={`relative overflow-hidden rounded-2xl shadow-sm ring-1 flex ${compact ? 'flex-row h-full items-stretch p-2 gap-2.5 bg-white/80 backdrop-blur-md' : 'flex-col h-full bg-white overflow-y-auto no-scrollbar'} ${t.ring}`}>
+    <article className={`relative overflow-hidden rounded-2xl shadow-sm ring-1 flex ${compact ? (alternate ? 'flex-row-reverse' : 'flex-row') + ' h-full items-stretch p-2 gap-3 bg-white/80 backdrop-blur-md' : 'flex-col h-full bg-white overflow-y-auto no-scrollbar'} ${t.ring}`}>
       {/* Imagen */}
       {src ? (
-        <div className={compact ? 'relative w-[110px] shrink-0 h-full' : 'w-full shrink-0'}>
-          <div className={`relative overflow-hidden w-full h-full ${compact ? 'rounded-xl shadow-md border-[3px] border-white rotate-[-1.5deg] bg-white transition-transform hover:rotate-0' : 'aspect-[4/3] rounded-t-xl'}`}>
+        <div className={compact ? 'relative w-[125px] shrink-0 h-full' : 'w-full shrink-0'}>
+          <div className={`relative overflow-hidden w-full h-full ${compact ? `rounded-xl shadow-md border-[3px] border-white ${alternate ? 'rotate-[1.5deg]' : 'rotate-[-1.5deg]'} bg-white transition-transform hover:rotate-0` : 'aspect-[4/3] rounded-t-xl'}`}>
             {compact && (
               <>
                 <div className="absolute -inset-2 rounded-full bg-gradient-to-tr from-orange-300/40 to-yellow-100/60 blur-md pointer-events-none"></div>
@@ -91,7 +93,7 @@ export function ProductCard({
         </div>
       ) : (
         <div
-          className={`grid shrink-0 place-items-center border-dashed ${compact ? 'w-[110px] h-full rounded-xl border-[3px] border-white' : 'w-full h-40 border-b'} ${
+          className={`grid shrink-0 place-items-center border-dashed ${compact ? 'w-[125px] h-full rounded-xl border-[3px] border-white' : 'w-full h-40 border-b'} ${
             t.priceBox ? 'border-[#e9b873]' : 'border-stone-200'
           }`}
           style={{ background: 'linear-gradient(180deg,#ffffff 0%,#f3e5c8 100%)' }}

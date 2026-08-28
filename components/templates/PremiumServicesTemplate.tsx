@@ -82,7 +82,7 @@ function FilterGroup({
             <div className="flex items-center gap-2.5 min-w-0">
               <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-stone-400 truncate">{title}</span>
               {resultCount !== undefined && selected.length > 0 && (
-                <span className="flex-shrink-0 inline-flex items-center justify-center h-5 min-w-[20px] rounded-full bg-stone-800 px-1.5 text-[10px] font-semibold text-white tabular-nums">
+                <span className="flex-shrink-0 inline-flex items-center justify-center h-5 min-w-[20px] rounded-full bg-amber-600 px-1.5 text-[10px] font-semibold text-white tabular-nums">
                   {resultCount}
                 </span>
               )}
@@ -90,7 +90,7 @@ function FilterGroup({
             {selected.length > 0 && (
               <button
                 onClick={onClear}
-                className="flex-shrink-0 text-[11px] font-medium text-stone-400 underline decoration-stone-300 underline-offset-2 transition-colors hover:text-stone-600"
+                className="flex-shrink-0 text-[11px] font-medium text-stone-400 underline decoration-stone-300 underline-offset-2 transition-colors hover:text-amber-600"
               >
                 Limpiar
               </button>
@@ -122,7 +122,7 @@ function FilterGroup({
                   >
                     <span className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[11px] font-medium tracking-wide transition-all duration-200 select-none whitespace-nowrap ${
                       active
-                        ? 'bg-stone-800 text-white shadow-md shadow-stone-800/10 scale-[1.02]'
+                        ? 'bg-amber-600 text-white shadow-md shadow-amber-600/10 scale-[1.02]'
                         : 'bg-stone-100 text-stone-500 hover:bg-stone-200/70 hover:text-stone-700'
                     }`}>
                       {opt.label}
@@ -640,10 +640,10 @@ function PlanRecommender({ plans, catalogSlug }: { plans: Product[]; catalogSlug
           <button
             key={opt.label}
             onClick={() => pick(opt)}
-            className="group flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-5 py-4 text-left font-normal text-stone-600 transition-all duration-300 hover:border-teal-300 hover:bg-teal-50 hover:shadow-lg active:scale-[0.98]"
+            className="group flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-left font-normal text-stone-600 transition-all duration-300 hover:border-amber-300 hover:bg-amber-50 hover:shadow-lg active:scale-[0.98]"
           >
             <span>{opt.label}</span>
-            <span className="text-stone-300 transition-all group-hover:translate-x-1 group-hover:text-teal-500">→</span>
+            <span className="text-stone-300 transition-all group-hover:translate-x-1 group-hover:text-amber-500">→</span>
           </button>
         ))}
       </div>
@@ -687,17 +687,17 @@ function ComparisonTable({ catalog }: { catalog: Catalog }) {
                 onClick={() => setSelectedId(active ? null : plan.id)}
                 className={`flex flex-col items-center gap-1 rounded-2xl border px-3 py-4 text-center transition-all duration-300 active:scale-95 ${
                   active
-                    ? 'border-teal-300 bg-gradient-to-b from-teal-50 to-cyan-50/50 shadow-lg shadow-teal-500/10 scale-[1.02]'
-                    : 'border-stone-200/60 bg-white hover:border-teal-200 hover:shadow-md'
+                    ? 'border-amber-300 bg-gradient-to-b from-amber-50 to-orange-50/50 shadow-lg shadow-amber-500/10 scale-[1.02]'
+                    : 'border-stone-200/60 bg-white hover:border-amber-200 hover:shadow-md'
                 }`}
               >
                 <span className="text-xs font-semibold uppercase tracking-wider text-stone-700">{plan.name}</span>
                 {plan.badge && (
-                  <span className="rounded-full bg-gradient-to-r from-teal-500 to-teal-600 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-widest text-white">
+                  <span className="rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-widest text-white">
                     {plan.badge}
                   </span>
                 )}
-                <span className="text-lg font-light text-teal-600 font-display">${plan.price.toFixed(0)}</span>
+                <span className="text-lg font-light text-amber-600 font-display">${plan.price.toFixed(0)}</span>
               </button>
             );
           })}
@@ -710,9 +710,9 @@ function ComparisonTable({ catalog }: { catalog: Catalog }) {
               <div className={`grid grid-cols-[1.1fr_repeat(3,1fr)] items-center gap-2 rounded-2xl px-3 py-2.5 transition-colors ${i % 2 === 0 ? 'bg-stone-50/60' : 'bg-white/60'}`}>
                 <span className="px-1 text-sm font-normal text-stone-600">{row.feature}</span>
                 {plans.map((plan) => (
-                  <span key={plan.id} className={`text-center ${isIncluded(row, plan.id) ? 'text-teal-500' : 'text-stone-300'}`}>
+                  <span key={plan.id} className={`text-center ${isIncluded(row, plan.id) ? 'text-amber-500' : 'text-stone-300'}`}>
                     {isIncluded(row, plan.id) ? (
-                      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-teal-50 border border-teal-200/60 text-xs font-semibold text-teal-600">✓</span>
+                      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-amber-50 border border-amber-200/60 text-xs font-semibold text-amber-600">✓</span>
                     ) : (
                       <span className="text-sm font-normal">—</span>
                     )}
@@ -727,17 +727,17 @@ function ComparisonTable({ catalog }: { catalog: Catalog }) {
         </div>
 
         {/* Barra de resumen al seleccionar un plan */}
-        <div className="mt-4 flex min-h-[4.5rem] items-center justify-between gap-3 rounded-2xl border border-teal-200/60 bg-gradient-to-r from-teal-50 to-cyan-50/30 px-5 py-3 transition-all">
+        <div className="mt-4 flex min-h-[4.5rem] items-center justify-between gap-3 rounded-2xl border border-amber-200/60 bg-gradient-to-r from-amber-50 to-orange-50/30 px-5 py-3 transition-all">
           {selected ? (
             <>
               <div className="flex-1">
-                <p className="text-xs font-semibold uppercase tracking-widest text-teal-600">✓ Has elegido</p>
+                <p className="text-xs font-semibold uppercase tracking-widest text-amber-600">✓ Has elegido</p>
                 <p className="font-semibold text-stone-800">{selected.name} · ${selected.price.toFixed(0)} {selected.deliveryDays && `· ${selected.deliveryDays}`}</p>
               </div>
               <button
                 onClick={() => handleAdd(selected)}
                 className={`flex-shrink-0 rounded-xl px-5 py-2.5 text-xs font-semibold uppercase tracking-widest transition-all active:scale-95 ${
-                  added ? 'bg-teal-500 text-white shadow-lg shadow-teal-500/20' : 'bg-stone-800 text-white hover:bg-stone-700 shadow-lg shadow-stone-800/15'
+                  added ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-stone-800 text-white hover:bg-stone-700 shadow-lg shadow-stone-800/15'
                 }`}
               >
                 {added ? '✅ Añadido' : '🛒 Añadir'}
@@ -777,7 +777,7 @@ function FaqSection({ catalog }: { catalog: Catalog }) {
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           placeholder="Busca tu duda (ej: dominio, pago…)"
-          className="w-full rounded-xl border border-stone-200/60 bg-white/70 px-9 py-3 text-sm font-normal text-stone-600 shadow-sm outline-none backdrop-blur-md transition-all focus:border-teal-300 focus:ring-2 focus:ring-teal-200/30 sm:rounded-2xl sm:px-11 sm:py-3.5"
+          className="w-full rounded-xl border border-stone-200/60 bg-white/70 px-9 py-3 text-sm font-normal text-stone-600 shadow-sm outline-none backdrop-blur-md transition-all focus:border-amber-300 focus:ring-2 focus:ring-amber-200/30 sm:rounded-2xl sm:px-11 sm:py-3.5"
         />
       </div>
 
@@ -789,7 +789,7 @@ function FaqSection({ catalog }: { catalog: Catalog }) {
             <details key={f.q} name="faq" className="group rounded-xl border border-stone-200/60 bg-white/60 p-3 shadow-sm backdrop-blur-md transition-all hover:shadow-md sm:rounded-2xl sm:p-4">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-base font-normal text-stone-700 outline-none sm:gap-4 sm:text-lg">
                 <span>{f.q}</span>
-                <span className="flex-shrink-0 text-xl font-light text-teal-400 transition-transform duration-300 group-open:rotate-180 sm:text-2xl">↓</span>
+                <span className="flex-shrink-0 text-xl font-light text-amber-400 transition-transform duration-300 group-open:rotate-180 sm:text-2xl">↓</span>
               </summary>
               <p className="faq-answer mt-3 text-sm font-normal leading-relaxed text-stone-500 sm:mt-4">{f.a}</p>
             </details>
@@ -1217,7 +1217,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                     <p className="mt-3 font-semibold text-stone-700">No hay servicios con ese tipo de pago</p>
                     <button
                       onClick={() => setActiveAddonBadges([])}
-                      className="mt-5 rounded-xl bg-stone-800 px-6 py-3 text-xs font-semibold uppercase tracking-widest text-white shadow-lg shadow-stone-800/15 transition-all hover:bg-stone-700 active:scale-95"
+                  className="mt-5 rounded-xl bg-amber-600 px-6 py-3 text-xs font-semibold uppercase tracking-widest text-white shadow-lg shadow-amber-600/15 transition-all hover:bg-amber-500 active:scale-95"
                     >
                       ✕ Limpiar filtros
                     </button>
@@ -1265,7 +1265,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
               />
               <div className="mx-auto flex max-w-4xl flex-wrap justify-center gap-3">
                 {catalog.businessTypes!.map((b) => (
-                  <span key={b} className="rounded-full border border-stone-200/60 bg-white/60 px-5 py-2.5 text-sm font-normal text-stone-600 shadow-sm backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white hover:shadow-lg hover:border-teal-200">
+                  <span key={b} className="rounded-full border border-stone-200/60 bg-white/60 px-4 py-2 text-xs font-normal text-stone-600 shadow-sm backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white hover:shadow-lg hover:border-amber-200">
                     {b}
                   </span>
                 ))}
@@ -1285,7 +1285,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
               <div className="grid gap-2 sm:grid-cols-2 sm:gap-3 lg:grid-cols-4">
                 {catalog.handoff!.map((h, i) => (
                   <div key={h.title} className="group rounded-xl border border-stone-200/60 bg-white/60 p-3 text-center shadow-sm backdrop-blur-md transition-all duration-400 hover:-translate-y-1 hover:shadow-md animate-fade-in-up sm:rounded-2xl sm:p-4 sm:hover:-translate-y-2 sm:hover:shadow-xl" style={{ animationDelay: `${i * 0.1}s` }}>
-                    <span className="inline-grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-teal-50 to-teal-100 text-xl shadow-inner transition-transform duration-400 group-hover:scale-110 sm:h-12 sm:w-12 sm:rounded-2xl sm:text-2xl">
+                    <span className="inline-grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 text-xl shadow-inner transition-transform duration-400 group-hover:scale-110 sm:h-12 sm:w-12 sm:rounded-2xl sm:text-2xl">
                       {h.icon}
                     </span>
                     <h3 className="mt-2 text-xs font-semibold text-stone-700 sm:mt-3 sm:text-sm">{h.title}</h3>
@@ -1307,10 +1307,10 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
               />
               <Reveal>
               <div className="relative mx-auto grid max-w-5xl gap-3 sm:gap-4 md:grid-cols-3">
-                <div className="absolute left-0 right-0 top-8 hidden h-0.5 bg-gradient-to-r from-transparent via-teal-200 to-transparent md:block sm:top-10" />
+                <div className="absolute left-0 right-0 top-8 hidden h-0.5 bg-gradient-to-r from-transparent via-amber-200 to-transparent md:block sm:top-10" />
                 {catalog.process!.map((p, i) => (
                   <div key={p.title} className="relative rounded-xl border border-stone-200/60 bg-white/60 px-3 pb-3 pt-6 shadow-sm backdrop-blur-md transition-all duration-400 hover:-translate-y-1 hover:shadow-md animate-fade-in-up sm:rounded-2xl sm:px-5 sm:pb-5 sm:pt-8 sm:hover:-translate-y-1.5 sm:hover:shadow-xl" style={{ animationDelay: `${i * 0.1}s` }}>
-                    <span className="absolute -top-3 left-4 grid h-8 w-8 place-items-center rounded-full bg-stone-800 text-xs font-semibold text-white shadow-lg sm:-top-4 sm:left-6 sm:h-10 sm:w-10 sm:text-sm">
+                    <span className="absolute -top-3 left-4 grid h-8 w-8 place-items-center rounded-full bg-amber-600 text-xs font-semibold text-white shadow-lg sm:-top-4 sm:left-6 sm:h-10 sm:w-10 sm:text-sm">
                       {i + 1}
                     </span>
                     <h3 className="text-sm font-semibold text-stone-700 sm:text-base">{p.title}</h3>
@@ -1338,7 +1338,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                       <ul className="mt-2 space-y-1.5 sm:mt-3 sm:space-y-2">
                         {catalog.payment.map((p) => (
                           <li key={p} className="flex items-start gap-2 text-xs font-normal text-stone-600 sm:gap-3 sm:text-sm">
-                            <span className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-teal-50 border border-teal-200/60 text-[9px] font-semibold text-teal-600 sm:h-5 sm:w-5 sm:text-[10px]">✓</span>
+                            <span className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-amber-50 border border-amber-200/60 text-[9px] font-semibold text-amber-600 sm:h-5 sm:w-5 sm:text-[10px]">✓</span>
                             {p}
                           </li>
                         ))}
@@ -1359,7 +1359,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                       <ul className="mt-2 space-y-1.5 sm:mt-3 sm:space-y-2">
                         {catalog.recurringCosts.map((c) => (
                           <li key={c} className="flex items-start gap-2 text-xs font-normal text-stone-600 sm:gap-3 sm:text-sm">
-                            <span className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-teal-50 border border-teal-200/60 text-[9px] font-semibold text-teal-600 sm:h-5 sm:w-5 sm:text-[10px]">→</span>
+                            <span className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-amber-50 border border-amber-200/60 text-[9px] font-semibold text-amber-600 sm:h-5 sm:w-5 sm:text-[10px]">→</span>
                             {c}
                           </li>
                         ))}

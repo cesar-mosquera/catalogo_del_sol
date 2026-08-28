@@ -78,10 +78,10 @@ button, input, textarea { font: inherit; }
   .book-dots { bottom: calc(10px + env(safe-area-inset-bottom)); }
 
   .book-cover-content {
-    padding: 22px 22px calc(28px + env(safe-area-inset-bottom)) !important;
+    padding: 16px 16px calc(20px + env(safe-area-inset-bottom)) !important;
   }
 
-  .book-cover-content h1 { font-size: 2.2rem; }
+  .book-cover-content h1 { font-size: 1.8rem; }
 
   .notebook-menu-page {
     padding: 20px 14px calc(38px + env(safe-area-inset-bottom)) 26px !important;
