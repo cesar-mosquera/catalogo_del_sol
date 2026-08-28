@@ -215,7 +215,7 @@ export function LocationPicker({ restaurantLocation, deliveryParams, onSelect, o
         setLoading(false);
         setGpsError(err.code === 1 ? 'Permiso denegado. Mueve el pin o usa el buscador.' : 'Señal débil. Usa el buscador arriba o mueve el pin.');
       },
-      { enableHighAccuracy: false, timeout: 15000, maximumAge: 10000 }
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
   };
 
