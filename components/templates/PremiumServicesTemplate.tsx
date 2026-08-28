@@ -996,9 +996,9 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
         </div>
 
         <div className="relative z-10 mx-auto max-w-7xl px-4 pt-6 pb-6 sm:px-6 lg:pt-20 lg:pb-12">
-          <div className="flex flex-col items-center gap-6 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12">
-            {/* ── Columna texto ── */}
-            <div className="w-full text-center lg:text-left animate-fade-in-up">
+          <div className="grid grid-cols-1 items-center gap-6 lg:grid-cols-2 lg:gap-12">
+            {/* ── Título (arriba en móvil, col 1 en desktop) ── */}
+            <div className="w-full text-center lg:text-left animate-fade-in-up lg:col-start-1 lg:row-start-1 lg:self-end">
               <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-3 py-1.5 shadow-lg backdrop-blur-md sm:mb-7 sm:gap-2.5 sm:px-4 sm:py-2">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal-400 opacity-80" />
@@ -1013,6 +1013,15 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                   catálogo que enamora
                 </span>
               </h1>
+            </div>
+
+            {/* ── Columna mockup (teléfono interactivo en medio) ── */}
+            <div className="w-full flex justify-center lg:col-start-2 lg:row-start-1 lg:row-span-2">
+              <PhoneDemo demos={heroDemos} catalogSlug={catalog.slug} />
+            </div>
+
+            {/* ── Descripción y botones (abajo en móvil, col 1 en desktop) ── */}
+            <div className="w-full text-center lg:text-left animate-fade-in-up lg:col-start-1 lg:row-start-2 lg:self-start">
 
               <p className="mx-auto mt-4 max-w-lg text-sm font-normal leading-relaxed text-white/50 sm:mt-6 sm:max-w-xl sm:text-base lg:mx-0 lg:text-lg">
                 {catalog.description} Con carrito de pedidos, envío por WhatsApp y panel para editar todo tú mismo. Listo en días, sin comisiones.
@@ -1099,9 +1108,6 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                 ))}
               </div>
             </div>
-
-            {/* ── Columna mockup (teléfono interactivo) ── */}
-            <PhoneDemo demos={heroDemos} catalogSlug={catalog.slug} />
           </div>
         </div>
 
