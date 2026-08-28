@@ -24,11 +24,11 @@ const EMBERS = Array.from({ length: 22 }).map((_, i) => ({
 
 function SectionHeading({ kicker, title, sub }: { kicker: string; title: string; sub?: string }) {
   return (
-    <div className="mb-8 text-center sm:mb-14">
+    <div className="mb-5 text-center sm:mb-8">
       <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-teal-600 sm:text-xs sm:tracking-[0.35em]">{kicker}</p>
-      <h2 className="mt-2 text-2xl font-light tracking-wide font-display sm:mt-3 sm:text-3xl md:text-4xl">{title}</h2>
-      {sub && <p className="mx-auto mt-3 max-w-xl text-sm font-normal text-stone-500 leading-relaxed sm:mt-4 sm:max-w-2xl sm:text-base">{sub}</p>}
-      <div className="mx-auto mt-4 h-px w-16 bg-gradient-to-r from-transparent via-teal-300 to-transparent sm:mt-6 sm:w-24" />
+      <h2 className="mt-1 text-xl font-light tracking-wide font-display sm:mt-2 sm:text-2xl md:text-3xl">{title}</h2>
+      {sub && <p className="mx-auto mt-2 max-w-xl text-xs font-normal text-stone-500 leading-relaxed sm:mt-3 sm:max-w-2xl sm:text-sm">{sub}</p>}
+      <div className="mx-auto mt-3 h-px w-12 bg-gradient-to-r from-transparent via-teal-300 to-transparent sm:mt-4 sm:w-20" />
     </div>
   );
 }
@@ -399,7 +399,7 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
         />
       </div>
 
-      <div className="flex flex-col flex-1 p-4 sm:p-6 relative z-10">
+      <div className="flex flex-col flex-1 p-3 sm:p-5 relative z-10">
         <div className="flex justify-between items-start gap-2 sm:gap-4">
           <h3 className="text-lg font-light tracking-wide font-display leading-tight sm:text-2xl">{product.name}</h3>
           {product.badge && (
@@ -424,7 +424,7 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
         )}
 
         {/* Features - compactas en mobile */}
-        <ul className="mt-3 mb-4 flex flex-1 flex-col gap-2 sm:mt-5 sm:mb-8 sm:gap-3">
+        <ul className="mt-2 mb-3 flex flex-1 flex-col gap-1.5 sm:mt-4 sm:mb-5 sm:gap-2">
           {product.description.split(/\.\s+/).filter(Boolean).slice(0, 4).map((line, i) => (
             <li key={i} className="flex items-start gap-2 text-xs font-normal leading-relaxed text-stone-600 sm:gap-3 sm:text-sm">
               <div className="mt-0.5 flex h-3.5 w-3.5 flex-shrink-0 items-center justify-center rounded-full bg-teal-100 text-[8px] font-bold text-teal-700 sm:h-4 sm:w-4 sm:text-[9px]">
@@ -891,6 +891,10 @@ function FinalCta({ catalog }: { catalog: Catalog }) {
 /* ─────────────── PLANTILLA PRINCIPAL ─────────────── */
 
 export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const plans = catalog.sections.find((s) => /modelo|plan/i.test(s.name))?.products ?? catalog.sections[0]?.products ?? [];
 
   // ── Filtros por característica (desde la tabla comparativa) ──
@@ -949,13 +953,13 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
   }));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-teal-50/30 to-cyan-50/20 animate-mesh text-stone-800 selection:bg-teal-500/20 font-sans overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-stone-50 via-white to-stone-50/80 animate-mesh text-stone-800 selection:bg-teal-500/20 font-sans overflow-hidden">
       <StickyNav />
 
       {/* Orbes decorativos */}
-      <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-teal-200/30 rounded-full filter blur-3xl opacity-60 animate-blob" />
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-cyan-200/20 rounded-full filter blur-3xl opacity-60 animate-blob animation-delay-2000" />
-      <div className="absolute -bottom-32 left-20 w-[500px] h-[500px] bg-teal-100/30 rounded-full filter blur-3xl opacity-70 animate-blob animation-delay-4000" />
+      <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-teal-100/20 rounded-full filter blur-3xl opacity-40 animate-blob" />
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-cyan-100/15 rounded-full filter blur-3xl opacity-40 animate-blob animation-delay-2000" />
+      <div className="absolute -bottom-32 left-20 w-[500px] h-[500px] bg-teal-50/20 rounded-full filter blur-3xl opacity-50 animate-blob animation-delay-4000" />
 
       {/* ═══════════ HEADER ═══════════ */}
       <header className="relative z-10 overflow-hidden bg-[#0f2b28] text-white">
@@ -995,7 +999,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
           </div>
         </div>
 
-        <div className="relative z-10 mx-auto max-w-7xl px-4 pt-6 pb-6 sm:px-6 lg:pt-20 lg:pb-12">
+        <div className="relative z-10 mx-auto max-w-7xl px-4 pt-4 pb-4 sm:px-6 lg:pt-12 lg:pb-8">
           <div className="grid grid-cols-1 items-center gap-6 lg:grid-cols-2 lg:gap-12">
             {/* ── Título (arriba en móvil, col 1 en desktop) ── */}
             <div className="w-full text-center lg:text-left animate-fade-in-up lg:col-start-1 lg:row-start-1 lg:self-end">
@@ -1129,8 +1133,8 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
       </header>
 
       {/* ═══════════ PLANES ═══════════ */}
-      <main className="relative z-10 mx-auto max-w-7xl px-4 py-8 sm:px-5 sm:py-12">
-        <div className="space-y-16 sm:space-y-28">
+      <main className="relative z-10 mx-auto max-w-7xl px-4 py-6 sm:px-5 sm:py-8">
+        <div className="space-y-10 sm:space-y-14">
           <section id="planes" className="scroll-mt-28">
             <SectionHeading
               kicker="Tres modelos, un objetivo"
@@ -1149,7 +1153,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
             />
 
             {visiblePlans.length > 0 ? (
-              <div className="grid justify-center gap-6 transition-all duration-500 sm:gap-8 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid justify-center gap-4 transition-all duration-500 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {visiblePlans.map((product, idx) => (
                   <div
                     key={product.id}
@@ -1176,7 +1180,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
 
             {/* Servicios adicionales */}
             {addonSections.length > 0 && (
-              <div className="mt-24">
+              <div className="mt-14">
                 <SectionHeading
                   kicker="Complementa tu plan"
                   title="Servicios adicionales"
@@ -1199,7 +1203,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                       <h3 className="mb-5 text-center font-semibold text-stone-700">{section.name}</h3>
                     )}
                     <Reveal>
-                      <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-2">
+                      <div className="mx-auto grid max-w-5xl gap-4 md:grid-cols-2">
                         {section.products.map((product) => (
                           <AddonServiceCard key={product.id} product={product} catalogSlug={catalog.slug} />
                         ))}
@@ -1302,10 +1306,10 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                 sub="Un proceso de 5 pasos y tú siempre al tanto. Nada de letra pequeña."
               />
               <Reveal>
-              <div className="relative mx-auto grid max-w-5xl gap-4 sm:gap-6 md:grid-cols-3">
+              <div className="relative mx-auto grid max-w-5xl gap-3 sm:gap-4 md:grid-cols-3">
                 <div className="absolute left-0 right-0 top-8 hidden h-0.5 bg-gradient-to-r from-transparent via-teal-200 to-transparent md:block sm:top-10" />
                 {catalog.process!.map((p, i) => (
-                  <div key={p.title} className="relative rounded-xl border border-stone-200/60 bg-white/60 px-4 pb-4 pt-7 shadow-sm backdrop-blur-md transition-all duration-400 hover:-translate-y-1 hover:shadow-md animate-fade-in-up sm:rounded-[2rem] sm:px-6 sm:pb-6 sm:pt-9 sm:hover:-translate-y-1.5 sm:hover:shadow-xl" style={{ animationDelay: `${i * 0.1}s` }}>
+                  <div key={p.title} className="relative rounded-xl border border-stone-200/60 bg-white/60 px-3 pb-3 pt-6 shadow-sm backdrop-blur-md transition-all duration-400 hover:-translate-y-1 hover:shadow-md animate-fade-in-up sm:rounded-2xl sm:px-5 sm:pb-5 sm:pt-8 sm:hover:-translate-y-1.5 sm:hover:shadow-xl" style={{ animationDelay: `${i * 0.1}s` }}>
                     <span className="absolute -top-3 left-4 grid h-8 w-8 place-items-center rounded-full bg-stone-800 text-xs font-semibold text-white shadow-lg sm:-top-4 sm:left-6 sm:h-10 sm:w-10 sm:text-sm">
                       {i + 1}
                     </span>
@@ -1327,11 +1331,11 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                 sub="Todo lo que quieres saber antes de dar el sí, respondido aquí."
               />
               <Reveal>
-                <div className="grid gap-3 sm:grid-cols-2 sm:gap-5">
+                <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
                   {catalog.payment && (
-                    <div className="rounded-xl border border-stone-200/60 bg-white/60 p-4 shadow-sm backdrop-blur-md transition-shadow hover:shadow-md sm:rounded-[2rem] sm:p-7 sm:hover:shadow-xl">
-                      <h3 className="flex items-center gap-2 text-base font-semibold text-stone-700 sm:gap-3 sm:text-lg">💳 Formas de pago</h3>
-                      <ul className="mt-3 space-y-2 sm:mt-4 sm:space-y-2.5">
+                    <div className="rounded-xl border border-stone-200/60 bg-white/60 p-3 shadow-sm backdrop-blur-md transition-shadow hover:shadow-md sm:rounded-2xl sm:p-5 sm:hover:shadow-xl">
+                      <h3 className="flex items-center gap-2 text-sm font-semibold text-stone-700 sm:gap-3 sm:text-base">💳 Formas de pago</h3>
+                      <ul className="mt-2 space-y-1.5 sm:mt-3 sm:space-y-2">
                         {catalog.payment.map((p) => (
                           <li key={p} className="flex items-start gap-2 text-xs font-normal text-stone-600 sm:gap-3 sm:text-sm">
                             <span className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-teal-50 border border-teal-200/60 text-[9px] font-semibold text-teal-600 sm:h-5 sm:w-5 sm:text-[10px]">✓</span>
@@ -1343,9 +1347,9 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                   )}
 
                   {catalog.guarantee && (
-                    <div className="rounded-xl border border-teal-200/60 bg-gradient-to-br from-teal-50 to-cyan-50/30 p-4 shadow-sm backdrop-blur-md transition-all hover:-translate-y-0.5 hover:shadow-md sm:rounded-[2rem] sm:p-7 sm:hover:-translate-y-1 sm:hover:shadow-xl">
-                      <h3 className="flex items-center gap-2 text-base font-semibold text-stone-700 sm:gap-3 sm:text-lg">🛡 Garantía</h3>
-                      <p className="mt-3 text-xs font-normal leading-relaxed text-stone-600 sm:mt-4 sm:text-sm">{catalog.guarantee}</p>
+                    <div className="rounded-xl border border-teal-200/60 bg-gradient-to-br from-teal-50 to-cyan-50/30 p-3 shadow-sm backdrop-blur-md transition-all hover:-translate-y-0.5 hover:shadow-md sm:rounded-2xl sm:p-5 sm:hover:-translate-y-1 sm:hover:shadow-xl">
+                      <h3 className="flex items-center gap-2 text-sm font-semibold text-stone-700 sm:gap-3 sm:text-base">🛡 Garantía</h3>
+                      <p className="mt-2 text-xs font-normal leading-relaxed text-stone-600 sm:mt-3 sm:text-sm">{catalog.guarantee}</p>
                     </div>
                   )}
 
@@ -1379,7 +1383,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
             <Reveal><FaqSection catalog={catalog} /></Reveal>
           )}
 
-          {/* ═══════════ CTA FINAL ═══════════ */}
+      {/* ═══════════ CTA FINAL ═══════════ */}
           <Reveal><FinalCta catalog={catalog} /></Reveal>
         </div>
       </main>
