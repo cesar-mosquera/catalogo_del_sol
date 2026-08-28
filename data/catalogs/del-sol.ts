@@ -8,7 +8,7 @@ export const delSol: Catalog = {
   phone: '593969581620',
   address: 'Consulta la dirección al confirmar tu pedido.',
   coverImage: '/img/cover_new.png',
-  logoImage: '/img/logo.webp',
+  logoImage: '',
   template: 'book',
   minimumOrder: 0,
   theme: {

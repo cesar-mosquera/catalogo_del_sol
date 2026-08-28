@@ -65,10 +65,10 @@ export function ProductCard({
     setAdded(false);
     remove(catalogSlug, selectedVariantId || product.id);
   };  return (
-    <article className={`overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ${t.ring} flex ${compact ? 'flex-row h-full max-h-[220px]' : 'flex-col h-full overflow-y-auto no-scrollbar'}`}>
+    <article className={`overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ${t.ring} flex ${compact ? 'flex-row h-full max-h-[220px] items-center p-2 gap-2' : 'flex-col h-full overflow-y-auto no-scrollbar'}`}>
       {/* Imagen */}
       {src ? (
-        <div className={compact ? 'w-2/5 h-full shrink-0 relative overflow-hidden' : 'w-full'}>
+        <div className={compact ? 'w-[110px] h-[110px] shrink-0 relative overflow-hidden rounded-xl' : 'w-full'}>
           <Image
             src={src}
             alt={product.name}
@@ -80,7 +80,7 @@ export function ProductCard({
         </div>
       ) : (
         <div
-          className={`grid shrink-0 place-items-center border-dashed ${compact ? 'w-2/5 h-full border-r' : 'w-full h-40 border-b'} ${
+          className={`grid shrink-0 place-items-center border-dashed ${compact ? 'w-[110px] h-[110px] rounded-xl border' : 'w-full h-40 border-b'} ${
             t.priceBox ? 'border-[#e9b873]' : 'border-stone-200'
           }`}
           style={{ background: 'linear-gradient(180deg,#ffffff 0%,#f3e5c8 100%)' }}
@@ -94,7 +94,7 @@ export function ProductCard({
         </div>
       )}
 
-      <div className={`flex flex-1 flex-col min-h-0 ${compact ? 'p-2.5 gap-1.5 justify-center' : 'p-4 gap-2'}`}>
+      <div className={`flex flex-1 flex-col min-h-0 ${compact ? 'py-1 justify-center' : 'p-4 gap-2'}`}>
         {/* Nombre y precio */}
         <div className="flex items-start justify-between gap-1">
           <h3 className={`font-bold leading-tight line-clamp-2 ${compact ? 'text-xs' : 'text-base'} ${t.name}`}>{product.name}</h3>
