@@ -65,18 +65,31 @@ export function ProductCard({
     setAdded(false);
     remove(catalogSlug, selectedVariantId || product.id);
   };  return (
-    <article className={`overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ${t.ring} flex ${compact ? 'flex-row h-[140px] items-center p-2 gap-2' : 'flex-col h-full overflow-y-auto no-scrollbar'}`}>
+    <article className={`relative overflow-hidden rounded-2xl shadow-sm ring-1 flex ${compact ? 'flex-row min-h-[150px] h-auto items-center p-3 gap-3 bg-white/70 backdrop-blur-md ' + t.ring : 'flex-col h-full bg-white overflow-y-auto no-scrollbar ' + t.ring}`}>
       {/* Imagen */}
       {src ? (
-        <div className={compact ? 'w-[110px] h-[110px] shrink-0 relative overflow-hidden rounded-xl' : 'w-full'}>
-          <Image
-            src={src}
-            alt={product.name}
-            className={`w-full object-cover ${compact ? 'absolute inset-0 h-full' : 'h-auto max-h-56'}`}
-            width={400}
-            height={400}
-            loading="lazy"
-          />
+        <div className={compact ? 'relative w-[110px] h-[110px] shrink-0' : 'w-full'}>
+          {compact && (
+            <>
+              {/* Adorno dinámico de fondo */}
+              <div className="absolute -inset-2 rounded-full bg-gradient-to-tr from-orange-300/40 to-yellow-100/60 blur-md pointer-events-none"></div>
+              {/* Detalle tipo hoja/sol */}
+              <svg className="absolute -bottom-3 -left-2 w-8 h-8 text-orange-400 rotate-[-15deg] opacity-70 pointer-events-none z-10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M11.644 1.59a.75.75 0 01.712 0l9.75 5.25a.75.75 0 010 1.32l-9.75 5.25a.75.75 0 01-.712 0l-9.75-5.25a.75.75 0 010-1.32l9.75-5.25z" />
+                <path d="M3.265 10.602l7.668 4.129a2.25 2.25 0 002.134 0l7.668-4.13a.75.75 0 01.712 1.32l-7.668 4.13a3.75 3.75 0 01-3.556 0l-7.668-4.13a.75.75 0 01.712-1.32z" />
+              </svg>
+            </>
+          )}
+          <div className={`relative overflow-hidden w-full h-full ${compact ? 'rounded-xl border-[3px] border-white shadow-md rotate-[-2deg] transition-transform hover:rotate-0' : ''}`}>
+            <Image
+              src={src}
+              alt={product.name}
+              className={`w-full object-cover ${compact ? 'absolute inset-0 h-full' : 'h-auto max-h-56'}`}
+              width={400}
+              height={400}
+              loading="lazy"
+            />
+          </div>
         </div>
       ) : (
         <div
@@ -94,27 +107,30 @@ export function ProductCard({
         </div>
       )}
 
-      <div className={`flex flex-1 flex-col min-h-0 ${compact ? 'py-1 justify-center h-full' : 'p-4 gap-2'}`}>
+      <div className={`flex flex-1 flex-col min-h-0 ${compact ? 'py-1 justify-center h-full z-10' : 'p-4 gap-2'}`}>
         {/* Nombre y precio */}
-        <div className={`flex ${compact ? 'flex-col items-start gap-1' : 'items-start justify-between gap-1'}`}>
-          <h3 className={`font-bold leading-tight line-clamp-2 ${compact ? 'text-xs' : 'text-base'} ${t.name}`}>{product.name}</h3>
+        <div className={`flex ${compact ? 'flex-col items-start gap-0.5' : 'items-start justify-between gap-1'}`}>
+          <h3 className={`font-bold leading-tight line-clamp-2 ${compact ? 'text-[13px] font-serif tracking-tight' : 'text-base'} ${t.name}`}>{product.name}</h3>
+          
+          {/* Descripción en móvil y desktop */}
+          {product.description && (
+            <p className={`${compact ? 'text-[10px] italic leading-tight text-stone-600 line-clamp-2 mb-1.5' : 'text-sm text-stone-600 leading-snug mb-2'}`}>
+              {product.description}
+            </p>
+          )}
+
           <span className={`whitespace-nowrap font-bold ${compact ? 'w-fit' : ''} ${t.priceBox} ${t.price}`}>
             {product.variants && !selectedVariantId ? (
               <span className="text-[11px] text-stone-500">
                 ${Math.min(...product.variants.map(v => v.price)).toFixed(2)} - ${Math.max(...product.variants.map(v => v.price)).toFixed(2)}
               </span>
             ) : (
-              <span className={`${product.priceNote && !product.variants ? 'text-xs' : (compact ? 'text-xs px-1.5 py-0.5 rounded-md' : 'text-base')}`}>
+              <span className={`${product.priceNote && !product.variants ? 'text-xs' : (compact ? 'text-[11px] px-1.5 py-0.5 rounded-md' : 'text-base')}`}>
                 ${displayPrice.toFixed(2)}
               </span>
             )}
           </span>
         </div>
-
-        {/* Descripción */}
-        {!compact && (
-          <p className="text-sm text-stone-600 leading-snug">{product.description}</p>
-        )}
 
         {/* Variantes & Botón */}
         <div className="mt-auto flex flex-col gap-2">
