@@ -65,7 +65,7 @@ export function ProductCard({
     setAdded(false);
     remove(catalogSlug, selectedVariantId || product.id);
   };  return (
-    <article className={`relative overflow-hidden rounded-2xl shadow-sm ring-1 flex ${compact ? 'flex-row min-h-[150px] h-auto items-center p-3 gap-3 bg-white/70 backdrop-blur-md ' + t.ring : 'flex-col h-full bg-white overflow-y-auto no-scrollbar ' + t.ring}`}>
+    <article className={`relative overflow-hidden rounded-2xl shadow-sm ring-1 flex ${compact ? 'flex-row h-full items-center p-3 gap-3 bg-white/70 backdrop-blur-md ' + t.ring : 'flex-col h-full bg-white overflow-y-auto no-scrollbar ' + t.ring}`}>
       {/* Imagen */}
       {src ? (
         <div className={compact ? 'relative w-[110px] h-[110px] shrink-0' : 'w-full'}>

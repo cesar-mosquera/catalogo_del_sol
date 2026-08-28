@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import { BASE_PATH } from '@/lib/base-path';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import './globals.css';
@@ -27,12 +28,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <ErrorBoundary>
           {children}
         </ErrorBoundary>
-        <ServiceWorkerRegister />
+        <Script id="sw-register" strategy="afterInteractive">{`
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('${BASE_PATH}/sw.js').catch(function () {});
+          }
+        `}</Script>
       </body>
     </html>
   );
 }
 
-function ServiceWorkerRegister() {
-  return <script dangerouslySetInnerHTML={{ __html: `if ('serviceWorker' in navigator) { navigator.serviceWorker.register('${BASE_PATH}/sw.js').catch(function () {}); }` }} />;
-}

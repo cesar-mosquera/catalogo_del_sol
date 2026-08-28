@@ -273,7 +273,7 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
                 {catalog.coverImage && (
                   <>
                     <Image src={asset(catalog.coverImage)} alt="" fill priority className="object-cover" sizes="100vw" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-black/20" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
                   </>
                 )}
                 {!catalog.coverImage && (
@@ -349,9 +349,9 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
                   <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18.75a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-1.5a.75.75 0 01.75-.75zM6.166 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.06 1.061l1.59 1.59zM4.5 12a.75.75 0 01-.75.75H1.5a.75.75 0 010-1.5h2.25a.75.75 0 01.75.75zM6.166 5.106a.75.75 0 00-1.06 1.06l1.59 1.591a.75.75 0 101.06-1.06l-1.59-1.591z" />
                 </svg>
                 
-                <div className="flex-1 min-h-0 w-full overflow-hidden flex flex-col justify-start gap-3 pb-2 pt-2">
+                <div className="flex-1 w-full overflow-hidden flex flex-col gap-3 pb-2 pt-2">
                   {page.products.map(p => (
-                    <div key={p.id} className="w-full shrink-0">
+                    <div key={p.id} className="w-full flex-1 min-h-0">
                       <ProductCard product={p} catalogSlug={catalog.slug} compact={true} theme={catalog.theme?.card} />
                     </div>
                   ))}
