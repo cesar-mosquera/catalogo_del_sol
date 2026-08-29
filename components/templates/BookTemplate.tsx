@@ -8,13 +8,13 @@ import { ProductCard } from '@/components/ProductCard';
 
 /* Colores por defecto (look clásico naranja/piedra) si el catálogo no trae `theme` */
 const T = {
-  coverBg: '#0c0a09',       // stone-950
+  coverBg: '#1c1917',       // stone-900
   coverTitle: '#ffffff',
-  coverTagline: '#fed7aa',  // orange-200
-  pageBg: '#fff7ed',        // orange-50
-  pageText: '#1c1917',      // stone-900
-  heading: '#1c1917',
-  headingSplash: 'rgba(254,215,170,0.6)', // orange-200/60
+  coverTagline: '#fcd34d',  // amber-300
+  pageBg: '#fffbeb',        // amber-50
+  pageText: '#451a03',      // amber-950
+  heading: '#b45309',       // amber-700
+  headingSplash: 'rgba(253,224,132,0.7)', // amber-200/70
 };
 
 /* ────────────────────────────────────────────────────────── */
