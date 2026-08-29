@@ -84,7 +84,7 @@ button, input, textarea { font: inherit; }
   .book-cover-content h1 { font-size: 1.8rem; }
 
   .notebook-menu-page {
-    padding: 20px 14px calc(38px + env(safe-area-inset-bottom)) 26px !important;
+    padding: 12px 10px calc(24px + env(safe-area-inset-bottom)) 16px !important;
     background-color: var(--menu-page-bg, #fffbeb) !important;
     background-image: var(--menu-page-lines, linear-gradient(to bottom, transparent 0, transparent 29px, rgba(217,165,116,0.15) 30px)) !important;
     background-size: 100% 30px !important;

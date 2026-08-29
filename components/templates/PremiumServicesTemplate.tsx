@@ -39,6 +39,7 @@ function FilterGroup({
   title, options, selected, onToggle, onClear, resultCount,
   singularNoun = 'plan', pluralNoun = 'planes',
   sticky = false,
+  orientation = 'horizontal',
 }: {
   title: string;
   options: { id: string; label: string }[];
@@ -49,6 +50,7 @@ function FilterGroup({
   singularNoun?: string;
   pluralNoun?: string;
   sticky?: boolean;
+  orientation?: 'horizontal' | 'sidebar';
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -74,9 +76,9 @@ function FilterGroup({
   if (options.length === 0) return null;
 
   return (
-    <div className={`${sticky ? 'sticky top-0 z-40' : ''} mb-6 sm:mb-10`}>
-      <div className={`${sticky ? 'border-b border-stone-200/60 bg-white/80 backdrop-blur-xl shadow-[0_1px_3px_rgb(0,0,0,0.04)]' : ''}`}>
-        <div className="mx-auto max-w-5xl px-4 py-3 sm:px-5">
+    <div className={`${sticky && orientation !== 'sidebar' ? 'sticky top-0 z-40' : ''} mb-6 ${orientation === 'sidebar' ? 'lg:mb-0' : 'sm:mb-10'}`}>
+      <div className={`${sticky && orientation !== 'sidebar' ? 'border-b border-stone-200/60 bg-white/80 backdrop-blur-xl shadow-[0_1px_3px_rgb(0,0,0,0.04)]' : ''}`}>
+        <div className={`mx-auto max-w-5xl ${orientation === 'sidebar' ? 'lg:px-0 lg:py-0' : ''} px-4 py-3 sm:px-5`}>
           {/* Fila: título + badge contador + limpiar */}
           <div className="flex items-center justify-between gap-3 mb-2.5">
             <div className="flex items-center gap-2.5 min-w-0">
@@ -108,7 +110,7 @@ function FilterGroup({
 
             <div
               ref={scrollRef}
-              className="no-scrollbar flex gap-1.5 overflow-x-auto scroll-smooth pb-0.5"
+              className={`no-scrollbar flex gap-1.5 ${orientation === 'sidebar' ? 'lg:flex-col lg:gap-2' : ''} overflow-x-auto scroll-smooth pb-0.5`}
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
               {options.map((opt) => {
@@ -120,9 +122,9 @@ function FilterGroup({
                     aria-pressed={active}
                     className="flex-shrink-0 group"
                   >
-                    <span className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[11px] font-medium tracking-wide transition-all duration-200 select-none whitespace-nowrap ${
+                    <span className={`flex items-center justify-between gap-2 rounded-full px-3.5 py-1.5 text-[11px] font-medium tracking-wide transition-all duration-200 select-none ${orientation === 'sidebar' ? 'lg:w-full lg:rounded-xl lg:px-4 lg:py-3 lg:text-xs' : 'whitespace-nowrap'} ${
                       active
-                        ? 'bg-amber-600 text-white shadow-md shadow-amber-600/10 scale-[1.02]'
+                        ? 'bg-amber-600 text-white shadow-md shadow-amber-600/10 scale-[1.02] lg:scale-100'
                         : 'bg-stone-100 text-stone-500 hover:bg-stone-200/70 hover:text-stone-700'
                     }`}>
                       {opt.label}
@@ -1142,41 +1144,49 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
               sub="Toca “Probar Demostración” en cualquier plan para verlo funcionando con productos reales."
             />
 
-            <FilterGroup
-              title="¿Qué funciones necesitas?"
-              options={planFeatures.map((row) => ({ id: row.feature, label: row.feature }))}
-              selected={activeFeatures}
-              onToggle={toggleFeature}
-              onClear={() => setActiveFeatures([])}
-              resultCount={visiblePlans.length}
-              sticky
-            />
+            <div className="flex flex-col lg:flex-row lg:items-start lg:gap-8">
+              {/* Sidebar lateral en Desktop */}
+              <div className="lg:sticky lg:top-24 lg:w-64 lg:shrink-0">
+                <FilterGroup
+                  title="¿Qué funciones necesitas?"
+                  options={planFeatures.map((row) => ({ id: row.feature, label: row.feature }))}
+                  selected={activeFeatures}
+                  onToggle={toggleFeature}
+                  onClear={() => setActiveFeatures([])}
+                  resultCount={visiblePlans.length}
+                  orientation="sidebar"
+                />
+              </div>
 
-            {visiblePlans.length > 0 ? (
-              <div className="grid justify-center gap-4 transition-all duration-500 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {visiblePlans.map((product, idx) => (
-                  <div
-                    key={product.id}
-                    className="transition-all duration-500"
-                    style={{ transitionDelay: `${idx * 60}ms`, animation: 'fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}
-                  >
-                    <PremiumServiceCard product={product} catalogSlug={catalog.slug} />
+              {/* Grid de Planes */}
+              <div className="flex-1">
+                {visiblePlans.length > 0 ? (
+                  <div className="grid justify-center gap-4 transition-all duration-500 sm:gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+                    {visiblePlans.map((product, idx) => (
+                      <div
+                        key={product.id}
+                        className="transition-all duration-500"
+                        style={{ transitionDelay: `${idx * 60}ms`, animation: 'fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}
+                      >
+                        <PremiumServiceCard product={product} catalogSlug={catalog.slug} />
+                      </div>
+                    ))}
                   </div>
-                ))}
+                ) : (
+                  <div className="mx-auto max-w-md rounded-2xl border border-stone-200/60 bg-white/60 p-8 text-center shadow-sm backdrop-blur-md">
+                    <p className="text-4xl">🔍</p>
+                    <p className="mt-3 font-semibold text-stone-700">Ningún plan incluye todo lo que marcaste</p>
+                    <p className="mt-2 text-sm font-normal text-stone-500">Prueba quitar un filtro o compara los planes para ver qué incluye cada uno.</p>
+                    <button
+                      onClick={() => setActiveFeatures([])}
+                      className="mt-5 rounded-xl bg-amber-600 px-6 py-3 text-xs font-semibold uppercase tracking-widest text-white shadow-lg shadow-amber-600/15 transition-all hover:bg-amber-500 active:scale-95"
+                    >
+                      ✕ Limpiar filtros
+                    </button>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="mx-auto max-w-md rounded-[2.5rem] border border-stone-200/60 bg-white/60 p-8 text-center shadow-sm backdrop-blur-md">
-                <p className="text-4xl">🔍</p>
-                <p className="mt-3 font-semibold text-stone-700">Ningún plan incluye todo lo que marcaste</p>
-                <p className="mt-2 text-sm font-normal text-stone-500">Prueba quitar un filtro o compara los planes para ver qué incluye cada uno.</p>
-                <button
-                  onClick={() => setActiveFeatures([])}
-                  className="mt-5 rounded-xl bg-stone-800 px-6 py-3 text-xs font-semibold uppercase tracking-widest text-white shadow-lg shadow-stone-800/15 transition-all hover:bg-stone-700 active:scale-95"
-                >
-                  ✕ Limpiar filtros
-                </button>
-              </div>
-            )}
+            </div>
 
             {/* Servicios adicionales */}
             {addonSections.length > 0 && (
@@ -1217,7 +1227,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                     <p className="mt-3 font-semibold text-stone-700">No hay servicios con ese tipo de pago</p>
                     <button
                       onClick={() => setActiveAddonBadges([])}
-                  className="mt-5 rounded-xl bg-amber-600 px-6 py-3 text-xs font-semibold uppercase tracking-widest text-white shadow-lg shadow-amber-600/15 transition-all hover:bg-amber-500 active:scale-95"
+                      className="mt-5 rounded-xl bg-amber-600 px-6 py-3 text-xs font-semibold uppercase tracking-widest text-white shadow-lg shadow-amber-600/15 transition-all hover:bg-amber-500 active:scale-95"
                     >
                       ✕ Limpiar filtros
                     </button>
