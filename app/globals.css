@@ -48,18 +48,18 @@ button, input, textarea { font: inherit; }
   .book-fullscreen {
     height: 100svh;
     height: 100dvh;
-    padding: 12px 6px 12px 8px; /* Pequeño margen para ver el fondo */
+    padding: 8px; /* Márgen uniforme en todos los lados */
     align-items: stretch;
-    background-color: #1c1917; /* Fondo oscuro tipo mesa */
+    background-color: #1c1917;
   }
 
   .book-frame-fullscreen {
     width: 100%;
     height: 100%;
-    padding: 6px 6px 6px 16px; /* Espacio para el lomo del libro */
+    padding: 4px 4px 4px 10px; /* Lomo reducido para centrar mejor la hoja */
     border-radius: 4px 10px 10px 4px;
     box-shadow: -2px 4px 0 #150603, 0 10px 30px rgba(0,0,0,0.8);
-    background: linear-gradient(90deg, #2b1208 0 10px, #5a2a12 10px 14px, #f0e2c8 14px 100%);
+    background: linear-gradient(90deg, #2b1208 0 8px, #5a2a12 8px 12px, #f0e2c8 12px 100%);
   }
 
   .book-frame-fullscreen::before {
