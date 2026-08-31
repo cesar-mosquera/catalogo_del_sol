@@ -287,7 +287,7 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
                 {catalog.coverImage && (
                   <>
                     <Image src={asset(catalog.coverImage)} alt="" fill priority
-                      className="object-contain object-center"
+                      className="object-cover object-center"
                       sizes="100vw" />
                     {catalog.hideCoverText ? (
                       /* Modo sin texto: la imagen ya está diseñada perfectamente, solo una viñeta muy sutil para dar forma al libro */

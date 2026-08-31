@@ -48,7 +48,7 @@ button, input, textarea { font: inherit; }
   .book-fullscreen {
     height: 100svh;
     height: 100dvh;
-    padding: 8px; /* Márgen uniforme en todos los lados */
+    padding: 0; /* La hoja completa, sin márgenes exteriores en móvil */
     align-items: stretch;
     background-color: #1c1917;
   }
@@ -56,22 +56,18 @@ button, input, textarea { font: inherit; }
   .book-frame-fullscreen {
     width: 100%;
     height: 100%;
-    padding: 4px 4px 4px 10px; /* Lomo reducido de 10px */
-    border-radius: 4px 10px 10px 4px;
-    box-shadow: -2px 4px 0 #150603, 0 10px 30px rgba(0,0,0,0.8);
-    background: linear-gradient(90deg, #2b1208 0 7px, #5a2a12 7px 10px, #f0e2c8 10px 100%);
+    padding: 0; /* Sin lomo ni márgenes */
+    border-radius: 0; /* Sin bordes redondeados */
+    box-shadow: none;
+    background: none; /* Sin gradiente de lomo */
   }
 
   .book-frame-fullscreen::before {
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: 10px; /* Exactamente igual al padding para no superponerse a la portada */
-    border-radius: 0;
+    display: none; /* Ocultar efecto 3D del lomo */
   }
 
   .notebook-stage-fullscreen {
-    border-radius: 1px 5px 5px 1px;
+    border-radius: 0;
   }
 
   .notebook-spine { width: 5px; }
