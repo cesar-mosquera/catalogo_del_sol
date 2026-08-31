@@ -286,8 +286,22 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
               <div className={`relative flex h-full flex-col overflow-hidden text-white`} style={{ backgroundColor: t.coverBg }}>
                 {catalog.coverImage && (
                   <>
-                    <Image src={asset(catalog.coverImage)} alt="" fill priority className={`object-cover scale-105 ${catalog.hideCoverText ? 'brightness-110' : ''}`} sizes="100vw" />
-                    {!catalog.hideCoverText && (
+                    <Image src={asset(catalog.coverImage)} alt="" fill priority
+                      className={`object-cover scale-105 ${catalog.hideCoverText ? 'brightness-125 contrast-105 saturate-110' : ''}`}
+                      sizes="100vw" />
+                    {catalog.hideCoverText ? (
+                      /* Modo sin texto: overlays decorativos que iluminan la foto */
+                      <>
+                        {/* Destello dorado central tipo sol */}
+                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_40%,rgba(251,191,36,0.18)_0%,transparent_65%)] pointer-events-none" />
+                        {/* Viñeta suave en los bordes (encuadra la foto) */}
+                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,transparent_55%,rgba(0,0,0,0.35)_100%)] pointer-events-none" />
+                        {/* Brillo dorado en el borde superior */}
+                        <div className="absolute top-0 inset-x-0 h-20 bg-gradient-to-b from-amber-400/20 to-transparent pointer-events-none" />
+                        {/* Borde dorado inferior */}
+                        <div className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t from-amber-900/30 to-transparent pointer-events-none" />
+                      </>
+                    ) : (
                       <>
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/50" />
                         <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent" />
@@ -302,9 +316,12 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
                   </div>
                 )}
 
-                {/* Decoración: Líneas doradas sutiles */}
-                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent" />
+                {/* Líneas doradas premium en bordes horizontales */}
+                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/60 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/60 to-transparent" />
+                {/* Destellos en esquinas */}
+                <div className="absolute top-3 left-3 w-6 h-6 bg-amber-400/20 rounded-full blur-md pointer-events-none" />
+                <div className="absolute top-3 right-3 w-6 h-6 bg-amber-400/20 rounded-full blur-md pointer-events-none" />
 
                 <div className="book-cover-content relative z-10 flex h-full flex-col items-center justify-between p-5 pt-6 sm:p-6 sm:pt-8">
                   {/* Top: Badge premium */}
