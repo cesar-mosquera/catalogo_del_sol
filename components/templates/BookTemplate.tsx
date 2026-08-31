@@ -407,21 +407,21 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
                 {/* Marca de agua 1 (Ingredientes y hierbas - arriba a la izquierda) */}
                 <div 
                   className="absolute -top-4 -left-4 w-[85%] max-w-[350px] aspect-square pointer-events-none opacity-[0.22] mix-blend-multiply bg-no-repeat bg-contain bg-top-left -rotate-6 z-0"
-                  style={{ backgroundImage: `url(${asset('/img/watermark-ingredients.png')})` }}
+                  style={{ backgroundImage: `url(${asset('/img/watermark-ingredients.webp')})` }}
                   aria-hidden="true"
                 />
                 
                 {/* Marca de agua 3 (Sol vintage - arriba a la derecha) */}
                 <div 
                   className="absolute top-0 right-0 w-[75%] max-w-[300px] aspect-square pointer-events-none opacity-[0.20] mix-blend-multiply bg-no-repeat bg-contain bg-top-right rotate-[10deg] z-0"
-                  style={{ backgroundImage: `url(${asset('/img/watermark-sun.png')})` }}
+                  style={{ backgroundImage: `url(${asset('/img/watermark-sun.webp')})` }}
                   aria-hidden="true"
                 />
                 
                 {/* Marca de agua 2 (Parrilla - abajo a la derecha) */}
                 <div 
                   className="absolute -bottom-4 -right-4 w-[100%] max-w-[420px] aspect-square pointer-events-none opacity-[0.28] mix-blend-multiply bg-no-repeat bg-contain bg-right-bottom z-0"
-                  style={{ backgroundImage: `url(${asset('/img/watermark-sketch.png')})` }}
+                  style={{ backgroundImage: `url(${asset('/img/watermark-sketch.webp')})` }}
                   aria-hidden="true"
                 />
                 

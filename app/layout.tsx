@@ -1,10 +1,16 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
 import { BASE_PATH } from '@/lib/base-path';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import './globals.css';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+};
 
 export const metadata: Metadata = {
   ...(siteUrl ? { metadataBase: new URL(siteUrl) } : {}),
