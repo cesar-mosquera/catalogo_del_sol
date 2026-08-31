@@ -388,16 +388,16 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
                 className={`notebook-menu-page relative h-full overflow-hidden p-4 pb-8 flex flex-col ${themed ? 'menu-flat' : ''}`}
                 style={{ backgroundColor: t.pageBg, '--menu-page-bg': t.pageBg } as React.CSSProperties}
               >
-                <div className="flex-none mb-3">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-60" style={{ color: t.pageText }}>{catalog.name}</p>
+                <div className="flex-none mb-4 relative z-10 drop-shadow-sm">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-80" style={{ color: t.pageText }}>{catalog.name}</p>
                   <div className="relative mt-2 w-fit mb-2">
-                    <span className="absolute -inset-x-2 -inset-y-1 -rotate-2 rounded-lg" style={{ backgroundColor: t.headingSplash }} aria-hidden="true" />
-                    <h2 className="relative font-serif text-xl font-bold" style={{ color: t.heading }}>
-                      {page.sectionName} {page.isContinued && <span className="text-sm font-normal opacity-50">(cont.)</span>}
+                    <span className="absolute -inset-x-3 -inset-y-1.5 -rotate-2 rounded-lg opacity-90 shadow-sm" style={{ backgroundColor: t.headingSplash }} aria-hidden="true" />
+                    <h2 className="relative font-serif text-2xl font-black tracking-tight" style={{ color: t.heading }}>
+                      {page.sectionName} {page.isContinued && <span className="text-sm font-bold opacity-70">(cont.)</span>}
                     </h2>
                   </div>
                   {page.note && (
-                    <p className="mb-2 text-xs italic opacity-70" style={{ color: t.pageText }}>{page.note}</p>
+                    <p className="mb-2 text-xs font-medium italic opacity-90" style={{ color: t.pageText }}>{page.note}</p>
                   )}
                 </div>
                 
