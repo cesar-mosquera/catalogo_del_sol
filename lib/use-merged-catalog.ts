@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import type { Catalog } from './catalog-types';
 import { useAdmin } from '@/store/admin-store';
 
@@ -11,10 +11,12 @@ import { useAdmin } from '@/store/admin-store';
  * Las imágenes base64 del admin reemplazan las rutas estáticas.
  */
 export function useMergedCatalog(base: Catalog): Catalog {
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => setIsMounted(true), []);
   const override = useAdmin((s) => s.overrides[base.slug]);
 
   return useMemo((): Catalog => {
-    if (!override) return base;
+    if (!isMounted || !override) return base;
 
     return {
       ...base,

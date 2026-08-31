@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, Children } from 'react';
 import type { ReactNode } from 'react';
 import type { Catalog, Product } from '@/lib/catalog-types';
 import { BASE_PATH } from '@/lib/base-path';
@@ -13,22 +13,111 @@ function goTo(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-/* Partículas "brasas" del hero (dorado + cálidas) */
-const EMBERS = Array.from({ length: 22 }).map((_, i) => ({
+/* Partículas "brasas" del hero (blancas) */
+const EMBERS = Array.from({ length: 14 }).map((_, i) => ({
   left: (i * 47 + 5) % 100,
   size: 3 + (i % 3) * 1.6,
   dur: 9 + ((i * 13) % 10),
   delay: -(i * 1.7),
-  color: i % 3 === 0 ? '#fcd34d' : i % 3 === 1 ? '#f59e0b' : '#fef3c7',
+  color: i % 3 === 0 ? '#ffffff' : i % 3 === 1 ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.5)',
 }));
+
+/* ─────────────── ESTRELLITAS DECORATIVAS ─────────────── */
+
+/* Estrella "destello" de 4 puntas dibujada con SVG */
+function Star({ className = '', style }: { className?: string; style?: React.CSSProperties }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor" className={className} style={style}>
+      <path d="M12 0c.6 7.2 4.8 11.4 12 12-7.2.6-11.4 4.8-12 12-.6-7.2-4.8-11.4-12-12 7.2-.6 11.4-4.8 12-12z" />
+    </svg>
+  );
+}
+
+const STAR_COLORS = ['text-sky-300', 'text-sky-200', 'text-white', 'text-sky-200', 'text-cyan-200'];
+
+/* Posiciones del campo de estrellas */
+const STARS = Array.from({ length: 38 }).map((_, i) => ({
+  left: (i * 137 + 29) % 100,
+  top: (i * 89 + 53) % 100,
+  size: 6 + ((i * 31) % 6) * 2.5,
+  dur: 3 + ((i * 7) % 6) * 0.9,
+  delay: -(i * 0.55),
+  color: STAR_COLORS[i % STAR_COLORS.length],
+}));
+
+function StarField({ count = STARS.length, className = '', density = 1, colors = STAR_COLORS }: { count?: number; className?: string; density?: number; colors?: string[] }) {
+  const stars = count >= STARS.length ? STARS : STARS.slice(0, count);
+  return (
+    <div className={`pointer-events-none absolute inset-0 overflow-hidden ${className}`}>
+      {stars.map((s, i) => (
+        <Star
+          key={i}
+          className={`animate-twinkle absolute ${colors[i % colors.length]}`}
+          style={{
+            left: `${s.left}%`,
+            top: `${s.top}%`,
+            width: `${s.size * density}px`,
+            height: `${s.size * density}px`,
+            animationDuration: `${s.dur}s`,
+            animationDelay: `${s.delay}s`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+/* ── Estrellas fugaces que cruzan el cielo ── */
+const SHOOTING_STARS = Array.from({ length: 3 }).map((_, i) => ({
+  top: 10 + ((i * 23) % 45),
+  left: 10 + ((i * 37) % 55),
+  x: 280 + (i % 2) * 160,
+  y: -(150 + (i % 3) * 70),
+  dur: 6.5 + i * 1.8,
+  delay: -((i % 3) * 4.5),
+}));
+
+function ShootingStars() {
+  return (
+    <div className="pointer-events-none absolute inset-0 z-[2] overflow-hidden">
+      {SHOOTING_STARS.map((s, i) => (
+        <span
+          key={i}
+          className="animate-shoot absolute h-px w-24 rounded-full bg-gradient-to-r from-transparent via-sky-200 to-white sm:w-28"
+          style={{
+            top: `${s.top}%`,
+            left: `${s.left}%`,
+            ['--shoot-x' as string]: `${s.x}px`,
+            ['--shoot-y' as string]: `${s.y}px`,
+            ['--shoot-dur' as string]: `${s.dur}s`,
+            animationDelay: `${s.delay}s`,
+            boxShadow: '0 0 10px rgba(136,192,255,0.9), 0 0 3px rgba(255,255,255,0.9)',
+          }}
+        />
+      ))}
+    </div>
+  );
+}
 
 function SectionHeading({ kicker, title, sub }: { kicker: string; title: string; sub?: string }) {
   return (
     <div className="mb-5 text-center sm:mb-8">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-amber-600 sm:text-xs sm:tracking-[0.35em]">{kicker}</p>
-      <h2 className="mt-1 text-xl font-light tracking-wide font-display sm:mt-2 sm:text-2xl md:text-3xl">{title}</h2>
-      {sub && <p className="mx-auto mt-2 max-w-xl text-xs font-normal text-stone-500 leading-relaxed sm:mt-3 sm:max-w-2xl sm:text-sm">{sub}</p>}
-      <div className="mx-auto mt-3 h-px w-12 bg-gradient-to-r from-transparent via-amber-300 to-transparent sm:mt-4 sm:w-20" />
+      <p className="animate-gradient-x inline-flex items-center gap-2 bg-gradient-to-r from-sky-600 via-indigo-600 to-cyan-500 bg-clip-text text-[10px] font-semibold uppercase tracking-[0.3em] text-transparent sm:text-xs sm:tracking-[0.35em]">
+        <span className="hidden h-2.5 w-2.5 sm:block">
+          <Star className="h-full w-full animate-twinkle text-sky-500" style={{ animationDuration: '3.4s', filter: 'drop-shadow(0 0 4px currentColor)' }} />
+        </span>
+        {kicker}
+        <span className="hidden h-2.5 w-2.5 sm:block">
+          <Star className="h-full w-full animate-twinkle text-sky-500" style={{ animationDuration: '2.7s', filter: 'drop-shadow(0 0 4px currentColor)' }} />
+        </span>
+      </p>
+      <h2 className="mt-1 text-xl font-light tracking-wide font-display sm:mt-2 sm:text-2xl md:text-3xl text-slate-800">{title}</h2>
+      {sub && <p className="mx-auto mt-2 max-w-xl text-xs font-normal text-slate-500 leading-relaxed sm:mt-3 sm:max-w-2xl sm:text-sm">{sub}</p>}
+      <div className="relative mx-auto mt-3 h-px w-12 bg-gradient-to-r from-transparent via-sky-500/60 to-transparent sm:mt-4 sm:w-20">
+        <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+          <Star className="h-2.5 w-2.5 animate-twinkle text-sky-500" style={{ animationDuration: '3s' }} />
+        </span>
+      </div>
     </div>
   );
 }
@@ -76,15 +165,15 @@ function FilterGroup({
   if (options.length === 0) return null;
 
   return (
-    <div className={`${sticky && orientation !== 'sidebar' ? 'sticky top-0 z-40' : ''} mb-6 ${orientation === 'sidebar' ? 'lg:mb-0' : 'sm:mb-10'}`}>
-      <div className={`${sticky && orientation !== 'sidebar' ? 'border-b border-stone-200/60 bg-white/80 backdrop-blur-xl shadow-[0_1px_3px_rgb(0,0,0,0.04)]' : ''}`}>
-        <div className={`mx-auto max-w-5xl ${orientation === 'sidebar' ? 'lg:px-0 lg:py-0' : ''} px-4 py-3 sm:px-5`}>
+    <div className={`${sticky && orientation !== 'sidebar' ? 'sticky top-4 z-40' : ''} mb-6 ${orientation === 'sidebar' ? 'lg:mb-0' : 'sm:mb-10'}`}>
+      <div className={`${sticky && orientation !== 'sidebar' ? 'rounded-2xl border border-slate-200/80 bg-white/95 backdrop-blur-md shadow-lg shadow-slate-900/5' : 'rounded-2xl bg-white p-1.5 shadow-md shadow-slate-900/5 border border-slate-200/80'}`}>
+        <div className={`mx-auto max-w-5xl ${orientation === 'sidebar' ? 'lg:px-0 lg:py-0' : ''} px-3 py-3 sm:px-5`}>
           {/* Fila: título + badge contador + limpiar */}
-          <div className="flex items-center justify-between gap-3 mb-2.5">
+          <div className="flex items-center justify-between gap-3 mb-3 pl-1">
             <div className="flex items-center gap-2.5 min-w-0">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-stone-400 truncate">{title}</span>
+              <span className="text-xs font-bold uppercase tracking-[0.2em] text-slate-800 truncate">{title}</span>
               {resultCount !== undefined && selected.length > 0 && (
-                <span className="flex-shrink-0 inline-flex items-center justify-center h-5 min-w-[20px] rounded-full bg-amber-600 px-1.5 text-[10px] font-semibold text-white tabular-nums">
+                <span className="flex-shrink-0 inline-flex items-center justify-center h-5 min-w-[20px] rounded-full bg-gradient-to-r from-sky-500 to-cyan-400 px-1.5 text-[10px] font-bold text-white tabular-nums shadow-sm">
                   {resultCount}
                 </span>
               )}
@@ -92,7 +181,7 @@ function FilterGroup({
             {selected.length > 0 && (
               <button
                 onClick={onClear}
-                className="flex-shrink-0 text-[11px] font-medium text-stone-400 underline decoration-stone-300 underline-offset-2 transition-colors hover:text-amber-600"
+                className="flex-shrink-0 rounded-full bg-slate-100 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500 transition-colors hover:bg-slate-200 hover:text-slate-700"
               >
                 Limpiar
               </button>
@@ -102,15 +191,15 @@ function FilterGroup({
           {/* Chips horizontales con scroll */}
           <div className="relative">
             {canScrollLeft && (
-              <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white/90 to-transparent z-10 pointer-events-none" />
+              <div className="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none rounded-l-xl" />
             )}
             {canScrollRight && (
-              <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white/90 to-transparent z-10 pointer-events-none" />
+              <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none rounded-r-xl" />
             )}
 
             <div
               ref={scrollRef}
-              className={`no-scrollbar flex gap-1.5 ${orientation === 'sidebar' ? 'lg:flex-col lg:gap-2' : ''} overflow-x-auto scroll-smooth pb-0.5`}
+              className={`no-scrollbar flex gap-2 ${orientation === 'sidebar' ? 'lg:flex-col lg:gap-2' : ''} overflow-x-auto scroll-smooth pb-1 pt-1 px-1`}
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
               {options.map((opt) => {
@@ -122,15 +211,15 @@ function FilterGroup({
                     aria-pressed={active}
                     className="flex-shrink-0 group"
                   >
-                    <span className={`flex items-center justify-between gap-2 rounded-full px-3.5 py-1.5 text-[11px] font-medium tracking-wide transition-all duration-200 select-none ${orientation === 'sidebar' ? 'lg:w-full lg:rounded-xl lg:px-4 lg:py-3 lg:text-xs' : 'whitespace-nowrap'} ${
+                    <span className={`flex items-center justify-between gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold tracking-wide transition-all duration-300 select-none ${orientation === 'sidebar' ? 'lg:w-full lg:px-4 lg:py-3 lg:text-sm' : 'whitespace-nowrap'} ${
                       active
-                        ? 'bg-amber-600 text-white shadow-md shadow-amber-600/10 scale-[1.02] lg:scale-100'
-                        : 'bg-stone-100 text-stone-500 hover:bg-stone-200/70 hover:text-stone-700'
+                        ? 'bg-gradient-to-r from-sky-500 to-cyan-500 text-white shadow-md shadow-sky-500/30 scale-[1.02] lg:scale-100'
+                        : 'bg-slate-50 text-slate-600 ring-1 ring-slate-200/80 hover:bg-white hover:text-sky-700 hover:ring-sky-300 hover:shadow-sm'
                     }`}>
                       {opt.label}
                       {active && (
-                        <svg className="h-3 w-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        <svg className="h-3.5 w-3.5 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                       )}
                     </span>
@@ -149,14 +238,17 @@ function FilterGroup({
 
 function Reveal({ children, delay = 0, className = '' }: { children: ReactNode; delay?: number; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [shown, setShown] = useState(
-    // Muestra inmediatamente si el navegador no soporta IntersectionObserver
-    () => typeof IntersectionObserver === 'undefined'
-  );
+  const [shown, setShown] = useState(false);
 
   useEffect(() => {
     const el = ref.current;
     if (!el || shown) return;
+
+    if (typeof IntersectionObserver === 'undefined') {
+      setShown(true);
+      return;
+    }
+
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) { setShown(true); io.disconnect(); }
@@ -183,6 +275,139 @@ function Reveal({ children, delay = 0, className = '' }: { children: ReactNode; 
     </div>
   );
 }
+
+/* ─────────────── GRUPOS ESCALONADOS AL HACER SCROLL ─────────────── */
+
+function StaggerGroup({ children, delay = 70, className = '' }: { children: ReactNode; delay?: number; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [shown, setShown] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || shown) return;
+    if (typeof IntersectionObserver === 'undefined') {
+      setShown(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) { setShown(true); io.disconnect(); }
+      },
+      { threshold: 0.08, rootMargin: '0px 0px -60px 0px' }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [shown]);
+
+  return (
+    <div ref={ref} className={className} suppressHydrationWarning>
+      {Children.map(children, (child, i) => (
+        <div
+          key={i}
+          style={{
+            opacity: shown ? 1 : 0,
+            transform: shown ? 'none' : 'translateY(30px) scale(0.97)',
+            transition: 'opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+            transitionDelay: shown ? `${i * delay}ms` : '0ms',
+          }}
+        >
+          {child}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ─────────────── PALABRA ROTATIVA DEL H1 ─────────────── */
+
+const HERO_WORDS = ['catálogo que enamora', 'menú digital con carrito', 'carta QR que vende solo'];
+
+function RotatingText({ words }: { words: string[] }) {
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setI((p) => (p + 1) % words.length), 3600);
+    return () => clearInterval(t);
+  }, [words.length]);
+  return (
+    <span className="relative inline-block min-h-[1.25em] align-baseline">
+      <span
+        key={i}
+        className="animate-gradient-x animate-word-in inline-block bg-gradient-to-r from-sky-300 via-sky-200 to-cyan-200 bg-clip-text font-bold text-transparent"
+      >
+        {words[i]}
+      </span>
+    </span>
+  );
+}
+
+/* ─────────────── BARRA DE PROGRESO DEL SCROLL ─────────────── */
+
+function ScrollProgress() {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    let raf = 0;
+    let h = document.documentElement.scrollHeight - window.innerHeight;
+    
+    const onResize = () => {
+      h = document.documentElement.scrollHeight - window.innerHeight;
+    };
+    
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        if (ref.current) {
+          const p = h > 0 ? Math.min(1, window.scrollY / h) : 0;
+          ref.current.style.transform = `scaleX(${p})`;
+        }
+        raf = 0;
+      });
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onResize, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onResize);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+  return (
+    <div className="pointer-events-none fixed left-0 top-0 z-[80] h-[3px] w-full">
+      <div
+        ref={ref}
+        className="h-full origin-left bg-gradient-to-r from-sky-400 via-cyan-300 to-sky-300 shadow-[0_0_12px_rgba(56,189,248,0.8)] transition-transform duration-150 ease-out"
+        style={{ transform: `scaleX(0)` }}
+      />
+    </div>
+  );
+}
+
+/* ─────────────── BOTÓN FLOTANTE DE WHATSAPP ─────────────── */
+
+function WhatsAppFloat({ href }: { href: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Escríbenos por WhatsApp"
+      className="fixed bottom-5 right-5 z-[70] flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-green-500 text-2xl shadow-lg shadow-black/40 transition-transform hover:scale-110 active:scale-95 animate-fade-in-up"
+    >
+      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400/40" />
+      <span className="relative">💬</span>
+    </a>
+  );
+}
+
+/* ─────────────── DECORACIÓN FLOTANTE DE CONTENIDO ─────────────── */
+
+const FLOATERS = [
+  { e: '🍽️', l: '3%', t: '6%', s: '1.7rem', dur: 9, d: '0s' },
+  { e: '🛵', l: '93%', t: '14%', s: '2.1rem', dur: 11, d: '-2s' },
+  { e: '📦', l: '2%', t: '58%', s: '1.9rem', dur: 10, d: '-4s' },
+  { e: '🧾', l: '95%', t: '70%', s: '1.6rem', dur: 12, d: '-1s' },
+  { e: '🛍️', l: '46%', t: '86%', s: '1.8rem', dur: 9.5, d: '-5s' },
+];
 
 /* ─────────────── INCLINACIÓN 3D AL MOUSE ─────────────── */
 
@@ -240,6 +465,45 @@ function ConfettiBurst() {
   );
 }
 
+/* ─────────────── COLLAPSIBLE INFO ─────────────── */
+
+function CollapsibleInfo({ children }: { children: ReactNode }) {
+  const [open, setOpen] = useState(false);
+  
+  if (!open) {
+    return (
+      <div className="mt-4 flex flex-col items-center pb-10">
+        <button 
+          onClick={() => setOpen(true)} 
+          className="group flex flex-col items-center gap-2 rounded-2xl bg-white px-8 py-5 text-sm font-bold uppercase tracking-[0.15em] text-slate-700 shadow-md shadow-slate-900/5 ring-1 ring-slate-200 transition-all hover:bg-sky-50 hover:text-sky-700 hover:ring-sky-300 hover:shadow-lg sm:px-12 sm:text-base"
+        >
+          <span>Conoce el proceso y detalles</span>
+          <svg className="h-5 w-5 animate-bounce text-sky-400 group-hover:text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full space-y-12 sm:space-y-16 animate-fade-in-up">
+      {children}
+      <div className="flex justify-center pb-12 pt-4">
+        <button 
+          onClick={() => { setOpen(false); document.getElementById('info-extra')?.scrollIntoView({ behavior: 'smooth', block: 'center' }) }} 
+          className="flex items-center gap-2 rounded-full bg-slate-100 px-6 py-3 text-xs font-bold uppercase tracking-widest text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-colors"
+        >
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
+          </svg>
+          Ocultar detalles
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /* ─────────────── TELÉFONO DEMO INTERACTIVO ─────────────── */
 
 type HeroDemo = { id: string; name: string; tag: string; img: string; demoUrl: string | null };
@@ -261,19 +525,20 @@ function PhoneDemo({ demos, catalogSlug }: { demos: HeroDemo[]; catalogSlug: str
 
   return (
     <div className="relative mx-auto w-full max-w-[280px] sm:max-w-[380px] lg:max-w-[400px] animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-      <div className="absolute inset-0 scale-90 rounded-full bg-gradient-to-tr from-amber-400/30 to-orange-300/20 blur-[90px] animate-blob" />
+      <div className="absolute inset-0 animate-glow-pulse scale-90 rounded-full bg-[radial-gradient(circle,rgba(56,189,248,0.15)_0%,transparent_70%)] will-change-transform" />
+      <div className="absolute inset-0 scale-90 rounded-full bg-[radial-gradient(circle,rgba(34,211,238,0.15)_0%,transparent_70%)] animate-blob will-change-transform" />
 
       {/* Aviso "tócalo" — arriba en desktop, abajo en mobile para no cortar */}
       <div className="hidden sm:block absolute -top-10 left-1/2 z-20 -translate-x-1/2 animate-wiggle">
-        <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/40 px-4 py-2 text-[11px] font-black uppercase tracking-widest text-amber-200 shadow-xl backdrop-blur-md">
+        <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/40 px-4 py-2 text-[11px] font-black uppercase tracking-widest text-sky-200 shadow-xl backdrop-blur-md">
           👆 Toca el celular <span className="animate-bounce-x">→</span>
         </span>
       </div>
 
       <div onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onClick={next}>
         <TiltCard className="relative cursor-pointer" max={9}>
-          <div className="relative animate-float-slow rounded-[2.7rem] border border-white/25 bg-white/10 p-3 shadow-[0_50px_100px_-24px_rgba(0,0,0,0.8)] backdrop-blur-xl">
-            <div className="relative overflow-hidden rounded-[2.2rem] bg-stone-900">
+          <div className="relative animate-float-slow rounded-[2.7rem] border border-white/25 bg-slate-900/45 p-3 shadow-[0_50px_100px_-24px_rgba(0,0,0,0.8)]">
+            <div className="relative overflow-hidden rounded-[2.2rem] bg-slate-900">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={asset(d.img)}
@@ -298,22 +563,22 @@ function PhoneDemo({ demos, catalogSlug }: { demos: HeroDemo[]; catalogSlug: str
             onClick={(e) => { e.stopPropagation(); setI(idx); }}
             aria-label={`Ver ${dm.name}`}
             className={`h-2.5 rounded-full transition-all duration-300 ${
-              idx === i ? 'w-7 bg-gradient-to-r from-amber-300 to-orange-400' : 'w-2.5 bg-stone-300/40 hover:bg-stone-300/70'
+              idx === i ? 'w-7 bg-gradient-to-r from-sky-300 to-cyan-400' : 'w-2.5 bg-slate-300/40 hover:bg-slate-300/70'
             }`}
           />
         ))}
       </div>
 
       {/* Tarjeta flotante derecha — solo desktop */}
-      <div className="hidden sm:block absolute -right-3 top-1/3 z-20 animate-float rounded-2xl border border-white/30 bg-white/15 px-4 py-3 shadow-2xl backdrop-blur-md" style={{ animationDelay: '1.8s' }}>
-        <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-amber-500">{d.tag || 'Demo en vivo'}</p>
+      <div className="hidden sm:block absolute -right-3 top-1/3 z-20 animate-float rounded-2xl border border-white/30 bg-slate-900/60 px-4 py-3 shadow-2xl" style={{ animationDelay: '1.8s' }}>
+        <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-sky-500">{d.tag || 'Demo en vivo'}</p>
         <p className="text-sm font-black text-white">{d.name}</p>
         {d.demoUrl ? (
           <a
             href={`${BASE_PATH}${d.demoUrl}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-1 inline-flex items-center gap-1 text-[11px] font-black text-amber-300 hover:text-amber-200"
+            className="mt-1 inline-flex items-center gap-1 text-[11px] font-black text-sky-300 hover:text-sky-200"
             onClick={(e) => e.stopPropagation()}
           >
             Probar en vivo →
@@ -324,14 +589,14 @@ function PhoneDemo({ demos, catalogSlug }: { demos: HeroDemo[]; catalogSlug: str
       </div>
 
       {/* Tarjeta flotante izquierda — solo desktop */}
-      <div className="hidden sm:block absolute -left-4 top-10 z-20 animate-float rounded-2xl border border-white/30 bg-white/15 px-4 py-3 shadow-2xl backdrop-blur-md" style={{ animationDelay: '0.9s' }}>
-        <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-amber-500">Pedido recibido</p>
+      <div className="hidden sm:block absolute -left-4 top-10 z-20 animate-float rounded-2xl border border-white/30 bg-slate-900/60 px-4 py-3 shadow-2xl" style={{ animationDelay: '0.9s' }}>
+        <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-sky-500">Pedido recibido</p>
         <p className="text-sm font-black text-white">✅ Directo a tu WhatsApp</p>
       </div>
 
       {/* Badge "tócalo" en mobile — debajo del teléfono */}
       <div className="mt-8 flex justify-center sm:hidden">
-        <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/40 px-4 py-2 text-[11px] font-black uppercase tracking-widest text-amber-200 shadow-xl backdrop-blur-md">
+        <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/55 px-4 py-2 text-[11px] font-black uppercase tracking-widest text-sky-200 shadow-xl">
           👆 Toca para ver el siguiente
         </span>
       </div>
@@ -346,6 +611,7 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
   const [added, setAdded] = useState(false);
   const [spot, setSpot] = useState<{ x: number; y: number } | null>(null);
   const [bursting, setBursting] = useState(false);
+  const rafRef = useRef<number | null>(null);
 
   const handleAdd = () => {
     add(catalogSlug, product);
@@ -357,8 +623,19 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
 
   const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const r = e.currentTarget.getBoundingClientRect();
-    setSpot({ x: e.clientX - r.left, y: e.clientY - r.top });
+    const next = { x: e.clientX - r.left, y: e.clientY - r.top };
+    if (rafRef.current !== null) return;
+    rafRef.current = requestAnimationFrame(() => {
+      setSpot(next);
+      rafRef.current = null;
+    });
   };
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
 
   const isPopular = !!product.badge && product.badge.toLowerCase().includes('vendido');
   const mockupType = product.id.includes('basico') ? 'lista' : product.id.includes('pro') ? 'libro' : 'admin';
@@ -371,28 +648,44 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
       onMouseLeave={() => setSpot(null)}
       className={`group relative flex flex-col overflow-hidden rounded-2xl transition-all duration-500 hover:-translate-y-2 sm:rounded-[2.5rem] lg:rounded-[2.5rem] ${
         isPopular
-          ? 'bg-white/90 backdrop-blur-3xl border-2 border-amber-200 shadow-[0_20px_40px_-10px_rgba(217,165,116,0.2)] sm:border-amber-300 sm:shadow-[0_30px_60px_-15px_rgba(217,165,116,0.25)] sm:scale-[1.02] sm:z-10'
-          : 'bg-white/60 backdrop-blur-xl border border-stone-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:bg-white/80 hover:shadow-[0_12px_30px_rgb(0,0,0,0.06)] sm:shadow-[0_8px_30px_rgb(0,0,0,0.05)]'
+          ? 'bg-white border-2 border-sky-300 shadow-[0_20px_40px_-12px_rgba(56,189,248,0.3)] sm:border-sky-300 sm:shadow-[0_30px_60px_-15px_rgba(56,189,248,0.35)] sm:scale-[1.02] sm:z-10'
+          : 'bg-white border border-slate-200/80 shadow-[0_8px_30px_-10px_rgb(2,6,23,0.18)] hover:shadow-[0_20px_50px_-15px_rgb(2,6,23,0.3)]'
       }`}>
 
       {spot && (
         <div
           className="pointer-events-none absolute inset-0 z-[5] transition-opacity duration-300 rounded-2xl sm:rounded-[2.5rem]"
           style={{
-            background: `radial-gradient(400px circle at ${spot.x}px ${spot.y}px, rgba(255,255,255,0.5), transparent 40%)`,
+            background: `radial-gradient(400px circle at ${spot.x}px ${spot.y}px, rgba(56,189,248,0.08), transparent 40%)`,
           }}
         />
+      )}
+
+      {!isPopular && (
+        <div className="shine pointer-events-none absolute inset-0 z-[2] overflow-hidden rounded-2xl sm:rounded-[2.5rem]" />
       )}
 
       {bursting && <ConfettiBurst />}
 
       {isPopular && (
-        <div className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-gradient-to-br from-amber-300/20 to-orange-200/20 blur-3xl sm:h-64 sm:w-64" />
+        <>
+          <div className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-[radial-gradient(circle,rgba(186,230,253,0.4)_0%,transparent_70%)] animate-glow-pulse sm:h-64 sm:w-64" />
+          <div className="shine-sky-top pointer-events-none absolute inset-0 z-[2] overflow-hidden rounded-2xl sm:rounded-[2.5rem]" />
+        </>
       )}
 
       {/* Header de la tarjeta */}
-      <div className="relative h-36 w-full overflow-hidden bg-gradient-to-br from-amber-50 via-stone-50 to-orange-50 flex items-center justify-center border-b border-stone-200/40 sm:h-52">
-        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_50%_0%,rgba(217,165,116,0.5),rgba(255,255,255,0))] transition-opacity duration-500 group-hover:opacity-40" />
+      <div className="relative h-36 w-full overflow-hidden bg-gradient-to-br from-sky-500 via-sky-400 to-cyan-400 flex items-center justify-center border-b border-sky-200/60 sm:h-52">
+        <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.45),rgba(255,255,255,0))] transition-opacity duration-500 group-hover:opacity-50" />
+        <span className="absolute left-3 top-3 sm:left-4 sm:top-4">
+          <Star className="h-2.5 w-2.5 animate-twinkle text-sky-200" style={{ animationDuration: '3.6s' }} />
+        </span>
+        <span className="absolute right-3 top-3 sm:right-4 sm:top-4">
+          <Star className="h-3 w-3 animate-twinkle text-white" style={{ animationDuration: '2.7s' }} />
+        </span>
+        <Star
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-4 w-4 text-white/40"
+        />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={mockupImageSrc}
@@ -403,9 +696,9 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
 
       <div className="flex flex-col flex-1 p-3 sm:p-5 relative z-10">
         <div className="flex justify-between items-start gap-2 sm:gap-4">
-          <h3 className="text-lg font-light tracking-wide font-display leading-tight sm:text-2xl">{product.name}</h3>
+          <h3 className="text-lg font-light tracking-wide font-display leading-tight text-slate-800 sm:text-2xl">{product.name}</h3>
           {product.badge && (
-            <span className="flex-shrink-0 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.15em] text-white shadow-md sm:px-3 sm:py-1 sm:text-[10px] sm:tracking-[0.2em]">
+            <span className="flex-shrink-0 rounded-full bg-gradient-to-r from-sky-500 to-cyan-500 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.15em] text-white shadow-lg shadow-sky-500/25 sm:px-3 sm:py-1 sm:text-[10px] sm:tracking-[0.2em]">
               {product.badge}
             </span>
           )}
@@ -413,14 +706,14 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
 
         {/* Precio - más prominente */}
         <div className="mt-3 flex items-baseline gap-1.5 sm:mt-2 sm:gap-2">
-          <span className="text-3xl font-light tracking-tight text-stone-800 sm:text-4xl font-display">
+          <span className="text-3xl font-light tracking-tight text-slate-800 sm:text-4xl font-display">
             ${product.price.toFixed(0)}
           </span>
-          <span className="text-[10px] font-semibold uppercase tracking-widest text-stone-400 sm:text-xs">USD · Pago Único</span>
+          <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-500 sm:text-xs">USD · Pago Único</span>
         </div>
 
         {product.deliveryDays && (
-          <p className="mt-2 inline-flex w-fit items-center gap-1 rounded-full bg-amber-50 border border-amber-200/60 px-2 py-0.5 text-[10px] font-semibold text-amber-700 sm:mt-2 sm:gap-1.5 sm:px-3 sm:py-1 sm:text-xs">
+          <p className="mt-2 inline-flex w-fit items-center gap-1 rounded-full bg-sky-50 border border-sky-200 px-2 py-0.5 text-[10px] font-semibold text-sky-600 sm:mt-2 sm:gap-1.5 sm:px-3 sm:py-1 sm:text-xs">
             ⏱ {product.deliveryDays}
           </p>
         )}
@@ -428,8 +721,8 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
         {/* Features - compactas en mobile */}
         <ul className="mt-2 mb-3 flex flex-1 flex-col gap-1.5 sm:mt-4 sm:mb-5 sm:gap-2">
           {product.description.split(/\.\s+/).filter(Boolean).slice(0, 4).map((line, i) => (
-            <li key={i} className="flex items-start gap-2 text-xs font-normal leading-relaxed text-stone-600 sm:gap-3 sm:text-sm">
-              <div className="mt-0.5 flex h-3.5 w-3.5 flex-shrink-0 items-center justify-center rounded-full bg-amber-100 text-[8px] font-bold text-amber-700 sm:h-4 sm:w-4 sm:text-[9px]">
+            <li key={i} className="flex items-start gap-2 text-xs font-normal leading-relaxed text-slate-600 sm:gap-3 sm:text-sm">
+              <div className="mt-0.5 flex h-3.5 w-3.5 flex-shrink-0 items-center justify-center rounded-full bg-sky-50 border border-sky-200 text-[8px] font-bold text-sky-600 sm:h-4 sm:w-4 sm:text-[9px]">
                 ✓
               </div>
               <span>{line.replace(/\.$/, '')}</span>
@@ -438,13 +731,28 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
         </ul>
 
         {/* CTAs - más grandes para touch */}
-        <div className="mt-auto flex flex-col gap-2 relative z-10">
+        <div className="mt-auto flex flex-col gap-2 relative z-10 pt-2">
+          {/* Acción Principal */}
+          <button
+            onClick={handleAdd}
+            className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3.5 text-xs font-bold uppercase tracking-widest transition-all active:scale-[0.98] sm:py-4 sm:text-sm ${
+              added
+                ? 'bg-teal-500 text-white shadow-lg shadow-teal-500/20'
+                : isPopular
+                  ? 'bg-gradient-to-r from-sky-500 to-cyan-500 text-white shadow-lg shadow-sky-500/25 hover:shadow-sky-500/40 hover:scale-[1.02]'
+                  : 'bg-slate-800 text-white hover:bg-slate-700 shadow-md shadow-slate-800/15'
+            }`}
+          >
+            {added ? '✅ ¡Añadido!' : '🛒 Comprar Ahora'}
+          </button>
+          
+          {/* Acciones Secundarias */}
           {product.demoUrl && (
             <a
               href={`${BASE_PATH}${product.demoUrl}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-xs font-semibold uppercase tracking-widest text-stone-600 transition-colors hover:bg-stone-100 hover:border-stone-300 sm:px-5"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-sky-100 bg-sky-50/50 px-4 py-3 text-[11px] font-semibold uppercase tracking-widest text-sky-700 transition-colors hover:bg-sky-100 hover:border-sky-200 sm:text-xs"
             >
               <span>👀</span> Probar Demostración
             </a>
@@ -454,23 +762,11 @@ function PremiumServiceCard({ product, catalogSlug }: { product: Product; catalo
               href={`${BASE_PATH}/admin`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-4 py-3 text-xs font-semibold uppercase tracking-widest text-stone-600 transition-colors hover:bg-stone-50 hover:border-stone-300 sm:px-5"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-[11px] font-semibold uppercase tracking-widest text-slate-600 transition-colors hover:bg-slate-50 sm:text-xs"
             >
               <span>⚙️</span> Probar Panel Admin
             </a>
           )}
-          <button
-            onClick={handleAdd}
-            className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3.5 text-xs font-semibold uppercase tracking-widest transition-all active:scale-[0.98] sm:py-4 sm:text-sm ${
-              added
-                ? 'bg-teal-500 text-white shadow-lg shadow-teal-500/20'
-                : isPopular
-                  ? 'bg-stone-800 text-white hover:bg-stone-700 shadow-lg shadow-stone-800/20'
-                  : 'bg-stone-800 text-white hover:bg-stone-700 shadow-lg shadow-stone-800/15'
-            }`}
-          >
-            {added ? '✅ ¡Añadido!' : '🛒 Comprar Ahora'}
-          </button>
         </div>
       </div>
     </div>
@@ -493,28 +789,35 @@ function AddonServiceCard({ product, catalogSlug }: { product: Product; catalogS
   };
 
   return (
-    <div className="group relative flex flex-col rounded-2xl bg-white/60 backdrop-blur-md p-4 shadow-sm border border-stone-200/60 transition-all duration-400 hover:bg-white hover:border-amber-200 hover:shadow-lg hover:-translate-y-1 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:rounded-2xl sm:p-5">
+    <div className="group relative flex flex-col overflow-hidden rounded-2xl bg-white p-5 shadow-sm shadow-slate-900/5 border border-slate-200/80 transition-all duration-500 hover:border-sky-400 hover:shadow-xl hover:shadow-sky-900/10 hover:-translate-y-1 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+      <div className="absolute inset-0 bg-gradient-to-br from-sky-50/80 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 pointer-events-none" />
       {bursting && <ConfettiBurst />}
-      <div className="flex-1">
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-          <h4 className="text-sm font-light tracking-wide font-display sm:text-base">{product.name}</h4>
+      <div className="flex-1 relative z-10">
+        <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-sky-400 to-cyan-300 text-white shadow-sm">
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+          </div>
+          <h4 className="text-base font-bold text-slate-800 sm:text-lg">{product.name}</h4>
           {product.badge && (
-            <span className="rounded-full bg-amber-50 border border-amber-200/60 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-widest text-amber-700 sm:px-3 sm:py-1 sm:text-[10px]">
+            <span className="rounded-full bg-gradient-to-r from-slate-800 to-slate-700 px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-sky-200 shadow-sm sm:text-[10px]">
               {product.badge}
             </span>
           )}
         </div>
-        <p className="mt-2 text-xs font-normal text-stone-500 leading-relaxed sm:text-sm">{product.description}</p>
+        <p className="mt-3 text-xs font-medium text-slate-500 leading-relaxed sm:text-sm pl-11">{product.description}</p>
       </div>
-      <div className="text-left flex items-center justify-between gap-3 mt-3 pt-3 border-t border-stone-200/60 sm:text-right sm:flex-col sm:items-end sm:gap-3 sm:border-l sm:border-stone-200/60 sm:pl-6 sm:pt-0 sm:mt-0 sm:border-t-0">
-        <div className="text-xl font-light tracking-tight font-display sm:text-2xl">${product.price.toFixed(0)}</div>
+      <div className="relative z-10 text-left flex items-center justify-between gap-3 mt-4 pt-4 border-t border-slate-100 sm:text-right sm:flex-col sm:items-end sm:gap-3 sm:border-l sm:border-slate-100 sm:pl-6 sm:pt-0 sm:mt-0 sm:border-t-0">
+        <div className="flex flex-col items-start sm:items-end">
+          <span className="text-2xl font-black tracking-tight text-slate-800 sm:text-3xl">${product.price.toFixed(0)}</span>
+          <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">USD</span>
+        </div>
         <button
           onClick={handleAdd}
-          className={`rounded-lg px-4 py-2 text-xs font-semibold uppercase tracking-widest transition-all active:scale-95 sm:rounded-xl sm:px-5 sm:py-2.5 ${
-            added ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-stone-100 text-stone-700 hover:bg-stone-800 hover:text-white'
+          className={`rounded-xl px-5 py-3 text-xs font-bold uppercase tracking-widest transition-all active:scale-95 shadow-md ${
+            added ? 'bg-teal-500 text-white shadow-teal-500/30' : 'bg-sky-500 text-white hover:bg-sky-400 hover:shadow-sky-500/30 hover:-translate-y-0.5'
           }`}
         >
-          {added ? '✓ Añadido' : '+ Agregar'}
+          {added ? '✓ Añadido' : 'Agregar'}
         </button>
       </div>
     </div>
@@ -593,28 +896,28 @@ function PlanRecommender({ plans, catalogSlug }: { plans: Product[]; catalogSlug
 
   if (isDone && recommended) {
     return (
-      <div className="mx-auto max-w-2xl rounded-2xl border border-stone-200/60 bg-white/70 p-6 text-center shadow-[0_20px_50px_rgb(0,0,0,0.05)] backdrop-blur-md animate-fade-in-up">
+      <div className="mx-auto max-w-2xl rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-xl shadow-slate-900/10 animate-fade-in-up">
         <div className="text-4xl">🎉</div>
-        <p className="mt-2 text-xs font-semibold uppercase tracking-[0.3em] text-amber-600">Nuestra recomendación</p>
-        <h3 className="mt-2 text-2xl font-light tracking-wide font-display text-stone-800">{recommended.name}</h3>
-        <p className="mt-2 font-normal leading-relaxed text-stone-500">{why[recommended.id]}</p>
+        <p className="mt-2 text-xs font-semibold uppercase tracking-[0.3em] text-sky-500">Nuestra recomendación</p>
+        <h3 className="mt-2 text-2xl font-light tracking-wide font-display text-slate-800">{recommended.name}</h3>
+        <p className="mt-2 font-normal leading-relaxed text-slate-600">{why[recommended.id]}</p>
         <div className="mt-4 flex items-baseline justify-center gap-2">
-          <span className="text-3xl font-light tracking-tight text-amber-600 font-display">${recommended.price.toFixed(0)}</span>
-          <span className="text-sm font-semibold uppercase tracking-widest text-stone-400">pago único</span>
+          <span className="text-3xl font-light tracking-tight text-sky-600 font-display">${recommended.price.toFixed(0)}</span>
+          <span className="text-sm font-semibold uppercase tracking-widest text-slate-500">pago único</span>
         </div>
         <div className="mt-5 flex flex-col sm:flex-row justify-center gap-3">
           <button
             onClick={() => { add(catalogSlug, recommended); setAdded(true); setTimeout(() => setAdded(false), 1400); }}
             className={`rounded-2xl px-6 py-3 text-xs font-semibold uppercase tracking-widest transition-all active:scale-95 ${
-              added ? 'bg-amber-500 text-white' : 'bg-stone-800 text-white hover:bg-stone-700 shadow-xl shadow-stone-800/15'
+              added ? 'bg-sky-500 text-white' : 'bg-gradient-to-r from-sky-400 to-cyan-300 text-slate-950 hover:from-sky-300 hover:to-cyan-200 shadow-xl shadow-sky-500/20'
             }`}
           >
             {added ? '✅ ¡Añadido al carrito!' : '🛒 Añadir este plan'}
           </button>
-          <button onClick={() => goTo('planes')} className="rounded-2xl border border-stone-200 px-6 py-3 text-xs font-semibold uppercase tracking-widest text-stone-600 transition-colors hover:border-amber-300 hover:text-amber-700">
+          <button onClick={() => goTo('planes')} className="rounded-2xl border border-slate-200 px-6 py-3 text-xs font-semibold uppercase tracking-widest text-slate-600 transition-colors hover:border-sky-300 hover:text-sky-600">
             Ver todos los planes
           </button>
-          <button onClick={restart} className="rounded-2xl px-4 py-3 text-xs font-normal text-stone-400 transition-colors hover:text-stone-600">
+          <button onClick={restart} className="rounded-2xl px-4 py-3 text-xs font-normal text-slate-500 transition-colors hover:text-slate-700">
             ↺ Repetir
           </button>
         </div>
@@ -625,32 +928,32 @@ function PlanRecommender({ plans, catalogSlug }: { plans: Product[]; catalogSlug
   const current = QUIZ[step];
 
   return (
-    <div className="mx-auto max-w-2xl rounded-2xl border border-stone-200/60 bg-white/70 p-6 shadow-[0_20px_50px_rgb(0,0,0,0.05)] backdrop-blur-md">
+    <div className="mx-auto max-w-2xl rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-900/10">
       {/* Progreso */}
       <div className="mb-4 flex items-center gap-3">
-        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-stone-200/70">
-          <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-500" style={{ width: `${((step + 1) / total) * 100}%` }} />
+        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100">
+          <div className="h-full rounded-full bg-gradient-to-r from-sky-400 to-cyan-500 transition-all duration-500" style={{ width: `${((step + 1) / total) * 100}%` }} />
         </div>
-        <span className="text-xs font-semibold text-stone-400">{step + 1}/{total}</span>
+        <span className="text-xs font-semibold text-slate-500">{step + 1}/{total}</span>
       </div>
 
-      <p className="text-center text-xs font-semibold uppercase tracking-[0.3em] text-amber-600">¿No sabes cuál elegir?</p>
-      <h3 className="mt-2 text-center text-xl font-light tracking-wide font-display text-stone-800">{current.question}</h3>
+      <p className="text-center text-xs font-semibold uppercase tracking-[0.3em] text-sky-500">¿No sabes cuál elegir?</p>
+      <h3 className="mt-2 text-center text-xl font-light tracking-wide font-display text-slate-800">{current.question}</h3>
 
       <div className="mt-5 flex flex-col gap-2">
         {current.options.map((opt) => (
           <button
             key={opt.label}
             onClick={() => pick(opt)}
-            className="group flex items-center justify-between rounded-2xl border border-stone-200 bg-white px-4 py-3 text-left font-normal text-stone-600 transition-all duration-300 hover:border-amber-300 hover:bg-amber-50 hover:shadow-lg active:scale-[0.98]"
+            className="group flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-left font-normal text-slate-700 transition-all duration-300 hover:border-sky-300 hover:bg-sky-50 hover:shadow-md active:scale-[0.98]"
           >
             <span>{opt.label}</span>
-            <span className="text-stone-300 transition-all group-hover:translate-x-1 group-hover:text-amber-500">→</span>
+            <span className="text-slate-300 transition-all group-hover:translate-x-1 group-hover:text-sky-500">→</span>
           </button>
         ))}
       </div>
 
-      <button onClick={restart} className="mt-5 w-full text-center text-xs font-normal text-stone-400 transition-colors hover:text-stone-600">
+      <button onClick={restart} className="mt-5 w-full text-center text-xs font-normal text-slate-500 transition-colors hover:text-slate-700">
         ↺ Empezar de nuevo
       </button>
     </div>
@@ -677,10 +980,10 @@ function ComparisonTable({ catalog }: { catalog: Catalog }) {
 
   return (
     <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-      <div className="min-w-[580px] rounded-2xl border border-stone-200/60 bg-white/60 p-2 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.03)] sm:rounded-2xl sm:p-4 sm:shadow-[0_20px_50px_rgb(0,0,0,0.05)]">
+      <div className="min-w-[580px] rounded-2xl border border-slate-200 bg-white p-2 shadow-xl shadow-slate-900/10 sm:rounded-2xl sm:p-4">
         {/* Cabecera con los planes */}
         <div className="grid grid-cols-[1.1fr_repeat(3,1fr)] gap-2">
-          <div className="flex items-center px-3 text-xs font-semibold uppercase tracking-widest text-stone-400">Qué incluye</div>
+          <div className="flex items-center px-3 text-xs font-semibold uppercase tracking-widest text-slate-500">Qué incluye</div>
           {plans.map((plan) => {
             const active = selectedId === plan.id;
             return (
@@ -689,17 +992,17 @@ function ComparisonTable({ catalog }: { catalog: Catalog }) {
                 onClick={() => setSelectedId(active ? null : plan.id)}
                 className={`flex flex-col items-center gap-1 rounded-2xl border px-3 py-4 text-center transition-all duration-300 active:scale-95 ${
                   active
-                    ? 'border-amber-300 bg-gradient-to-b from-amber-50 to-orange-50/50 shadow-lg shadow-amber-500/10 scale-[1.02]'
-                    : 'border-stone-200/60 bg-white hover:border-amber-200 hover:shadow-md'
+                    ? 'border-sky-400/70 bg-gradient-to-b from-sky-50 to-cyan-50 shadow-md shadow-sky-500/10 scale-[1.02]'
+                    : 'border-slate-200 bg-slate-50 hover:border-sky-300 hover:shadow-md'
                 }`}
               >
-                <span className="text-xs font-semibold uppercase tracking-wider text-stone-700">{plan.name}</span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-700">{plan.name}</span>
                 {plan.badge && (
-                  <span className="rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-widest text-white">
+                  <span className="rounded-full bg-gradient-to-r from-sky-400 to-cyan-400 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-slate-950">
                     {plan.badge}
                   </span>
                 )}
-                <span className="text-lg font-light text-amber-600 font-display">${plan.price.toFixed(0)}</span>
+                <span className="text-lg font-light text-sky-600 font-display">${plan.price.toFixed(0)}</span>
               </button>
             );
           })}
@@ -709,12 +1012,12 @@ function ComparisonTable({ catalog }: { catalog: Catalog }) {
         <div className="mt-3 flex flex-col gap-2">
           {rows.map((row, i) => (
             <div key={i}>
-              <div className={`grid grid-cols-[1.1fr_repeat(3,1fr)] items-center gap-2 rounded-2xl px-3 py-2.5 transition-colors ${i % 2 === 0 ? 'bg-stone-50/60' : 'bg-white/60'}`}>
-                <span className="px-1 text-sm font-normal text-stone-600">{row.feature}</span>
+              <div className={`grid grid-cols-[1.1fr_repeat(3,1fr)] items-center gap-2 rounded-2xl px-3 py-2.5 transition-colors ${i % 2 === 0 ? 'bg-slate-50/60' : 'bg-white'}`}>
+                <span className="px-1 text-sm font-normal text-slate-700">{row.feature}</span>
                 {plans.map((plan) => (
-                  <span key={plan.id} className={`text-center ${isIncluded(row, plan.id) ? 'text-amber-500' : 'text-stone-300'}`}>
+                  <span key={plan.id} className={`text-center ${isIncluded(row, plan.id) ? 'text-sky-600' : 'text-slate-300'}`}>
                     {isIncluded(row, plan.id) ? (
-                      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-amber-50 border border-amber-200/60 text-xs font-semibold text-amber-600">✓</span>
+                      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-sky-50 border border-sky-200 text-xs font-semibold text-sky-600">✓</span>
                     ) : (
                       <span className="text-sm font-normal">—</span>
                     )}
@@ -722,31 +1025,31 @@ function ComparisonTable({ catalog }: { catalog: Catalog }) {
                 ))}
               </div>
               {row.note && (
-                <p className="px-4 py-1.5 text-xs font-normal italic text-stone-400">💡 {row.note}</p>
+                <p className="px-4 py-1.5 text-xs font-normal italic text-slate-400">💡 {row.note}</p>
               )}
             </div>
           ))}
         </div>
 
         {/* Barra de resumen al seleccionar un plan */}
-        <div className="mt-4 flex min-h-[4.5rem] items-center justify-between gap-3 rounded-2xl border border-amber-200/60 bg-gradient-to-r from-amber-50 to-orange-50/30 px-5 py-3 transition-all">
+        <div className="mt-4 flex min-h-[4.5rem] items-center justify-between gap-3 rounded-2xl border border-sky-300 bg-gradient-to-r from-sky-100 to-cyan-100 px-5 py-3 transition-all">
           {selected ? (
             <>
               <div className="flex-1">
-                <p className="text-xs font-semibold uppercase tracking-widest text-amber-600">✓ Has elegido</p>
-                <p className="font-semibold text-stone-800">{selected.name} · ${selected.price.toFixed(0)} {selected.deliveryDays && `· ${selected.deliveryDays}`}</p>
+                <p className="text-xs font-semibold uppercase tracking-widest text-sky-600">✓ Has elegido</p>
+                <p className="font-semibold text-slate-800">{selected.name} · ${selected.price.toFixed(0)} {selected.deliveryDays && `· ${selected.deliveryDays}`}</p>
               </div>
               <button
                 onClick={() => handleAdd(selected)}
                 className={`flex-shrink-0 rounded-xl px-5 py-2.5 text-xs font-semibold uppercase tracking-widest transition-all active:scale-95 ${
-                  added ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-stone-800 text-white hover:bg-stone-700 shadow-lg shadow-stone-800/15'
+                  added ? 'bg-sky-500 text-white shadow-lg shadow-sky-500/20' : 'bg-gradient-to-r from-sky-400 to-cyan-300 text-slate-950 hover:from-sky-300 hover:to-cyan-200 shadow-lg shadow-sky-500/20'
                 }`}
               >
                 {added ? '✅ Añadido' : '🛒 Añadir'}
               </button>
             </>
           ) : (
-            <p className="w-full text-center text-sm font-normal text-stone-400">
+            <p className="w-full text-center text-sm font-normal text-slate-500">
               👆 Toca una columna para ver qué incluye y añadirlo al carrito
             </p>
           )}
@@ -779,21 +1082,21 @@ function FaqSection({ catalog }: { catalog: Catalog }) {
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           placeholder="Busca tu duda (ej: dominio, pago…)"
-          className="w-full rounded-xl border border-stone-200/60 bg-white/70 px-9 py-3 text-sm font-normal text-stone-600 shadow-sm outline-none backdrop-blur-md transition-all focus:border-amber-300 focus:ring-2 focus:ring-amber-200/30 sm:rounded-2xl sm:px-11 sm:py-3.5"
+          className="w-full rounded-xl border border-slate-200 bg-white px-9 py-3 text-sm font-normal text-slate-700 shadow-sm outline-none transition-all placeholder:text-slate-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-500/20 sm:rounded-2xl sm:px-11 sm:py-3.5"
         />
       </div>
 
       {faq.length === 0 ? (
-        <p className="text-center font-normal text-stone-400">No encontramos esa pregunta. ¡Escríbenos por WhatsApp!</p>
+        <p className="text-center font-normal text-slate-500">No encontramos esa pregunta. ¡Escríbenos por WhatsApp!</p>
       ) : (
         <div className="flex flex-col gap-2 sm:gap-3">
           {faq.map((f) => (
-            <details key={f.q} name="faq" className="group rounded-xl border border-stone-200/60 bg-white/60 p-3 shadow-sm backdrop-blur-md transition-all hover:shadow-md sm:rounded-2xl sm:p-4">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-base font-normal text-stone-700 outline-none sm:gap-4 sm:text-lg">
+            <details key={f.q} name="faq" className="group rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition-all hover:shadow-md hover:border-sky-200 sm:rounded-2xl sm:p-4">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-base font-normal text-slate-800 outline-none sm:gap-4 sm:text-lg">
                 <span>{f.q}</span>
-                <span className="flex-shrink-0 text-xl font-light text-amber-400 transition-transform duration-300 group-open:rotate-180 sm:text-2xl">↓</span>
+                <span className="flex-shrink-0 text-xl font-light text-sky-500 transition-transform duration-300 group-open:rotate-180 sm:text-2xl">↓</span>
               </summary>
-              <p className="faq-answer mt-3 text-sm font-normal leading-relaxed text-stone-500 sm:mt-4">{f.a}</p>
+              <p className="faq-answer mt-3 text-sm font-normal leading-relaxed text-slate-600 sm:mt-4">{f.a}</p>
             </details>
           ))}
         </div>
@@ -819,7 +1122,9 @@ function StickyNav() {
   const [active, setActive] = useState<string | undefined>('planes');
 
   useEffect(() => {
-    const onScroll = () => {
+    let raf = 0;
+    const update = () => {
+      raf = 0;
       setVisible(window.scrollY > 560);
       const probe = window.innerHeight * 0.32;
       let current: string | undefined;
@@ -829,22 +1134,29 @@ function StickyNav() {
       }
       setActive(current ?? NAV_LINKS[0].id);
     };
-    onScroll();
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(update);
+    };
+    update();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, []);
 
   return (
     <nav className={`fixed left-1/2 top-4 z-40 -translate-x-1/2 transition-all duration-500 ${visible ? 'translate-y-0 opacity-100' : 'pointer-events-none -translate-y-6 opacity-0'}`}>
-      <div className="flex max-w-[95vw] items-center gap-1 overflow-x-auto rounded-full border border-stone-200/60 bg-white/80 px-2 py-1.5 shadow-2xl shadow-stone-900/5 backdrop-blur-xl">
+      <div className="flex max-w-[95vw] items-center gap-1 overflow-x-auto rounded-full border border-slate-700/50 bg-slate-900/95 px-2 py-1.5 shadow-xl shadow-black/30">
         {NAV_LINKS.map((l) => (
           <button
             key={l.id}
             onClick={() => goTo(l.id)}
             className={`flex-shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
               active === l.id
-                ? 'bg-amber-600 text-white shadow-md shadow-amber-600/15'
-                : 'text-stone-500 hover:bg-amber-50 hover:text-amber-700'
+                ? 'bg-gradient-to-r from-sky-500 to-cyan-400 text-slate-950 shadow-md shadow-sky-500/20'
+                : 'text-slate-300 hover:bg-white/5 hover:text-white'
             }`}
           >
             {l.label}
@@ -861,12 +1173,12 @@ function FinalCta({ catalog }: { catalog: Catalog }) {
   const wa = `https://wa.me/${catalog.phone}?text=${encodeURIComponent('Hola, tengo una duda sobre los catálogos digitales.')}`;
   return (
     <section id="contacto" className="relative z-10 mx-auto max-w-4xl animate-fade-in-up scroll-mt-24 sm:scroll-mt-28" style={{ animationDelay: '0.9s' }}>
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-stone-800 via-stone-900 to-stone-800 p-5 text-center text-white shadow-xl shadow-stone-900/20 sm:rounded-3xl sm:p-8 md:p-10 sm:shadow-2xl">
-        <div className="absolute -left-12 -top-12 h-40 w-40 rounded-full bg-amber-400/10 blur-2xl sm:-left-16 sm:-top-16 sm:h-56 sm:w-56" />
-        <div className="absolute -bottom-16 -right-12 h-48 w-48 rounded-full bg-orange-400/10 blur-2xl sm:-bottom-20 sm:-right-16 sm:h-64 sm:w-64" />
-        <p className="relative text-[10px] font-semibold uppercase tracking-[0.25em] text-amber-300/80 sm:text-xs sm:tracking-[0.3em]">Empecemos hoy</p>
-        <h2 className="relative mt-2 text-xl font-light tracking-wide sm:mt-3 sm:text-3xl md:text-4xl" style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>¿Listo para tener tu catálogo digital?</h2>
-        <p className="relative mx-auto mt-3 max-w-lg text-sm font-normal leading-relaxed text-stone-300 sm:mt-4 sm:max-w-xl sm:text-base">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-900 via-blue-950 to-indigo-950 p-5 text-center shadow-2xl shadow-black/40 sm:rounded-3xl sm:p-8 md:p-10 border border-white/10">
+        <div className="absolute -left-12 -top-12 h-40 w-40 rounded-full bg-[radial-gradient(circle,rgba(14,165,233,0.15)_0%,transparent_70%)] sm:-left-16 sm:-top-16 sm:h-56 sm:w-56" />
+        <div className="absolute -bottom-16 -right-12 h-48 w-48 rounded-full bg-[radial-gradient(circle,rgba(6,182,212,0.12)_0%,transparent_70%)] sm:-bottom-20 sm:-right-16 sm:h-64 sm:w-64" />
+        <p className="relative text-[10px] font-bold uppercase tracking-[0.25em] text-sky-300 sm:text-xs sm:tracking-[0.3em]">Empecemos hoy</p>
+        <h2 className="relative mt-2 text-xl font-light tracking-wide sm:mt-3 sm:text-3xl md:text-4xl text-white" style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>¿Listo para tener tu catálogo digital?</h2>
+        <p className="relative mx-auto mt-3 max-w-lg text-sm font-medium leading-relaxed text-slate-300 sm:mt-4 sm:max-w-xl sm:text-base">
           Si ya lo tienes claro, añade tu plan al carrito. Y si te queda una duda, escríbenos.
         </p>
         <div className="relative mt-5 flex flex-col items-center justify-center gap-2.5 sm:mt-8 sm:flex-row sm:gap-3">
@@ -874,7 +1186,7 @@ function FinalCta({ catalog }: { catalog: Catalog }) {
             href={wa}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 px-5 py-3.5 text-xs font-semibold uppercase tracking-widest text-white shadow-lg transition-all hover:scale-[1.02] hover:bg-amber-400 active:scale-95 sm:w-auto sm:rounded-2xl sm:px-8 sm:py-4 sm:text-sm sm:shadow-xl"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-sky-400 to-cyan-300 px-5 py-3.5 text-xs font-bold uppercase tracking-widest text-slate-950 shadow-lg shadow-sky-500/25 transition-all hover:scale-[1.02] active:scale-95 sm:w-auto sm:rounded-2xl sm:px-8 sm:py-4 sm:text-sm sm:shadow-xl"
           >
             💬 Aún tengo una duda
           </a>
@@ -955,31 +1267,38 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
   }));
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-stone-50 via-white to-stone-50/80 animate-mesh text-stone-800 selection:bg-teal-500/20 font-sans overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-sky-100 via-white to-sky-50 text-slate-800 selection:bg-sky-500/20 font-sans overflow-hidden">
+      <ScrollProgress />
       <StickyNav />
 
       {/* Orbes decorativos */}
-      <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-teal-100/20 rounded-full filter blur-3xl opacity-40 animate-blob" />
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-cyan-100/15 rounded-full filter blur-3xl opacity-40 animate-blob animation-delay-2000" />
-      <div className="absolute -bottom-32 left-20 w-[500px] h-[500px] bg-teal-50/20 rounded-full filter blur-3xl opacity-50 animate-blob animation-delay-4000" />
+      <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(186,230,253,0.15)_0%,transparent_70%)] rounded-full animate-blob will-change-transform" />
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(207,250,254,0.15)_0%,transparent_70%)] rounded-full animate-blob animation-delay-2000 will-change-transform" />
+      <div className="absolute -bottom-32 left-20 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(199,210,254,0.15)_0%,transparent_70%)] rounded-full animate-blob animation-delay-4000 will-change-transform" />
 
       {/* ═══════════ HEADER ═══════════ */}
-      <header className="relative z-10 overflow-hidden bg-gradient-to-b from-stone-900 to-stone-800 text-white">
+      <header className="relative z-10 overflow-hidden bg-gradient-to-b from-blue-900 via-blue-950 to-blue-950 text-white">
         {/* Fondo: auroras + rejilla + grano */}
         <div className="absolute inset-0">
-          <div className="absolute -left-[12%] -top-[25%] h-[620px] w-[620px] rounded-full bg-amber-400/20 blur-[110px] animate-blob" />
-          <div className="absolute right-[-10%] top-[5%] h-[540px] w-[540px] rounded-full bg-orange-300/15 blur-[110px] animate-blob animation-delay-2000" />
-          <div className="absolute bottom-[-20%] left-[35%] h-[520px] w-[520px] rounded-full bg-yellow-300/10 blur-[120px] animate-blob animation-delay-4000" />
-          <div className="absolute left-[30%] top-[30%] h-[400px] w-[400px] rounded-full bg-amber-200/10 blur-[90px] animate-blob animation-delay-2000" />
+          <div className="absolute -left-[12%] -top-[25%] h-[620px] w-[620px] rounded-full bg-[radial-gradient(circle,rgba(2,132,199,0.15)_0%,transparent_70%)] animate-blob will-change-transform" />
+          <div className="absolute right-[-10%] top-[5%] h-[540px] w-[540px] rounded-full bg-[radial-gradient(circle,rgba(6,182,212,0.12)_0%,transparent_70%)] animate-blob animation-delay-2000 will-change-transform" />
+          <div className="absolute bottom-[-20%] left-[35%] h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgba(79,70,229,0.15)_0%,transparent_70%)] animate-blob animation-delay-4000 will-change-transform" />
+          <div className="absolute left-[30%] top-[30%] h-[400px] w-[400px] rounded-full bg-[radial-gradient(circle,rgba(59,130,246,0.12)_0%,transparent_70%)] animate-blob animation-delay-2000 will-change-transform" />
           <div
-            className="absolute inset-0 opacity-20"
+            className="absolute inset-0 opacity-[0.12]"
             style={{
-              backgroundImage: 'linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px)',
+              backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)',
               backgroundSize: '76px 76px',
               maskImage: 'radial-gradient(ellipse 95% 85% at 50% 0%, #000 30%, transparent 78%)',
               WebkitMaskImage: 'radial-gradient(ellipse 95% 85% at 50% 0%, #000 30%, transparent 78%)',
             }}
           />
+          {/* Estrellitas del cielo nocturno con deriva lenta */}
+          <div className="absolute inset-0 z-[1] animate-star-drift">
+            <StarField className="opacity-80" density={1.2} />
+          </div>
+          {/* Estrellas fugaces */}
+          <ShootingStars />
           {/* Brasas ascendentes */}
           <div className="pointer-events-none absolute inset-0 z-[1] overflow-hidden">
             {EMBERS.map((e, i) => (
@@ -1005,19 +1324,17 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
           <div className="grid grid-cols-1 items-center gap-6 lg:grid-cols-2 lg:gap-12">
             {/* ── Título (arriba en móvil, col 1 en desktop) ── */}
             <div className="w-full text-center lg:text-left animate-fade-in-up lg:col-start-1 lg:row-start-1 lg:self-end">
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-3 py-1.5 shadow-lg backdrop-blur-md sm:mb-7 sm:gap-2.5 sm:px-4 sm:py-2">
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 shadow-sm sm:mb-7 sm:gap-2.5 sm:px-4 sm:py-2">
                 <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-80" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-400" />
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400 opacity-80" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-sky-300" />
                 </span>
-                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-200/80 sm:text-[11px] sm:tracking-[0.25em]">{catalog.tagline}</span>
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-sky-300 sm:text-[11px] sm:tracking-[0.25em]">{catalog.tagline}</span>
               </div>
 
-              <h1 className="text-[2rem] font-light leading-[1.1] tracking-wide sm:text-5xl lg:text-[4rem] font-display">
+              <h1 className="text-[2rem] font-light leading-[1.1] tracking-wide sm:text-5xl lg:text-[4rem] font-display text-white">
                 Tu negocio convertido en un{' '}
-                <span className="bg-gradient-to-r from-amber-200 via-amber-300 to-amber-200 bg-clip-text text-transparent">
-                  catálogo que enamora
-                </span>
+                <RotatingText words={HERO_WORDS} />
               </h1>
             </div>
 
@@ -1029,7 +1346,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
             {/* ── Descripción y botones (abajo en móvil, col 1 en desktop) ── */}
             <div className="w-full text-center lg:text-left animate-fade-in-up lg:col-start-1 lg:row-start-2 lg:self-start">
 
-              <p className="mx-auto mt-4 max-w-lg text-sm font-normal leading-relaxed text-white/50 sm:mt-6 sm:max-w-xl sm:text-base lg:mx-0 lg:text-lg">
+              <p className="mx-auto mt-4 max-w-lg text-sm font-medium leading-relaxed text-slate-300 sm:mt-6 sm:max-w-xl sm:text-base lg:mx-0 lg:text-lg">
                 {catalog.description} Con carrito de pedidos, envío por WhatsApp y panel para editar todo tú mismo. Listo en días, sin comisiones.
               </p>
 
@@ -1037,7 +1354,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
               <div className="mt-6 flex flex-col gap-2.5 sm:mt-8 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
                 <button
                   onClick={() => goTo('planes')}
-                  className="shine group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-3.5 text-xs font-semibold uppercase tracking-widest text-white shadow-xl shadow-amber-500/20 ring-1 ring-white/10 transition-all hover:scale-[1.03] hover:shadow-amber-500/30 active:scale-95 sm:rounded-2xl sm:px-7 sm:py-4 sm:text-sm"
+                  className="shine group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-sky-400 to-cyan-300 px-5 py-3.5 text-xs font-bold uppercase tracking-widest text-slate-950 shadow-[0_20px_50px_-12px_rgba(56,189,248,0.5)] transition-all hover:scale-[1.03] active:scale-95 sm:rounded-2xl sm:px-7 sm:py-4 sm:text-sm"
                 >
                   🛒 Ver planes y precios
                   <span className="transition-transform group-hover:translate-x-1">→</span>
@@ -1047,7 +1364,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                     href={`${BASE_PATH}${demoPath}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/8 px-5 py-3.5 text-xs font-semibold uppercase tracking-widest text-white/80 backdrop-blur-md transition-all hover:bg-white/15 hover:scale-[1.02] active:scale-95 sm:rounded-2xl sm:px-6 sm:py-4 sm:text-sm"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/10 px-5 py-3.5 text-xs font-bold uppercase tracking-widest text-sky-200 shadow-sm transition-all hover:bg-white/20 hover:scale-[1.02] active:scale-95 sm:rounded-2xl sm:px-6 sm:py-4 sm:text-sm"
                   >
                     👀 Probar una demo
                   </a>
@@ -1056,7 +1373,7 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                   href={waHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-xs font-semibold uppercase tracking-widest text-white/40 transition-colors hover:text-amber-300 sm:py-4 sm:text-sm"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-xs font-bold uppercase tracking-widest text-slate-400 transition-colors hover:text-sky-300 sm:py-4 sm:text-sm"
                 >
                   💬 WhatsApp
                 </a>
@@ -1068,18 +1385,19 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                   { icon: '🚫', big: '0%', small: 'comisiones' },
                   { icon: '⏱', big: '2–7', small: 'días' },
                   { icon: '🛡', big: '6 meses', small: 'garantía' },
-                ].map((s) => (
+                ].map((s, i) => (
                   <div
                     key={s.small}
-                    className={`relative rounded-xl px-2 py-3 text-center backdrop-blur-md transition-all sm:rounded-2xl sm:px-3 sm:py-4 ${
+                    className={`animate-fade-in-up relative rounded-xl px-2 py-3 text-center transition-all sm:rounded-2xl sm:px-3 sm:py-4 ${
                       s.small === 'garantía'
-                        ? 'border border-amber-400/50 bg-gradient-to-b from-amber-400/15 to-orange-500/5'
+                        ? 'border border-sky-400/25 bg-sky-400/10'
                         : 'border border-white/10 bg-white/5'
                     }`}
+                    style={{ animationDelay: `${i * 0.12}s` }}
                   >
                     <div className="text-lg sm:text-xl">{s.icon}</div>
-                    <div className="mt-0.5 bg-gradient-to-r from-amber-200 to-amber-300 bg-clip-text text-lg font-light text-transparent font-display sm:text-2xl">{s.big}</div>
-                    <div className="text-[8px] font-semibold uppercase tracking-widest text-white/40 sm:text-[10px]">{s.small}</div>
+                    <div className={`mt-0.5 text-lg font-bold font-display sm:text-2xl ${s.small === 'garantía' ? 'text-sky-300' : 'text-sky-300'}`}>{s.big}</div>
+                    <div className="text-[8px] font-bold uppercase tracking-widest text-slate-400 sm:text-[10px]">{s.small}</div>
                   </div>
                 ))}
               </div>
@@ -1088,28 +1406,29 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                   { icon: '🚫', big: '0%', small: 'comisiones' },
                   { icon: '⏱', big: '2–7', small: 'días de entrega' },
                   { icon: '🛡', big: '6 meses', small: 'de garantía' },
-                ].map((s) => (
+                ].map((s, i) => (
                   <div
                     key={s.small}
-                    className={`relative rounded-2xl px-3 py-4 text-center backdrop-blur-md transition-all ${
+                    className={`animate-fade-in-up relative rounded-2xl px-3 py-4 text-center transition-all ${
                       s.small === 'de garantía'
-                        ? 'border border-amber-400/50 bg-gradient-to-b from-amber-400/15 to-orange-500/5 shadow-[0_0_30px_rgba(251,191,36,0.15)] hover:shadow-[0_0_40px_rgba(251,191,36,0.25)]'
-                        : 'border border-white/10 bg-white/5 hover:border-amber-400/30 hover:bg-white/8'
+                        ? 'border border-sky-400/25 bg-sky-400/10 shadow-md'
+                        : 'border border-white/10 bg-white/5 hover:border-sky-400/30 hover:shadow-md'
                     }`}
+                    style={{ animationDelay: `${i * 0.12}s` }}
                   >
                     {s.small === 'de garantía' && (
-                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-3 py-0.5 text-[9px] font-semibold uppercase tracking-widest text-white shadow-lg">
+                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-sky-400 to-cyan-400 px-3 py-0.5 text-[9px] font-bold uppercase tracking-widest text-slate-950 shadow-lg">
                         Reembolso garantizado
                       </span>
                     )}
                     {s.small === 'de garantía' && (
                       <span className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
-                        <span className="absolute inline-flex h-3 w-3 -right-1 -top-1 animate-ping rounded-full bg-amber-300/80" />
+                        <span className="absolute inline-flex h-3 w-3 -right-1 -top-1 animate-ping rounded-full bg-sky-400" />
                       </span>
                     )}
                     <div className="text-xl">{s.icon}</div>
-                    <div className={`mt-1 bg-gradient-to-r from-amber-200 to-amber-300 bg-clip-text text-2xl font-light text-transparent font-display ${s.small === 'de garantía' ? 'scale-110' : ''}`}>{s.big}</div>
-                    <div className="text-[10px] font-semibold uppercase tracking-widest text-white/40">{s.small}</div>
+                    <div className={`mt-1 text-2xl font-bold font-display ${s.small === 'de garantía' ? 'scale-110 text-sky-300' : 'text-sky-300'}`}>{s.big}</div>
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{s.small}</div>
                   </div>
                 ))}
               </div>
@@ -1117,14 +1436,25 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
           </div>
         </div>
 
+        {/* Aviso de scroll */}
+        <div className="relative z-10 flex justify-center pb-3 sm:pb-5">
+          <span className="flex flex-col items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-slate-400">
+            Conoce los planes
+            <span className="animate-bounce text-base text-sky-300">↓</span>
+          </span>
+        </div>
+
         {/* Marquee de negocios */}
         {(catalog.businessTypes?.length ?? 0) > 0 && (
-          <div className="relative z-10 border-t border-white/10 bg-black/30 backdrop-blur-sm">
-            <div className="marquee-mask overflow-hidden py-5">
-              <div className="animate-marquee flex w-max items-center gap-8 px-4">
+          <div className="relative z-10 border-y border-teal-200/50 bg-gradient-to-r from-teal-400 via-cyan-300 to-teal-400 shadow-[0_0_30px_rgba(45,212,191,0.4)]">
+            <div className="marquee-mask overflow-hidden py-4 sm:py-5">
+              <div className="animate-marquee flex w-max items-center gap-8 px-4 hover:[animation-play-state:paused]">
                 {[...(catalog.businessTypes ?? []), ...(catalog.businessTypes ?? [])].map((b, i) => (
-                  <span key={i} className="flex items-center gap-2.5 whitespace-nowrap text-sm font-semibold uppercase tracking-[0.2em] text-white/40">
-                    <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500" />
+                  <span key={i} className="flex items-center gap-2.5 whitespace-nowrap text-sm font-black uppercase tracking-[0.2em] text-slate-900 drop-shadow-sm">
+                    <Star
+                      className={`h-3 w-3 animate-twinkle text-white`}
+                      style={{ animationDuration: `${2.4 + (i % 3) * 1.1}s`, animationDelay: `${(i % 5) * 0.4}s`, filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.9))' }}
+                    />
                     {b}
                   </span>
                 ))}
@@ -1136,7 +1466,19 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
 
       {/* ═══════════ PLANES ═══════════ */}
       <main className="relative z-10 mx-auto max-w-7xl px-4 py-6 sm:px-5 sm:py-8">
-        <div className="space-y-10 sm:space-y-14">
+        <StarField className="opacity-100" colors={['text-sky-500', 'text-sky-400', 'text-indigo-400', 'text-sky-400', 'text-cyan-500']} />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 select-none">
+          {FLOATERS.map((f, i) => (
+            <span
+              key={i}
+              className="animate-float absolute opacity-[0.12]"
+              style={{ left: f.l, top: f.t, fontSize: f.s, animationDuration: `${f.dur}s`, animationDelay: f.d }}
+            >
+              {f.e}
+            </span>
+          ))}
+        </div>
+        <div className="relative z-10 space-y-10 sm:space-y-14">
           <section id="planes" className="scroll-mt-20">
             <SectionHeading
               kicker="Tres modelos, un objetivo"
@@ -1144,9 +1486,9 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
               sub="Toca “Probar Demostración” en cualquier plan para verlo funcionando con productos reales."
             />
 
-            <div className="flex flex-col lg:flex-row lg:items-start lg:gap-8">
-              {/* Sidebar lateral en Desktop */}
-              <div className="lg:sticky lg:top-24 lg:w-64 lg:shrink-0">
+            <div className="flex flex-col">
+              {/* Filtros Horizontales */}
+              <div className="w-full">
                 <FilterGroup
                   title="¿Qué funciones necesitas?"
                   options={planFeatures.map((row) => ({ id: row.feature, label: row.feature }))}
@@ -1154,32 +1496,26 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                   onToggle={toggleFeature}
                   onClear={() => setActiveFeatures([])}
                   resultCount={visiblePlans.length}
-                  orientation="sidebar"
+                  orientation="horizontal"
                 />
               </div>
 
               {/* Grid de Planes */}
               <div className="flex-1">
                 {visiblePlans.length > 0 ? (
-                  <div className="grid justify-center gap-4 transition-all duration-500 sm:gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
-                    {visiblePlans.map((product, idx) => (
-                      <div
-                        key={product.id}
-                        className="transition-all duration-500"
-                        style={{ transitionDelay: `${idx * 60}ms`, animation: 'fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}
-                      >
-                        <PremiumServiceCard product={product} catalogSlug={catalog.slug} />
-                      </div>
+                  <StaggerGroup className="grid justify-center gap-4 transition-all duration-500 sm:gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3" delay={90}>
+                    {visiblePlans.map((product) => (
+                      <PremiumServiceCard key={product.id} product={product} catalogSlug={catalog.slug} />
                     ))}
-                  </div>
+                  </StaggerGroup>
                 ) : (
-                  <div className="mx-auto max-w-md rounded-2xl border border-stone-200/60 bg-white/60 p-8 text-center shadow-sm backdrop-blur-md">
+                  <div className="mx-auto max-w-md rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-xl shadow-slate-900/10">
                     <p className="text-4xl">🔍</p>
-                    <p className="mt-3 font-semibold text-stone-700">Ningún plan incluye todo lo que marcaste</p>
-                    <p className="mt-2 text-sm font-normal text-stone-500">Prueba quitar un filtro o compara los planes para ver qué incluye cada uno.</p>
+                    <p className="mt-3 font-semibold text-slate-800">Ningún plan incluye todo lo que marcaste</p>
+                    <p className="mt-2 text-sm font-normal text-slate-500">Prueba quitar un filtro o compara los planes para ver qué incluye cada uno.</p>
                     <button
                       onClick={() => setActiveFeatures([])}
-                      className="mt-5 rounded-xl bg-amber-600 px-6 py-3 text-xs font-semibold uppercase tracking-widest text-white shadow-lg shadow-amber-600/15 transition-all hover:bg-amber-500 active:scale-95"
+                      className="mt-5 rounded-xl bg-gradient-to-r from-sky-400 to-cyan-300 px-6 py-3 text-xs font-semibold uppercase tracking-widest text-slate-950 shadow-lg shadow-sky-500/20 transition-all hover:scale-[1.02] active:scale-95"
                     >
                       ✕ Limpiar filtros
                     </button>
@@ -1210,24 +1546,24 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                 {visibleAddonSections.map((section) => (
                   <div key={section.name} className={addonSections.length > 1 ? "mt-14" : ""}>
                     {addonSections.length > 1 && (
-                      <h3 className="mb-5 text-center font-semibold text-stone-700">{section.name}</h3>
+                      <h3 className="mb-5 text-center font-semibold text-slate-700">{section.name}</h3>
                     )}
                     <Reveal>
-                      <div className="mx-auto grid max-w-5xl gap-4 md:grid-cols-2">
+                      <StaggerGroup className="mx-auto grid max-w-5xl gap-4 md:grid-cols-2" delay={90}>
                         {section.products.map((product) => (
                           <AddonServiceCard key={product.id} product={product} catalogSlug={catalog.slug} />
                         ))}
-                      </div>
+                      </StaggerGroup>
                     </Reveal>
                   </div>
                 ))}
                 {visibleAddonSections.length === 0 && (
-                  <div className="mx-auto max-w-md rounded-[2.5rem] border border-stone-200/60 bg-white/60 p-8 text-center shadow-sm backdrop-blur-md">
+                  <div className="mx-auto max-w-md rounded-[2.5rem] border border-slate-200 bg-white p-8 text-center shadow-xl shadow-slate-900/10">
                     <p className="text-4xl">🔍</p>
-                    <p className="mt-3 font-semibold text-stone-700">No hay servicios con ese tipo de pago</p>
+                    <p className="mt-3 font-semibold text-slate-800">No hay servicios con ese tipo de pago</p>
                     <button
                       onClick={() => setActiveAddonBadges([])}
-                      className="mt-5 rounded-xl bg-amber-600 px-6 py-3 text-xs font-semibold uppercase tracking-widest text-white shadow-lg shadow-amber-600/15 transition-all hover:bg-amber-500 active:scale-95"
+                      className="mt-5 rounded-xl bg-gradient-to-r from-sky-400 to-cyan-300 px-6 py-3 text-xs font-semibold uppercase tracking-widest text-slate-950 shadow-lg shadow-sky-500/20 transition-all hover:scale-[1.02] active:scale-95"
                     >
                       ✕ Limpiar filtros
                     </button>
@@ -1265,7 +1601,10 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
             </section>
           )}
 
-          {/* ═══════════ PARA QUÉ NEGOCIOS ═══════════ */}
+          {/* ═══════════ DETALLES EXTRAS (Ocultos por defecto) ═══════════ */}
+          <div id="info-extra" className="scroll-mt-20">
+            <CollapsibleInfo>
+              {/* ═══════════ PARA QUÉ NEGOCIOS ═══════════ */}
           {(catalog.businessTypes?.length ?? 0) > 0 && (
             <section id="negocios" className="scroll-mt-20">
               <SectionHeading
@@ -1273,13 +1612,15 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                 title="Hecho para negocios como el tuyo"
                 sub="Si tu negocio vende por lista, menú o catálogo, esto es para ti."
               />
+              <Reveal>
               <div className="mx-auto flex max-w-4xl flex-wrap justify-center gap-3">
                 {catalog.businessTypes!.map((b) => (
-                  <span key={b} className="rounded-full border border-stone-200/60 bg-white/60 px-4 py-2 text-xs font-normal text-stone-600 shadow-sm backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white hover:shadow-lg hover:border-amber-200">
+                  <span key={b} className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-normal text-slate-600 shadow-sm transition-all hover:-translate-y-1 hover:bg-sky-50 hover:shadow-md hover:border-sky-300 hover:text-sky-700">
                     {b}
                   </span>
                 ))}
               </div>
+            </Reveal>
             </section>
           )}
 
@@ -1294,12 +1635,12 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
               <Reveal>
               <div className="grid gap-2 sm:grid-cols-2 sm:gap-3 lg:grid-cols-4">
                 {catalog.handoff!.map((h, i) => (
-                  <div key={h.title} className="group rounded-xl border border-stone-200/60 bg-white/60 p-3 text-center shadow-sm backdrop-blur-md transition-all duration-400 hover:-translate-y-1 hover:shadow-md animate-fade-in-up sm:rounded-2xl sm:p-4 sm:hover:-translate-y-2 sm:hover:shadow-xl" style={{ animationDelay: `${i * 0.1}s` }}>
-                    <span className="inline-grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 text-xl shadow-inner transition-transform duration-400 group-hover:scale-110 sm:h-12 sm:w-12 sm:rounded-2xl sm:text-2xl">
+                  <div key={h.title} className="group rounded-xl border border-slate-200 bg-white p-3 text-center shadow-sm transition-all duration-400 hover:-translate-y-1 hover:bg-sky-50/50 hover:shadow-md animate-fade-in-up sm:rounded-2xl sm:p-4 sm:hover:-translate-y-2" style={{ animationDelay: `${i * 0.1}s` }}>
+                    <span className="inline-grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-sky-100 to-cyan-50 text-xl transition-transform duration-400 group-hover:scale-110 sm:h-12 sm:w-12 sm:rounded-2xl sm:text-2xl">
                       {h.icon}
                     </span>
-                    <h3 className="mt-2 text-xs font-semibold text-stone-700 sm:mt-3 sm:text-sm">{h.title}</h3>
-                    <p className="mt-1 text-[10px] font-normal leading-relaxed text-stone-500 sm:mt-1.5 sm:text-xs">{h.text}</p>
+                    <h3 className="mt-2 text-xs font-semibold text-slate-800 sm:mt-3 sm:text-sm">{h.title}</h3>
+                    <p className="mt-1 text-[10px] font-normal leading-relaxed text-slate-500 sm:mt-1.5 sm:text-xs">{h.text}</p>
                   </div>
                 ))}
               </div>
@@ -1317,14 +1658,20 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
               />
               <Reveal>
               <div className="relative mx-auto grid max-w-5xl gap-3 sm:gap-4 md:grid-cols-3">
-                <div className="absolute left-0 right-0 top-8 hidden h-0.5 bg-gradient-to-r from-transparent via-amber-200 to-transparent md:block sm:top-10" />
+                <div className="absolute left-0 right-0 top-8 hidden h-0.5 bg-gradient-to-r from-transparent via-sky-500/30 to-transparent md:block sm:top-10" />
                 {catalog.process!.map((p, i) => (
-                  <div key={p.title} className="relative rounded-xl border border-stone-200/60 bg-white/60 px-3 pb-3 pt-6 shadow-sm backdrop-blur-md transition-all duration-400 hover:-translate-y-1 hover:shadow-md animate-fade-in-up sm:rounded-2xl sm:px-5 sm:pb-5 sm:pt-8 sm:hover:-translate-y-1.5 sm:hover:shadow-xl" style={{ animationDelay: `${i * 0.1}s` }}>
-                    <span className="absolute -top-3 left-4 grid h-8 w-8 place-items-center rounded-full bg-amber-600 text-xs font-semibold text-white shadow-lg sm:-top-4 sm:left-6 sm:h-10 sm:w-10 sm:text-sm">
-                      {i + 1}
+                  <div key={p.title} className="relative rounded-xl border border-slate-200 bg-white px-3 pb-3 pt-6 shadow-sm transition-all duration-400 hover:-translate-y-1 hover:bg-sky-50/50 hover:shadow-md animate-fade-in-up sm:rounded-2xl sm:px-5 sm:pb-5 sm:pt-8 sm:hover:-translate-y-1.5" style={{ animationDelay: `${i * 0.1}s` }}>
+                    <span className="absolute -top-3 left-4 sm:-top-4 sm:left-6">
+                      <span
+                        className="absolute inline-flex h-8 w-8 animate-ping rounded-full bg-sky-400/25 sm:h-10 sm:w-10"
+                        style={{ animationDelay: `${i * 0.3}s` }}
+                      />
+                      <span className="relative grid h-8 w-8 place-items-center rounded-full bg-gradient-to-r from-sky-400 to-cyan-300 text-xs font-semibold text-slate-950 shadow-lg shadow-sky-500/20 sm:h-10 sm:w-10 sm:text-sm">
+                        {i + 1}
+                      </span>
                     </span>
-                    <h3 className="text-sm font-semibold text-stone-700 sm:text-base">{p.title}</h3>
-                    <p className="mt-1.5 text-xs font-normal leading-relaxed text-stone-500 sm:mt-2 sm:text-sm">{p.text}</p>
+                    <h3 className="text-sm font-semibold text-slate-800 sm:text-base">{p.title}</h3>
+                    <p className="mt-1.5 text-xs font-normal leading-relaxed text-slate-500 sm:mt-2 sm:text-sm">{p.text}</p>
                   </div>
                 ))}
               </div>
@@ -1343,12 +1690,12 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
               <Reveal>
                 <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
                   {catalog.payment && (
-                    <div className="rounded-xl border border-stone-200/60 bg-white/60 p-3 shadow-sm backdrop-blur-md transition-shadow hover:shadow-md sm:rounded-2xl sm:p-5 sm:hover:shadow-xl">
-                      <h3 className="flex items-center gap-2 text-sm font-semibold text-stone-700 sm:gap-3 sm:text-base">💳 Formas de pago</h3>
+                    <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition-shadow hover:shadow-md sm:rounded-2xl sm:p-5">
+                      <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-800 sm:gap-3 sm:text-base">💳 Formas de pago</h3>
                       <ul className="mt-2 space-y-1.5 sm:mt-3 sm:space-y-2">
                         {catalog.payment.map((p) => (
-                          <li key={p} className="flex items-start gap-2 text-xs font-normal text-stone-600 sm:gap-3 sm:text-sm">
-                            <span className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-amber-50 border border-amber-200/60 text-[9px] font-semibold text-amber-600 sm:h-5 sm:w-5 sm:text-[10px]">✓</span>
+                          <li key={p} className="flex items-start gap-2 text-xs font-normal text-slate-600 sm:gap-3 sm:text-sm">
+                            <span className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-sky-50 border border-sky-200 text-[9px] font-semibold text-sky-600 sm:h-5 sm:w-5 sm:text-[10px]">✓</span>
                             {p}
                           </li>
                         ))}
@@ -1357,19 +1704,19 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                   )}
 
                   {catalog.guarantee && (
-                    <div className="rounded-xl border border-teal-200/60 bg-gradient-to-br from-teal-50 to-cyan-50/30 p-3 shadow-sm backdrop-blur-md transition-all hover:-translate-y-0.5 hover:shadow-md sm:rounded-2xl sm:p-5 sm:hover:-translate-y-1 sm:hover:shadow-xl">
-                      <h3 className="flex items-center gap-2 text-sm font-semibold text-stone-700 sm:gap-3 sm:text-base">🛡 Garantía</h3>
-                      <p className="mt-2 text-xs font-normal leading-relaxed text-stone-600 sm:mt-3 sm:text-sm">{catalog.guarantee}</p>
+                    <div className="rounded-xl border border-teal-200 bg-gradient-to-br from-teal-50 to-cyan-50 p-3 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md sm:rounded-2xl sm:p-5 sm:hover:-translate-y-1">
+                      <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-800 sm:gap-3 sm:text-base">🛡 Garantía</h3>
+                      <p className="mt-2 text-xs font-normal leading-relaxed text-slate-600 sm:mt-3 sm:text-sm">{catalog.guarantee}</p>
                     </div>
                   )}
 
                   {catalog.recurringCosts && (
-                    <div className="rounded-xl border border-stone-200/60 bg-white/60 p-3 shadow-sm backdrop-blur-md transition-shadow hover:shadow-md sm:rounded-2xl sm:p-5 sm:hover:shadow-xl">
-                      <h3 className="flex items-center gap-2 text-sm font-semibold text-stone-700 sm:gap-3 sm:text-base">💡 Costos que debes conocer</h3>
+                    <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition-shadow hover:shadow-md sm:rounded-2xl sm:p-5">
+                      <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-800 sm:gap-3 sm:text-base">💡 Costos que debes conocer</h3>
                       <ul className="mt-2 space-y-1.5 sm:mt-3 sm:space-y-2">
                         {catalog.recurringCosts.map((c) => (
-                          <li key={c} className="flex items-start gap-2 text-xs font-normal text-stone-600 sm:gap-3 sm:text-sm">
-                            <span className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-amber-50 border border-amber-200/60 text-[9px] font-semibold text-amber-600 sm:h-5 sm:w-5 sm:text-[10px]">→</span>
+                          <li key={c} className="flex items-start gap-2 text-xs font-normal text-slate-600 sm:gap-3 sm:text-sm">
+                            <span className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-sky-50 border border-sky-200 text-[9px] font-semibold text-sky-600 sm:h-5 sm:w-5 sm:text-[10px]">→</span>
                             {c}
                           </li>
                         ))}
@@ -1378,9 +1725,9 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
                   )}
 
                   {catalog.upgradePolicy && (
-                    <div className="rounded-xl border border-stone-200/60 bg-white/60 p-3 shadow-sm backdrop-blur-md transition-shadow hover:shadow-md sm:rounded-2xl sm:p-5 sm:hover:shadow-xl">
-                      <h3 className="flex items-center gap-2 text-sm font-semibold text-stone-700 sm:gap-3 sm:text-base">🔄 ¿Puedo cambiar de plan?</h3>
-                      <p className="mt-2 text-xs font-normal leading-relaxed text-stone-600 sm:mt-3 sm:text-sm">{catalog.upgradePolicy}</p>
+                    <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition-shadow hover:shadow-md sm:rounded-2xl sm:p-5">
+                      <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-800 sm:gap-3 sm:text-base">🔄 ¿Puedo cambiar de plan?</h3>
+                      <p className="mt-2 text-xs font-normal leading-relaxed text-slate-600 sm:mt-3 sm:text-sm">{catalog.upgradePolicy}</p>
                     </div>
                   )}
                 </div>
@@ -1392,6 +1739,8 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
           {(catalog.faq?.length ?? 0) > 0 && (
             <Reveal><FaqSection catalog={catalog} /></Reveal>
           )}
+            </CollapsibleInfo>
+          </div>
 
       {/* ═══════════ CTA FINAL ═══════════ */}
           <Reveal><FinalCta catalog={catalog} /></Reveal>
@@ -1399,9 +1748,11 @@ export function PremiumServicesTemplate({ catalog }: { catalog: Catalog }) {
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-stone-200/40 bg-white/20 py-6 text-center backdrop-blur-xl">
-        <p className="text-xs font-semibold uppercase tracking-widest text-stone-400">Powered by Catálogos Digitales</p>
+      <footer className="relative z-10 border-t border-slate-200/60 bg-white py-6 text-center">
+        <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Powered by Catálogos Digitales</p>
       </footer>
+
+      <WhatsAppFloat href={waHref} />
     </div>
   );
 }

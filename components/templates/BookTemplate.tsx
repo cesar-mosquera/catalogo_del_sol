@@ -153,23 +153,21 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* ── Touch events (passive:false en move) ─────── */
+  /* ── Touch & Mouse events (passive:false en move) ─────── */
   useEffect(() => {
     const el = stageRef.current;
     if (!el) return;
 
-    const onStart = (e: TouchEvent) => {
-      if ((e.target as HTMLElement).closest('button,a,input,textarea,select')) return;
-      const t = e.touches[0];
-      touchRef.current = { x: t.clientX, y: t.clientY, locked: null };
+    const handleStart = (clientX: number, clientY: number, target: EventTarget | null) => {
+      if ((target as HTMLElement)?.closest('button,a,input,textarea,select')) return;
+      touchRef.current = { x: clientX, y: clientY, locked: null };
     };
 
-    const onMove = (e: TouchEvent) => {
+    const handleMove = (clientX: number, clientY: number, e: Event) => {
       const tc = touchRef.current;
       if (!tc) return;
-      const t = e.touches[0];
-      const dx = t.clientX - tc.x;
-      const dy = t.clientY - tc.y;
+      const dx = clientX - tc.x;
+      const dy = clientY - tc.y;
 
       // Determinar dirección al primer movimiento significativo
       if (tc.locked === null && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
@@ -192,31 +190,47 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
       }
     };
 
-    const onEnd = (e: TouchEvent) => {
+    const handleEnd = (clientX: number) => {
       const tc = touchRef.current;
       touchRef.current = null;
       if (!tc || tc.locked !== 'h') return;
-      const t = e.changedTouches[0];
-      const dx = Math.abs(t.clientX - tc.x);
+      const dx = Math.abs(clientX - tc.x);
       const w  = el.clientWidth || 320;
       // Umbral: 28% del ancho ó velocidad (movimiento > 55px)
       commitFlip(dx / w > 0.28 || dx > 55);
     };
 
-    const onCancel = () => {
+    const handleCancel = () => {
       touchRef.current = null;
       commitFlip(false);
     };
 
-    el.addEventListener('touchstart',  onStart,  { passive: true  });
-    el.addEventListener('touchmove',   onMove,   { passive: false });
-    el.addEventListener('touchend',    onEnd,    { passive: true  });
-    el.addEventListener('touchcancel', onCancel, { passive: true  });
+    const onTouchStart = (e: TouchEvent) => handleStart(e.touches[0].clientX, e.touches[0].clientY, e.target);
+    const onTouchMove  = (e: TouchEvent) => handleMove(e.touches[0].clientX, e.touches[0].clientY, e);
+    const onTouchEnd   = (e: TouchEvent) => handleEnd(e.changedTouches[0].clientX);
+
+    const onMouseDown = (e: MouseEvent) => handleStart(e.clientX, e.clientY, e.target);
+    const onMouseMove = (e: MouseEvent) => handleMove(e.clientX, e.clientY, e);
+    const onMouseUp   = (e: MouseEvent) => handleEnd(e.clientX);
+
+    el.addEventListener('touchstart',  onTouchStart,  { passive: true  });
+    el.addEventListener('touchmove',   onTouchMove,   { passive: false });
+    el.addEventListener('touchend',    onTouchEnd,    { passive: true  });
+    el.addEventListener('touchcancel', handleCancel,  { passive: true  });
+    
+    el.addEventListener('mousedown',   onMouseDown,   { passive: true  });
+    window.addEventListener('mousemove', onMouseMove, { passive: false });
+    window.addEventListener('mouseup',   onMouseUp,   { passive: true  });
+
     return () => {
-      el.removeEventListener('touchstart',  onStart);
-      el.removeEventListener('touchmove',   onMove);
-      el.removeEventListener('touchend',    onEnd);
-      el.removeEventListener('touchcancel', onCancel);
+      el.removeEventListener('touchstart',  onTouchStart);
+      el.removeEventListener('touchmove',   onTouchMove);
+      el.removeEventListener('touchend',    onTouchEnd);
+      el.removeEventListener('touchcancel', handleCancel);
+      
+      el.removeEventListener('mousedown',   onMouseDown);
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup',   onMouseUp);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -273,9 +287,13 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
                 {catalog.coverImage && (
                   <>
                     <Image src={asset(catalog.coverImage)} alt="" fill priority className="object-cover scale-105" sizes="100vw" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/50" />
-                    <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black/60 to-transparent" />
+                    {!catalog.hideCoverText && (
+                      <>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/50" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent" />
+                        <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black/60 to-transparent" />
+                      </>
+                    )}
                   </>
                 )}
                 {!catalog.coverImage && (
@@ -291,50 +309,56 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
                 <div className="book-cover-content relative z-10 flex h-full flex-col items-center justify-between p-5 pt-6 sm:p-6 sm:pt-8">
                   {/* Top: Badge premium */}
                   <div className="flex flex-col items-center gap-1">
-                    <div className="flex items-center gap-3 text-[8px] font-bold uppercase tracking-[0.4em] text-white/40">
-                      <div className="h-px w-6 bg-gradient-to-r from-transparent to-white/30" />
-                      <span>Estilo Único</span>
-                      <div className="h-px w-6 bg-gradient-to-l from-transparent to-white/30" />
-                    </div>
+                    {!catalog.hideCoverText && (
+                      <div className="flex items-center gap-3 text-[8px] font-bold uppercase tracking-[0.4em] text-white/40">
+                        <div className="h-px w-6 bg-gradient-to-r from-transparent to-white/30" />
+                        <span>Estilo Único</span>
+                        <div className="h-px w-6 bg-gradient-to-l from-transparent to-white/30" />
+                      </div>
+                    )}
                   </div>
 
                   {/* Center: Logo + Title + Tagline */}
                   <div className="flex flex-1 flex-col items-center justify-center gap-3 -mt-2">
-                    {catalog.logoImage ? (
-                      <div className="relative mb-2">
-                        <div className="absolute -inset-4 rounded-full bg-white/5 blur-xl" />
-                        <div className="relative h-24 w-24 drop-shadow-2xl sm:h-32 sm:w-32">
-                          <Image src={asset(catalog.logoImage)} alt="Logo" fill priority className="object-contain" sizes="128px" />
+                    {!catalog.hideCoverText && (
+                      <>
+                        {catalog.logoImage ? (
+                          <div className="relative mb-2">
+                            <div className="absolute -inset-4 rounded-full bg-white/5 blur-xl" />
+                            <div className="relative h-24 w-24 drop-shadow-2xl sm:h-32 sm:w-32">
+                              <Image src={asset(catalog.logoImage)} alt="Logo" fill priority className="object-contain" sizes="128px" />
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="relative mb-2">
+                            <div className="absolute -inset-3 rounded-full bg-white/5 blur-lg" />
+                            <div className="relative grid h-16 w-16 place-items-center rounded-full border border-white/20 bg-white/10 backdrop-blur-sm sm:h-20 sm:w-20">
+                              <svg viewBox="0 0 24 24" className="h-6 w-6 fill-current text-white/70 sm:h-8 sm:w-8" aria-hidden="true">
+                                <path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm1 2v6.6l3-2.2 3 3 4-4L20 14V7H5Zm4.5 3a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
+                              </svg>
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="text-center">
+                          <h1 className="font-sans text-2xl font-black leading-[0.9] tracking-tight drop-shadow-2xl sm:text-3xl md:text-4xl" style={{ color: t.coverTitle }}>
+                            {catalog.name}
+                          </h1>
+                          {catalog.tagline && (
+                            <p className="mt-2 text-[10px] font-semibold tracking-[0.15em] drop-shadow-lg sm:text-xs" style={{ color: t.coverTagline }}>
+                              {catalog.tagline}
+                            </p>
+                          )}
                         </div>
-                      </div>
-                    ) : (
-                      <div className="relative mb-2">
-                        <div className="absolute -inset-3 rounded-full bg-white/5 blur-lg" />
-                        <div className="relative grid h-16 w-16 place-items-center rounded-full border border-white/20 bg-white/10 backdrop-blur-sm sm:h-20 sm:w-20">
-                          <svg viewBox="0 0 24 24" className="h-6 w-6 fill-current text-white/70 sm:h-8 sm:w-8" aria-hidden="true">
-                            <path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm1 2v6.6l3-2.2 3 3 4-4L20 14V7H5Zm4.5 3a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
-                          </svg>
+
+                        {/* Línea decorativa */}
+                        <div className="mt-1 flex items-center gap-2">
+                          <div className="h-px w-8 bg-gradient-to-r from-transparent to-white/30" />
+                          <div className="h-1 w-1 rotate-45 bg-amber-400/60" />
+                          <div className="h-px w-8 bg-gradient-to-l from-transparent to-white/30" />
                         </div>
-                      </div>
+                      </>
                     )}
-
-                    <div className="text-center">
-                      <h1 className="font-sans text-2xl font-black leading-[0.9] tracking-tight drop-shadow-2xl sm:text-3xl md:text-4xl" style={{ color: t.coverTitle }}>
-                        {catalog.name}
-                      </h1>
-                      {catalog.tagline && (
-                        <p className="mt-2 text-[10px] font-semibold tracking-[0.15em] drop-shadow-lg sm:text-xs" style={{ color: t.coverTagline }}>
-                          {catalog.tagline}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Línea decorativa */}
-                    <div className="mt-1 flex items-center gap-2">
-                      <div className="h-px w-8 bg-gradient-to-r from-transparent to-white/30" />
-                      <div className="h-1 w-1 rotate-45 bg-amber-400/60" />
-                      <div className="h-px w-8 bg-gradient-to-l from-transparent to-white/30" />
-                    </div>
                   </div>
 
                   {/* Bottom: CTA elegante */}

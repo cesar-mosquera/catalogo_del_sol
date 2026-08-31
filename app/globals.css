@@ -361,6 +361,90 @@ button, input, textarea { font: inherit; }
   animation: wiggle 1.4s ease-in-out infinite;
 }
 
+/* ── Estrellitas titilantes (cielo nocturno premium) ── */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.05; transform: scale(0.55) rotate(0deg); }
+  50%      { opacity: 0.85; transform: scale(1.15) rotate(18deg); }
+}
+.animate-twinkle {
+  display: inline-block;
+  animation: twinkle ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+/* ════════════════════════════════════════════════════════
+   VIDA EXTRA — CIELO NOCTURNO PREMIUM
+════════════════════════════════════════════════════════ */
+
+/* Gradiente animado en textos (título del hero, kickers) */
+@keyframes gradient-x {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+.animate-gradient-x {
+  background-size: 200% auto;
+  animation: gradient-x 5s ease-in-out infinite;
+}
+
+/* Entrada de palabra rotativa (título del hero) */
+@keyframes word-in {
+  from { opacity: 0; transform: translateY(0.55em) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-word-in {
+  display: inline-block;
+  animation: word-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Estrellas fugaces que cruzan el cielo */
+@keyframes shoot {
+  0%   { opacity: 0; transform: translate(0, 0) rotate(-32deg) scaleX(0.3); }
+  5%   { opacity: 1; }
+  20%  { opacity: 0; transform: translate(var(--shoot-x, 300px), var(--shoot-y, -170px)) rotate(-32deg) scaleX(1); }
+  100% { opacity: 0; transform: translate(var(--shoot-x, 300px), var(--shoot-y, -170px)) rotate(-32deg) scaleX(1); }
+}
+.animate-shoot {
+  animation: shoot var(--shoot-dur, 7s) linear infinite;
+  will-change: transform, opacity;
+}
+
+/* Pulso de resplandor (detrás del teléfono y card popular) */
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50%      { opacity: 0.95; transform: scale(1.07); }
+}
+.animate-glow-pulse {
+  animation: glow-pulse 4.5s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+/* Deriva lenta del campo de estrellas (sensación de cielo vivo) */
+@keyframes star-drift {
+  0%   { transform: translate(0, 0) rotate(0deg) scale(1); }
+  50%  { transform: translate(2.5%, -3%) rotate(0.6deg) scale(1.03); }
+  100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+}
+.animate-star-drift {
+  animation: star-drift 26s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Barrido resplandor dorado (reusa shine-sweep, variante ámbar continua) */
+.shine-gold-top::after {
+  content: '';
+  position: absolute;
+  top: -40%;
+  bottom: -40%;
+  left: -10%;
+  width: 60%;
+  background: linear-gradient(100deg, transparent, rgba(251,191,36,0.22), rgba(255,255,255,0.3), transparent);
+  transform: translateX(-160%) skewX(-16deg);
+  filter: blur(4px);
+  pointer-events: none;
+  animation: shine-sweep 4.6s ease-in-out infinite;
+  animation-delay: 0.8s;
+}
+
 /* ════════════════════════════════════════════════════════
    ANIMACIÓN RESPUESTAS DEL FAQ
 ════════════════════════════════════════════════════════ */

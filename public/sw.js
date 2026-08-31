@@ -9,12 +9,14 @@
    
    Estrategias:
    - HTML: network-first (siempre intenta red primero)
-   - CSS/JS: stale-while-revalidate (caché instantáneo + actualización en fondo)
+   - CSS/JS: network-first con fallback a caché (evita mezclar un
+     HTML nuevo con un bundle viejo de caché → previene errores de
+     hidratación). Caché solo como respaldo sin conexión.
    - Imágenes: cache-first (rara vez cambian)
-   - Datos de catálogos: stale-while-revalidate (importantes para offline)
+   - Datos de catálogos: network-first con fallback a caché
    ═══════════════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'catalogos-digitales-v1';
+const CACHE_NAME = 'catalogos-digitales-v2';
 
 // Páginas y datos críticos para precarga (se cargan después de la primera visita)
 const PRECACHE_URLS = [
@@ -58,8 +60,20 @@ function esCssOJs(url) {
 
 function esDatoCatalogo(url) {
     // Archivos de datos de catálogos o páginas de menú
-    return url.origin === self.location.origin && 
+    return url.origin === self.location.origin &&
            (url.pathname.includes('/menu/') || url.pathname.includes('/api/'));
+}
+
+// Red primero, caché solo si no hay conexión. Así el HTML, el JS y los
+// datos siempre provienen de la MISMA versión (sin errores de hidratación).
+function networkFirst(req) {
+    return fetch(req)
+        .then(res => {
+            const copia = res.clone();
+            caches.open(CACHE_NAME).then(c => c.put(req, copia));
+            return res;
+        })
+        .catch(() => caches.match(req));
 }
 
 self.addEventListener('fetch', event => {
@@ -85,35 +99,15 @@ self.addEventListener('fetch', event => {
         return;
     }
 
-    // CSS/JS propios: stale-while-revalidate.
+    // CSS/JS propios: network-first (con respaldo a caché sin conexión).
     if (esCssOJs(url)) {
-        event.respondWith(
-            caches.open(CACHE_NAME).then(cache =>
-                cache.match(req).then(cached => {
-                    const fresh = fetch(req).then(res => {
-                        cache.put(req, res.clone());
-                        return res;
-                    }).catch(() => cached);
-                    return cached || fresh;
-                })
-            )
-        );
+        event.respondWith(networkFirst(req));
         return;
     }
 
-    // Datos de catálogos y páginas de menú: stale-while-revalidate
+    // Datos de catálogos y páginas de menú: network-first.
     if (esDatoCatalogo(url)) {
-        event.respondWith(
-            caches.open(CACHE_NAME).then(cache =>
-                cache.match(req).then(cached => {
-                    const fresh = fetch(req).then(res => {
-                        cache.put(req, res.clone());
-                        return res;
-                    }).catch(() => cached);
-                    return cached || fresh;
-                })
-            )
-        );
+        event.respondWith(networkFirst(req));
         return;
     }
 

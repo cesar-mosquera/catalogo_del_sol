@@ -70,6 +70,8 @@ export type Catalog = {
   logoImage: string;
   // Imagen de página informativa que va justo después de la portada (opcional)
   infoImage?: string;
+  // Ocultar texto y logo en la portada (útil si la imagen ya tiene el diseño)
+  hideCoverText?: boolean;
   template: TemplateName;
   minimumOrder: number;
   businessHours: { timezone: string; open: number; close: number; days: number[]; openMinute?: number; closeMinute?: number };
