@@ -287,20 +287,11 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
                 {catalog.coverImage && (
                   <>
                     <Image src={asset(catalog.coverImage)} alt="" fill priority
-                      className={`object-cover scale-105 ${catalog.hideCoverText ? 'brightness-125 contrast-105 saturate-110' : ''}`}
+                      className="object-cover"
                       sizes="100vw" />
                     {catalog.hideCoverText ? (
-                      /* Modo sin texto: overlays decorativos que iluminan la foto */
-                      <>
-                        {/* Destello dorado central tipo sol */}
-                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_40%,rgba(251,191,36,0.18)_0%,transparent_65%)] pointer-events-none" />
-                        {/* Viñeta suave en los bordes (encuadra la foto) */}
-                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,transparent_55%,rgba(0,0,0,0.35)_100%)] pointer-events-none" />
-                        {/* Brillo dorado en el borde superior */}
-                        <div className="absolute top-0 inset-x-0 h-20 bg-gradient-to-b from-amber-400/20 to-transparent pointer-events-none" />
-                        {/* Borde dorado inferior */}
-                        <div className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t from-amber-900/30 to-transparent pointer-events-none" />
-                      </>
+                      /* Modo sin texto: la imagen ya está diseñada perfectamente, solo una viñeta muy sutil para dar forma al libro */
+                      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,transparent_70%,rgba(0,0,0,0.15)_100%)] pointer-events-none" />
                     ) : (
                       <>
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/50" />
