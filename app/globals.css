@@ -85,8 +85,8 @@ button, input, textarea { font: inherit; }
 
   .notebook-menu-page {
     padding: 12px 10px calc(24px + env(safe-area-inset-bottom)) 16px !important;
-    background-color: var(--menu-page-bg, #fffbeb) !important;
-    background-image: var(--menu-page-lines, linear-gradient(to bottom, transparent 0, transparent 29px, rgba(217,165,116,0.15) 30px)) !important;
+    background-color: var(--menu-page-bg, #fdf0d5) !important;
+    background-image: var(--menu-page-lines, linear-gradient(to bottom, transparent 0, transparent 29px, rgba(194,100,20,0.22) 30px)) !important;
     background-size: 100% 30px !important;
   }
 
