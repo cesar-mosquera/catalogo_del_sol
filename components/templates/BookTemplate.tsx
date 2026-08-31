@@ -362,10 +362,10 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
                   </div>
 
                   {/* Bottom: CTA elegante */}
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1 backdrop-blur-sm">
-                      <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/50">Desliza</span>
-                      <svg className="h-3 w-3 text-amber-400/70 animate-bounce-x" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <div className="flex flex-col items-center gap-2 pb-2">
+                    <div className="flex items-center gap-2 rounded-full border border-white/20 bg-black/60 px-4 py-1.5 backdrop-blur-md shadow-lg">
+                      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/95">Desliza</span>
+                      <svg className="h-3.5 w-3.5 text-amber-400 animate-bounce-x" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                       </svg>
                     </div>
@@ -406,21 +406,21 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
                 
                 {/* Marca de agua 1 (Ingredientes y hierbas - arriba a la izquierda) */}
                 <div 
-                  className="absolute -top-16 -left-16 w-[100%] max-w-[380px] aspect-square pointer-events-none opacity-[0.22] mix-blend-multiply bg-no-repeat bg-contain bg-top-left -rotate-6 z-0"
+                  className="absolute -top-4 -left-4 w-[85%] max-w-[350px] aspect-square pointer-events-none opacity-[0.22] mix-blend-multiply bg-no-repeat bg-contain bg-top-left -rotate-6 z-0"
                   style={{ backgroundImage: `url(${asset('/img/watermark-ingredients.png')})` }}
                   aria-hidden="true"
                 />
                 
                 {/* Marca de agua 3 (Sol vintage - arriba a la derecha) */}
                 <div 
-                  className="absolute -top-12 -right-12 w-[85%] max-w-[320px] aspect-square pointer-events-none opacity-[0.20] mix-blend-multiply bg-no-repeat bg-contain bg-top-right rotate-[20deg] z-0"
+                  className="absolute top-0 right-0 w-[75%] max-w-[300px] aspect-square pointer-events-none opacity-[0.20] mix-blend-multiply bg-no-repeat bg-contain bg-top-right rotate-[10deg] z-0"
                   style={{ backgroundImage: `url(${asset('/img/watermark-sun.png')})` }}
                   aria-hidden="true"
                 />
                 
                 {/* Marca de agua 2 (Parrilla - abajo a la derecha) */}
                 <div 
-                  className="absolute -bottom-16 -right-12 w-[120%] max-w-[450px] aspect-square pointer-events-none opacity-[0.28] mix-blend-multiply bg-no-repeat bg-contain bg-right-bottom z-0"
+                  className="absolute -bottom-4 -right-4 w-[100%] max-w-[420px] aspect-square pointer-events-none opacity-[0.28] mix-blend-multiply bg-no-repeat bg-contain bg-right-bottom z-0"
                   style={{ backgroundImage: `url(${asset('/img/watermark-sketch.png')})` }}
                   aria-hidden="true"
                 />

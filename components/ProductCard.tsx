@@ -72,7 +72,7 @@ export function ProductCard({
     <article className={`relative overflow-hidden rounded-2xl shadow-md ring-1 flex ${compact ? (alternate ? 'flex-row-reverse' : 'flex-row') + ' h-[155px] sm:h-[170px] items-stretch bg-[#fff5ea] backdrop-blur-md' : 'flex-col h-full bg-white overflow-y-auto no-scrollbar'} ${t.ring}`}>
       {/* Imagen */}
       {src ? (
-        <div className={compact ? 'relative w-[45%] shrink-0 h-full bg-stone-100' : 'w-full shrink-0'}>
+        <div className={compact ? 'relative w-[50%] sm:w-[45%] shrink-0 h-full bg-stone-100' : 'w-full shrink-0'}>
           <div className={`relative overflow-hidden w-full h-full ${compact ? '' : 'aspect-[4/3] rounded-t-xl'}`}>
             <Image
               src={src}
