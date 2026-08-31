@@ -72,19 +72,36 @@ export function ProductCard({
     <article className={`relative overflow-hidden rounded-2xl shadow-md ring-1 flex ${compact ? (alternate ? 'flex-row-reverse' : 'flex-row') + ' h-[155px] sm:h-[170px] items-stretch bg-[#fff5ea] backdrop-blur-md' : 'flex-col h-full bg-white overflow-y-auto no-scrollbar'} ${t.ring}`}>
       {/* Imagen */}
       {src ? (
-        <div className={compact ? 'relative w-[50%] sm:w-[45%] shrink-0 self-stretch bg-stone-100' : 'w-full shrink-0'}>
-          <div className={`overflow-hidden w-full ${compact ? 'absolute inset-0' : 'relative h-full aspect-[4/3] rounded-t-xl'}`}>
+        compact ? (
+          /* Modo compacto: contenedor sólido con h-full, sin posición absoluta conflictiva */
+          <div className={`relative shrink-0 w-[50%] sm:w-[45%] overflow-hidden bg-stone-100`}
+            style={{ minHeight: '100%' }}
+          >
             <Image
               src={src}
               alt={product.name}
-              className={`object-cover ${compact ? 'absolute inset-0 h-full w-full' : 'w-full h-auto max-h-56'}`}
-              width={400}
-              height={400}
+              fill
+              className="object-cover"
+              sizes="(max-width: 640px) 50vw, 200px"
               loading="lazy"
             />
-            {compact && <div className={`absolute inset-0 bg-gradient-to-${alternate ? 'l' : 'r'} from-white/10 to-transparent pointer-events-none`} />}
+            <div className={`absolute inset-0 bg-gradient-to-${alternate ? 'l' : 'r'} from-white/10 to-transparent pointer-events-none`} />
           </div>
-        </div>
+        ) : (
+          /* Modo normal */
+          <div className="w-full shrink-0">
+            <div className="relative aspect-[4/3] rounded-t-xl overflow-hidden">
+              <Image
+                src={src}
+                alt={product.name}
+                fill
+                className="object-cover"
+                sizes="(max-width: 640px) 100vw, 400px"
+                loading="lazy"
+              />
+            </div>
+          </div>
+        )
       ) : (
         <div
           className={`grid shrink-0 place-items-center border-dashed ${compact ? 'w-[42%] h-full bg-stone-50 border-r border-stone-200' : 'w-full h-40 border-b border-stone-200'} ${
