@@ -32,8 +32,8 @@ export const delSol: Catalog = {
     }
   },
   businessHours: { timezone: 'America/Guayaquil', open: 11, close: 22, openMinute: 30, closeMinute: 30, days: [0, 1, 2, 3, 4, 5, 6] },
-  // Coordenadas del restaurante (Guayaquil, Ecuador) — ajusta según tu ubicación real
-  location: { lat: -2.1710, lng: -79.9224 },
+  // Coordenadas del restaurante (Quito, Ecuador)
+  location: { lat: -0.323043, lng: -78.556539 },
   requiresShipping: true,
   allowPickup: true,
   prepTimeMinutes: 25,

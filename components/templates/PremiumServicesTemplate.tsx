@@ -391,7 +391,7 @@ function WhatsAppFloat({ href }: { href: string }) {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Escríbenos por WhatsApp"
-      className="fixed bottom-5 right-5 z-[70] flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-green-500 text-2xl shadow-lg shadow-black/40 transition-transform hover:scale-110 active:scale-95 animate-fade-in-up"
+      className="fixed bottom-5 left-5 z-[70] flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-green-500 text-2xl shadow-lg shadow-black/40 transition-transform hover:scale-110 active:scale-95 animate-fade-in-up"
     >
       <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400/40" />
       <span className="relative">💬</span>

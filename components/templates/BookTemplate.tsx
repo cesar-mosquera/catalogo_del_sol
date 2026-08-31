@@ -286,7 +286,7 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
               <div className={`relative flex h-full flex-col overflow-hidden text-white`} style={{ backgroundColor: t.coverBg }}>
                 {catalog.coverImage && (
                   <>
-                    <Image src={asset(catalog.coverImage)} alt="" fill priority className="object-cover scale-105" sizes="100vw" />
+                    <Image src={asset(catalog.coverImage)} alt="" fill priority className={`object-cover scale-105 ${catalog.hideCoverText ? 'brightness-110' : ''}`} sizes="100vw" />
                     {!catalog.hideCoverText && (
                       <>
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/50" />
@@ -401,18 +401,33 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
                   )}
                 </div>
                 
-                {/* Decoración: Sol en la esquina superior derecha */}
-                <svg className="absolute top-2 right-2 w-16 h-16 opacity-[0.07] rotate-12" style={{ color: t.heading }} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18.75a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-1.5a.75.75 0 01.75-.75zM6.166 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.06 1.061l1.59 1.59zM4.5 12a.75.75 0 01-.75.75H1.5a.75.75 0 010-1.5h2.25a.75.75 0 01.75.75zM6.166 5.106a.75.75 0 00-1.06 1.06l1.59 1.591a.75.75 0 101.06-1.06l-1.59-1.591z" />
-                </svg>
-                {/* Decoración: Sol en la esquina inferior izquierda */}
-                <svg className="absolute -bottom-4 -left-4 w-24 h-24 opacity-[0.05] -rotate-12" style={{ color: t.heading }} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18.75a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-1.5a.75.75 0 01.75-.75zM6.166 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.06 1.061l1.59 1.59zM4.5 12a.75.75 0 01-.75.75H1.5a.75.75 0 010-1.5h2.25a.75.75 0 01.75.75zM6.166 5.106a.75.75 0 00-1.06 1.06l1.59 1.591a.75.75 0 101.06-1.06l-1.59-1.591z" />
-                </svg>
+                {/* Efecto de textura/viñeta de papel envejecido */}
+                <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_80px_rgba(139,69,19,0.08)] mix-blend-multiply z-0" aria-hidden="true" />
+                
+                {/* Marca de agua 1 (Ingredientes y hierbas - arriba a la izquierda) */}
+                <div 
+                  className="absolute -top-16 -left-16 w-[100%] max-w-[380px] aspect-square pointer-events-none opacity-[0.22] mix-blend-multiply bg-no-repeat bg-contain bg-top-left -rotate-6 z-0"
+                  style={{ backgroundImage: `url(${asset('/img/watermark-ingredients.png')})` }}
+                  aria-hidden="true"
+                />
+                
+                {/* Marca de agua 3 (Sol vintage - arriba a la derecha) */}
+                <div 
+                  className="absolute -top-12 -right-12 w-[85%] max-w-[320px] aspect-square pointer-events-none opacity-[0.20] mix-blend-multiply bg-no-repeat bg-contain bg-top-right rotate-[20deg] z-0"
+                  style={{ backgroundImage: `url(${asset('/img/watermark-sun.png')})` }}
+                  aria-hidden="true"
+                />
+                
+                {/* Marca de agua 2 (Parrilla - abajo a la derecha) */}
+                <div 
+                  className="absolute -bottom-16 -right-12 w-[120%] max-w-[450px] aspect-square pointer-events-none opacity-[0.28] mix-blend-multiply bg-no-repeat bg-contain bg-right-bottom z-0"
+                  style={{ backgroundImage: `url(${asset('/img/watermark-sketch.png')})` }}
+                  aria-hidden="true"
+                />
                 
                 <div className="flex-1 w-full overflow-hidden flex flex-col gap-1.5 pt-1 pb-1">
                   {page.products.map((p, idx) => (
-                    <div key={p.id} className="w-full flex-1 min-h-0">
+                    <div key={p.id} className="w-full flex-1 min-h-0 flex flex-col justify-center">
                       <ProductCard product={p} catalogSlug={catalog.slug} compact={true} theme={catalog.theme?.card} alternate={idx % 2 !== 0} />
                     </div>
                   ))}

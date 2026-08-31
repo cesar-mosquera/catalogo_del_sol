@@ -69,10 +69,10 @@ export function ProductCard({
   };
   
   return (
-    <article className={`relative overflow-hidden rounded-2xl shadow-sm ring-1 flex ${compact ? (alternate ? 'flex-row-reverse' : 'flex-row') + ' h-full items-stretch bg-white/95 backdrop-blur-md' : 'flex-col h-full bg-white overflow-y-auto no-scrollbar'} ${t.ring}`}>
+    <article className={`relative overflow-hidden rounded-2xl shadow-md ring-1 flex ${compact ? (alternate ? 'flex-row-reverse' : 'flex-row') + ' h-[155px] sm:h-[170px] items-stretch bg-[#fff5ea] backdrop-blur-md' : 'flex-col h-full bg-white overflow-y-auto no-scrollbar'} ${t.ring}`}>
       {/* Imagen */}
       {src ? (
-        <div className={compact ? 'relative w-[42%] shrink-0 h-full bg-stone-100' : 'w-full shrink-0'}>
+        <div className={compact ? 'relative w-[45%] shrink-0 h-full bg-stone-100' : 'w-full shrink-0'}>
           <div className={`relative overflow-hidden w-full h-full ${compact ? '' : 'aspect-[4/3] rounded-t-xl'}`}>
             <Image
               src={src}
@@ -102,9 +102,9 @@ export function ProductCard({
       )}
 
       {/* Info */}
-      <div className={`flex flex-1 flex-col min-h-0 min-w-0 ${compact ? 'p-3 justify-between gap-2' : 'p-4 gap-2'}`}>
+      <div className={`flex flex-1 flex-col min-h-0 min-w-0 ${compact ? 'p-3 justify-between gap-1.5' : 'p-4 gap-2'}`}>
         <div className={`flex ${compact ? 'flex-col items-start gap-1' : 'items-start justify-between gap-1'}`}>
-          <h3 className={`font-bold leading-tight ${compact ? 'text-[13px] font-serif line-clamp-2' : 'text-base line-clamp-2'} ${t.name}`}>
+          <h3 className={`font-bold leading-tight ${compact ? 'text-[14px] font-serif line-clamp-2 text-orange-950' : 'text-base line-clamp-2'} ${!compact ? t.name : ''}`}>
             {product.name}
           </h3>
           
@@ -122,7 +122,7 @@ export function ProductCard({
         </div>
 
         {product.description && (
-          <p className={`text-stone-600 leading-snug flex-1 ${compact ? 'text-[10px] mt-0.5 line-clamp-3 opacity-90' : 'text-sm mb-2 line-clamp-2'}`}>
+          <p className={`leading-snug flex-1 ${compact ? 'text-[11px] font-medium text-orange-900/80 mt-0.5 line-clamp-3 overflow-hidden' : 'text-sm text-stone-600 mb-2 line-clamp-2'}`}>
             {product.description}
           </p>
         )}
