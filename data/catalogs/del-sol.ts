@@ -12,6 +12,16 @@ export const delSol: Catalog = {
   hideCoverText: true,
   template: 'book',
   minimumOrder: 0,
+  backCover: {
+    title: 'Gracias por visitarnos',
+    subtitle: 'La mejor experiencia en carnes al carbón',
+    rows: [
+      { label: 'Dirección', value: 'Calles Principales y Av. del Parque' },
+      { label: 'Horarios', value: 'Lunes a Domingo: 11:30 am - 10:30 pm' },
+      { label: 'WhatsApp', value: '0969581620' }
+    ],
+    footer: 'Pinchos del Sol • Hecho con pasión'
+  },
   theme: {
     coverBg: '#f5f0e8',         // color exacto del fondo de la imagen para fusión perfecta
     coverTitle: '#000000',
