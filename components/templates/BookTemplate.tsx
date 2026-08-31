@@ -401,31 +401,40 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
                   )}
                 </div>
                 
-                {/* Efecto de textura/viñeta de papel envejecido */}
-                <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_80px_rgba(139,69,19,0.08)] mix-blend-multiply z-0" aria-hidden="true" />
-                
-                {/* Marca de agua 1 (Ingredientes y hierbas - arriba a la izquierda) */}
-                <div 
-                  className="absolute -top-4 -left-4 w-[85%] max-w-[350px] aspect-square pointer-events-none opacity-[0.22] mix-blend-multiply bg-no-repeat bg-contain bg-top-left -rotate-6 z-0"
-                  style={{ backgroundImage: `url(${asset('/img/watermark-ingredients.webp')})` }}
+                {/* Efecto viñeta de papel */}
+                <div className="absolute inset-0 pointer-events-none z-0" style={{ boxShadow: 'inset 0 0 80px rgba(139,69,19,0.08)' }} aria-hidden="true" />
+
+                {/* Marca de agua 1 – Ingredientes (arriba izquierda) */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={asset('/img/watermark-ingredients.webp')}
+                  alt=""
                   aria-hidden="true"
+                  className="absolute pointer-events-none z-0 select-none"
+                  style={{ top: '0', left: '0', width: '65%', maxWidth: 280, opacity: 0.20, transform: 'rotate(-6deg)', transformOrigin: 'top left' }}
                 />
-                
-                {/* Marca de agua 3 (Sol vintage - arriba a la derecha) */}
-                <div 
-                  className="absolute top-0 right-0 w-[75%] max-w-[300px] aspect-square pointer-events-none opacity-[0.20] mix-blend-multiply bg-no-repeat bg-contain bg-top-right rotate-[10deg] z-0"
-                  style={{ backgroundImage: `url(${asset('/img/watermark-sun.webp')})` }}
+
+                {/* Marca de agua 2 – Sol (arriba derecha) */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={asset('/img/watermark-sun.webp')}
+                  alt=""
                   aria-hidden="true"
+                  className="absolute pointer-events-none z-0 select-none"
+                  style={{ top: '0', right: '0', width: '55%', maxWidth: 240, opacity: 0.18, transform: 'rotate(10deg)', transformOrigin: 'top right' }}
                 />
-                
-                {/* Marca de agua 2 (Parrilla - abajo a la derecha) */}
-                <div 
-                  className="absolute -bottom-4 -right-4 w-[100%] max-w-[420px] aspect-square pointer-events-none opacity-[0.28] mix-blend-multiply bg-no-repeat bg-contain bg-right-bottom z-0"
-                  style={{ backgroundImage: `url(${asset('/img/watermark-sketch.webp')})` }}
+
+                {/* Marca de agua 3 – Parrilla (abajo derecha) */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={asset('/img/watermark-sketch.webp')}
+                  alt=""
                   aria-hidden="true"
+                  className="absolute pointer-events-none z-0 select-none"
+                  style={{ bottom: '0', right: '0', width: '80%', maxWidth: 360, opacity: 0.24 }}
                 />
-                
-                <div className="flex-1 w-full overflow-hidden flex flex-col gap-1.5 pt-1 pb-1">
+
+                <div className="relative z-10 flex-1 w-full overflow-hidden flex flex-col gap-1.5 pt-1 pb-1">
                   {page.products.map((p, idx) => (
                     <div key={p.id} className="w-full flex-1 min-h-0 flex flex-col justify-center">
                       <ProductCard product={p} catalogSlug={catalog.slug} compact={true} theme={catalog.theme?.card} alternate={idx % 2 !== 0} />

@@ -408,12 +408,12 @@ export function Cart({ catalog }: { catalog: Catalog }) {
       {/* Panel del carrito */}
       {open && (
         <div
-          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity"
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
           onClick={() => setOpen(false)}
         >
           <aside
             onClick={(e) => e.stopPropagation()}
-            className="absolute inset-y-0 right-0 flex w-[90%] max-w-md flex-col rounded-l-3xl bg-white p-5 sm:p-6 shadow-2xl overflow-hidden dark:bg-stone-900 dark:text-stone-100 transition-transform transform-gpu"
+            className="absolute inset-x-0 bottom-0 sm:inset-y-0 sm:inset-x-auto sm:right-0 sm:w-96 flex flex-col max-h-[92dvh] sm:max-h-full rounded-t-3xl sm:rounded-l-3xl sm:rounded-t-none bg-white p-5 shadow-2xl overflow-hidden dark:bg-stone-900 dark:text-stone-100"
           >
             {/* Cabecera */}
             <div className="flex items-center justify-between flex-shrink-0">
