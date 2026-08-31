@@ -111,7 +111,8 @@ button, input, textarea { font: inherit; }
     pointer-events: none;
   }
 
-  .notebook-menu-page > * { position: relative; }
+  /* NOTA: No aplicar position:relative global a hijos — rompe imágenes fill de Next.js */
+  .notebook-menu-page > .flex-none { position: relative; }
 
   .notebook-back-page {
     padding-bottom: calc(32px + env(safe-area-inset-bottom)) !important;
