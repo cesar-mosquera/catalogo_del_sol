@@ -286,8 +286,13 @@ export function BookTemplate({ catalog }: { catalog: Catalog }) {
               <div className={`relative flex h-full flex-col overflow-hidden text-white`} style={{ backgroundColor: t.coverBg }}>
                 {catalog.coverImage && (
                   <>
+                    {/* Capa 1: Fondo dinámico expandido (evita espacios vacíos usando los bordes difuminados de la misma imagen) */}
                     <Image src={asset(catalog.coverImage)} alt="" fill priority
-                      className="object-cover object-center"
+                      className="object-cover blur-3xl opacity-80 scale-110"
+                      sizes="100vw" />
+                    {/* Capa 2: La imagen completa sin recortes */}
+                    <Image src={asset(catalog.coverImage)} alt="" fill priority
+                      className="object-contain object-center z-10 drop-shadow-2xl"
                       sizes="100vw" />
                     {catalog.hideCoverText ? (
                       /* Modo sin texto: la imagen ya está diseñada perfectamente, solo una viñeta muy sutil para dar forma al libro */
