@@ -13,8 +13,8 @@ export const delSol: Catalog = {
   template: 'book',
   minimumOrder: 0,
   theme: {
-    coverBg: '#0c0a09',
-    coverTitle: '#ffffff',
+    coverBg: '#f5f0e8',         // color exacto del fondo de la imagen para fusión perfecta
+    coverTitle: '#000000',
     coverTagline: '#fed7aa',
     pageBg: '#fdf0d5',          // crema-dorado cálido (pergamino)
     pageText: '#7c2d12',        // rojo-tierra oscuro (mejor contraste)
